@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Reports - <%= business.businessName %></title>
+    <link rel="stylesheet" href="/css/businessOwner/main.css">
+</head>
+<body>
+    <div class="dashboard-layout">
+        <%- include('partials/sidebar', { currentPage: 'reports' }) %>
+
+        <main class="main-content">
+            <div class="content-header">
+                <h1>📊 Business Reports</h1>
+                <p>Generate and download business performance reports</p>
+            </div>
+
+            <!-- Reports Grid -->
+            <div class="reports-grid">
+                <!-- Staff Performance Report -->
+                <div class="report-card">
+                    <div class="report-icon">👥</div>
+                    <h3>Staff Performance Report</h3>
+                    <p>View individual staff performance, completion rates, and revenue generated</p>
+                    
+                    <div class="date-range">
+                        <label>Date Range:</label>
+                        <input type="date" id="staffStartDate" class="date-input">
+                        <span>to</span>
+                        <input type="date" id="staffEndDate" class="date-input">
+                    </div>
+                    
+                    <button onclick="downloadStaffReport()" class="btn btn-primary">
+                        📥 Download Excel
+                    </button>
+                    
+                    <div class="report-info">
+                        <strong>Includes:</strong>
+                        <ul>
+                            <li>Total appointments per staff</li>
+                            <li>Completion rate</li>
+                            <li>Revenue generated</li>
+                            <li>Performance ranking</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Services Report -->
+                <div class="report-card">
+                    <div class="report-icon">💼</div>
+                    <h3>Services Performance Report</h3>
+                    <p>Analyze which services are most popular and profitable</p>
+                    
+                    <div class="date-range">
+                        <label>Date Range:</label>
+                        <input type="date" id="servicesStartDate" class="date-input">
+                        <span>to</span>
+                        <input type="date" id="servicesEndDate" class="date-input">
+                    </div>
+                    
+                    <button onclick="downloadServicesReport()" class="btn btn-primary">
+                        📥 Download Excel
+                    </button>
+                    
+                    <div class="report-info">
+                        <strong>Includes:</strong>
+                        <ul>
+                            <li>Total bookings per service</li>
+                            <li>Completion rate</li>
+                            <li>Revenue per service</li>
+                            <li>Service ranking</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Revenue Report -->
+                <div class="report-card">
+                    <div class="report-icon">💰</div>
+                    <h3>Revenue Report</h3>
+                    <p>Track daily revenue and appointment trends</p>
+                    
+                    <div class="date-range">
+                        <label>Date Range:</label>
+                        <input type="date" id="revenueStartDate" class="date-input">
+                        <span>to</span>
+                        <input type="date" id="revenueEndDate" class="date-input">
+                    </div>
+                    
+                    <button onclick="downloadRevenueReport()" class="btn btn-primary">
+                        📥 Download Excel
+                    </button>
+                    
+                    <div class="report-info">
+                        <strong>Includes:</strong>
+                        <ul>
+                            <li>Daily revenue breakdown</li>
+                            <li>Appointments per day</li>
+                            <li>Total revenue summary</li>
+                            <li>Trend analysis</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="card" style="margin-top: 30px;">
+                <div class="card-header">
+                    <h3>💡 Report Tips</h3>
+                </div>
+                <div class="card-content">
+                    <ul style="line-height: 2;">
+                        <li><strong>Default Date Range:</strong> Last 30 days if no dates selected</li>
+                        <li><strong>Excel Format:</strong> All reports are downloadable as Excel (.xlsx) files</li>
+                        <li><strong>Best Practices:</strong> Generate monthly reports for better insights</li>
+                        <li><strong>Staff Performance:</strong> Use to identify top performers and training needs</li>
+                        <li><strong>Services Report:</strong> Helps optimize service offerings</li>
+                        <li><strong>Revenue Report:</strong> Track business growth over time</li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <style>
+        .reports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .report-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .report-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        .report-icon {
+            font-size: 48px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .report-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        .report-card p {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .date-range {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .date-range label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .date-input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            width: calc(50% - 25px);
+        }
+
+        .date-range span {
+            margin: 0 10px;
+            color: #666;
+        }
+
+        .report-info {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .report-info strong {
+            color: #667eea;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .report-info ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .report-info li {
+            padding: 5px 0;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .report-info li:before {
+            content: "✓ ";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+    </style>
+
+    <script>
+        // Set default dates (last 30 days)
+        const today = new Date();
+        const thirtyDaysAgo = new Date(today);
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+        const formatDate = (date) => date.toISOString().split('T')[0];
+
+        document.getElementById('staffStartDate').value = formatDate(thirtyDaysAgo);
+        document.getElementById('staffEndDate').value = formatDate(today);
+        document.getElementById('servicesStartDate').value = formatDate(thirtyDaysAgo);
+        document.getElementById('servicesEndDate').value = formatDate(today);
+        document.getElementById('revenueStartDate').value = formatDate(thirtyDaysAgo);
+        document.getElementById('revenueEndDate').value = formatDate(today);
+
+        function downloadStaffReport() {
+            const startDate = document.getElementById('staffStartDate').value;
+            const endDate = document.getElementById('staffEndDate').value;
+            window.location.href = `/business-owner/reports/staff-performance?startDate=${startDate}&endDate=${endDate}`;
+        }
+
+        function downloadServicesReport() {
+            const startDate = document.getElementById('servicesStartDate').value;
+            const endDate = document.getElementById('servicesEndDate').value;
+            window.location.href = `/business-owner/reports/services?startDate=${startDate}&endDate=${endDate}`;
+        }
+
+        function downloadRevenueReport() {
+            const startDate = document.getElementById('revenueStartDate').value;
+            const endDate = document.getElementById('revenueEndDate').value;
+            window.location.href = `/business-owner/reports/revenue?startDate=${startDate}&endDate=${endDate}`;
+        }
+    </script>
+</body>
+</html>

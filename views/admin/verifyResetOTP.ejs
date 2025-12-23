@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Verify OTP</title>
+    <link rel="stylesheet" href="/css/admin/login.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <div class="form-header">
+                <div class="logo-container">
+                    <a href="/"><img src="/image/logo.png" alt="AMS Logo" class="logo"></a>
+                </div>
+                <h1 class="form-title">📧 Verify OTP</h1>
+                <p class="form-subtitle">Enter the 6-digit code sent to <%= email %></p>
+            </div>
+
+            <form id="verifyOTPForm">
+                <input type="hidden" name="email" value="<%= email %>">
+                
+                <div class="form-group">
+                    <label for="otp">OTP Code</label>
+                    <input type="text" id="otp" name="otp" required maxlength="6" pattern="[0-9]{6}" placeholder="000000">
+                </div>
+
+                <button type="submit" class="btn-primary" id="submitBtn">
+                    Verify OTP
+                </button>
+
+                <div class="form-footer">
+                    <a href="/admin/forgot-password" class="signup-link">← Request New Code</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('verifyOTPForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const email = '<%= email %>';
+            const otp = document.getElementById('otp').value;
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Verifying...';
+            
+            try {
+                const response = await fetch('/admin/forgot-password/verify-otp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, otp })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(data.message);
+                    window.location.href = `/admin/forgot-password/reset-password?email=${encodeURIComponent(email)}`;
+                } else {
+                    alert(data.message);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Verify OTP';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Verify OTP';
+            }
+        });
+    </script>
+</body>
+</html>

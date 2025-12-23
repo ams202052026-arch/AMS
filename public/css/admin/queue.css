@@ -1,0 +1,140 @@
+.unassigned-queue {
+    background: #fff3cd;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+}
+
+.unassigned-queue h2 {
+    color: #856404;
+    margin-bottom: 15px;
+}
+
+.queue-cards {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.queue-card {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    min-width: 200px;
+}
+
+.queue-card .queue-number {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #0984e3;
+    margin-bottom: 10px;
+}
+
+.queue-card select {
+    width: 100%;
+    padding: 8px;
+    margin-top: 10px;
+}
+
+.staff-queues h2 {
+    margin-bottom: 20px;
+}
+
+.staff-queue-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.staff-queue-column {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.staff-header {
+    background: #2d3436;
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.staff-header h3 {
+    font-size: 1rem;
+}
+
+.staff-header .count {
+    font-size: 0.85rem;
+    opacity: 0.8;
+}
+
+.queue-list {
+    padding: 15px;
+}
+
+.queue-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    background: #f8f9fa;
+    border-left: 4px solid #dfe6e9;
+}
+
+.queue-item.status-approved {
+    border-left-color: #00b894;
+}
+
+.queue-item.status-in-progress {
+    border-left-color: #0984e3;
+    background: #e3f2fd;
+}
+
+.queue-position {
+    width: 30px;
+    height: 30px;
+    background: #dfe6e9;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.queue-details {
+    flex: 1;
+}
+
+.queue-details .queue-number {
+    font-size: 0.8rem;
+    color: #636e72;
+}
+
+.queue-details strong {
+    display: block;
+    margin: 5px 0;
+}
+
+.queue-details p {
+    font-size: 0.85rem;
+    color: #636e72;
+    margin: 2px 0;
+}
+
+.queue-details .time {
+    color: #0984e3;
+    font-weight: 500;
+}
+
+.queue-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}

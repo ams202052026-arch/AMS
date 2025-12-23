@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Application Status - AMS</title>
+    <link rel="stylesheet" href="/css/scrollbar.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #fafafa;
+            color: #1a1a1a;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .status-container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .status-header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .status-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .status-header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .status-content {
+            padding: 40px 30px;
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            border-left: 4px solid #e74c3c;
+            font-weight: 500;
+        }
+
+        .status-card {
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 20px 0;
+            border: 2px solid;
+        }
+
+        .status-card h3 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .status-card p {
+            font-size: 16px;
+            margin-bottom: 16px;
+        }
+
+        .status-not-applied {
+            background: #f8f9fa;
+            border-color: #e9ecef;
+            color: #495057;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            border-color: #ffeaa7;
+            color: #856404;
+        }
+
+        .status-approved {
+            background: #d4edda;
+            border-color: #00b894;
+            color: #155724;
+        }
+
+        .status-rejected {
+            background: #f8d7da;
+            border-color: #e74c3c;
+            color: #721c24;
+        }
+
+        .status-error {
+            background: #f8f9fa;
+            border-color: #6c757d;
+            color: #495057;
+        }
+
+        .business-info {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: left;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .business-info h4 {
+            margin-bottom: 12px;
+            color: #1a1a1a;
+            font-size: 18px;
+        }
+
+        .business-info p {
+            margin: 8px 0;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .rejection-reason {
+            background: rgba(231, 76, 60, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: left;
+            border: 1px solid rgba(231, 76, 60, 0.3);
+        }
+
+        .rejection-reason h4 {
+            color: #e74c3c;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .rejection-reason p {
+            color: #721c24;
+            font-size: 14px;
+        }
+
+        .status-note {
+            font-style: italic;
+            color: #666;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 14px 28px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            margin: 15px 10px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: #1a1a1a;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #333;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-1px);
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .back-link a {
+            color: #1a1a1a;
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .back-link a:hover {
+            background: #f8f9fa;
+            transform: translateX(-2px);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .status-header {
+                padding: 30px 20px;
+            }
+
+            .status-header h1 {
+                font-size: 24px;
+            }
+
+            .status-content {
+                padding: 30px 20px;
+            }
+
+            .status-card {
+                padding: 25px 20px;
+            }
+
+            .business-info {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="status-container">
+        <div class="status-header">
+            <h1>📊 Business Application Status</h1>
+            <p>Track your business verification progress</p>
+        </div>
+
+        <div class="status-content">
+
+            <% if (error) { %>
+                <div class="error-message">
+                    <%= error %>
+                </div>
+            <% } %>
+
+            <div class="status-container">
+                <% if (applicationStatus === 'not_applied') { %>
+                    <div class="status-card status-not-applied">
+                        <h3>No Application Found</h3>
+                        <p>You haven't submitted a business application yet.</p>
+                        <a href="/business/register" class="btn btn-primary">Apply Now</a>
+                    </div>
+                <% } else if (applicationStatus === 'pending') { %>
+                    <div class="status-card status-pending">
+                        <h3>Application Under Review</h3>
+                        <p>Your business application is currently being reviewed by our team.</p>
+                        <div class="business-info">
+                            <h4>Business Details:</h4>
+                            <p><strong>Name:</strong> <%= business.businessName %></p>
+                            <p><strong>Type:</strong> <%= business.businessType %></p>
+                            <p><strong>Phone:</strong> <%= business.phoneNumber %></p>
+                            <p><strong>Submitted:</strong> <%= business.createdAt.toLocaleDateString() %></p>
+                        </div>
+                        <p class="status-note">We'll notify you once the review is complete.</p>
+                    </div>
+                <% } else if (applicationStatus === 'approved') { %>
+                    <div class="status-card status-approved">
+                        <h3>Application Approved! 🎉</h3>
+                        <p>Congratulations! Your business application has been approved.</p>
+                        <div class="business-info">
+                            <h4>Business Details:</h4>
+                            <p><strong>Name:</strong> <%= business.businessName %></p>
+                            <p><strong>Type:</strong> <%= business.businessType %></p>
+                            <p><strong>Phone:</strong> <%= business.phoneNumber %></p>
+                            <p><strong>Approved:</strong> <%= business.approvedAt ? business.approvedAt.toLocaleDateString() : 'Recently' %></p>
+                        </div>
+                        <a href="/switch-to-business" class="btn btn-primary">Switch to Business Mode</a>
+                    </div>
+                <% } else if (applicationStatus === 'rejected') { %>
+                    <div class="status-card status-rejected">
+                        <h3>Application Rejected</h3>
+                        <p>Unfortunately, your business application was not approved.</p>
+                        <% if (business.rejectionReason) { %>
+                            <div class="rejection-reason">
+                                <h4>Reason:</h4>
+                                <p><%= business.rejectionReason %></p>
+                            </div>
+                        <% } %>
+                        <div class="business-info">
+                            <h4>Original Application:</h4>
+                            <p><strong>Name:</strong> <%= business.businessName %></p>
+                            <p><strong>Type:</strong> <%= business.businessType %></p>
+                            <p><strong>Submitted:</strong> <%= business.createdAt.toLocaleDateString() %></p>
+                        </div>
+                        <a href="/business/reapply" class="btn btn-primary">Reapply</a>
+                    </div>
+                <% } else { %>
+                    <div class="status-card status-error">
+                        <h3>Error Loading Status</h3>
+                        <p>We couldn't load your application status. Please try again.</p>
+                        <a href="/home" class="btn btn-secondary">Back to Home</a>
+                    </div>
+                <% } %>
+            </div>
+
+            <div class="back-link">
+                <a href="/home">← Back to Customer Dashboard</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

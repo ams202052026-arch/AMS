@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Services - AMS</title>
+    <link rel="stylesheet" href="/css/scrollbar.css">
+    <link rel="stylesheet" href="/css/home-redesign.css">
+    <link rel="stylesheet" href="/css/headerAndNavigation.css">
+    <link rel="stylesheet" href="/css/footer.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+
+<body>
+    <%- include('partials/headerAndNavigation') %>
+
+    <main class="main-content">
+        <!-- Search and Filter Section -->
+        <section class="search-filter-section">
+            <h1 class="section-title">Find Services</h1>
+            
+            <!-- Search Bar -->
+            <div class="search-container">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    class="search-input" 
+                    placeholder="Search by name, description, or category"
+                >
+                <button id="clearSearchBtn" class="btn-clear-search">×</button>
+            </div>
+
+            <!-- Filter Controls -->
+            <div class="filter-controls">
+                <div class="filter-group">
+                    <label class="filter-label">Within</label>
+                    <select id="radiusSelect" class="filter-select">
+                        <option value="5">5 km</option>
+                        <option value="10" selected>10 km</option>
+                        <option value="20">20 km</option>
+                        <option value="50">50 km</option>
+                        <option value="100">100 km</option>
+                    </select>
+                </div>
+
+                <button id="useLocationBtn" class="btn btn-primary">Use My Location</button>
+                <button id="selectOnMapBtn" class="btn btn-outline">Select on Map</button>
+                <button id="resetFilterBtn" class="btn btn-secondary" style="display: none;">Reset Filters</button>
+            </div>
+
+            <div id="locationStatus" class="status-message"></div>
+        </section>
+
+        <!-- Services Grid -->
+        <div id="servicesContainer" class="services-grid"></div>
+
+        <!-- Modals Container -->
+        <div id="modalsContainer"></div>
+
+        <!-- Map Modal -->
+        <div id="mapModal" class="map-modal">
+            <div class="map-modal-content">
+                <div class="map-modal-header">
+                    <h3 class="map-modal-title">Select Your Location</h3>
+                    <button class="modal-close" id="closeMapBtn">×</button>
+                </div>
+                <div id="map" class="map-container"></div>
+                <div class="map-modal-footer">
+                    <div class="map-info">Click on the map to select your location</div>
+                    <div class="map-actions">
+                        <button id="cancelMapBtn" class="btn btn-secondary">Cancel</button>
+                        <button id="confirmLocationBtn" class="btn btn-primary" disabled>Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <%- include('partials/footer') %>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        const originalServices = <%- JSON.stringify(services) %>;
+        let currentServices = [...originalServices];
+        let userLocation = null;
+        let map = null;
+        let marker = null;
+        let selectedLocation = null;
+        let searchQuery = '';
+        let isLocationFiltered = false;
+
+        // Render services
+        function renderServices(services) {
+            const container = document.getElementById('servicesContainer');
+            const modalsContainer = document.getElementById('modalsContainer');
+            
+            if (services.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">○</div>
+                        <h3>No services found</h3>
+                        <p>Try adjusting your search or filters</p>
+                    </div>
+                `;
+                modalsContainer.innerHTML = '';
+                return;
+            }
+
+            container.innerHTML = services.map((service, index) => `
+                <div class="service-card" data-modal="modal${index}">
+                    <img src="${service.image}" class="service-image" alt="${service.name}">
+                    <div class="service-content">
+                        <h3 class="service-name">${service.name}</h3>
+                        <p class="service-description">${service.description}</p>
+                        ${service.distance ? `<span class="service-distance">${service.distance} km away</span>` : ''}
+                        <div class="service-meta">
+                            <span class="service-price">₱${service.price}</span>
+                            <span class="service-duration">${service.duration} min</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            modalsContainer.innerHTML = services.map((service, index) => `
+                <div id="modal${index}" class="modal">
+                    <div class="modal-content">
+                        <button class="modal-close">×</button>
+                        <img src="${service.image}" class="modal-image" alt="${service.name}">
+                        <div class="modal-body">
+                            <h2 class="modal-title">${service.name}</h2>
+                            ${service.distance ? `<span class="service-distance">${service.distance} km away</span>` : ''}
+                            <p class="modal-description">${service.description}</p>
+                            ${service.details && service.details.length > 0 ? `
+                                <ul class="modal-details">
+                                    ${service.details.map(detail => `<li>${detail}</li>`).join('')}
+                                </ul>
+                            ` : ''}
+                            <div class="modal-info">
+                                <div class="info-item">
+                                    <div class="info-label">Price</div>
+                                    <div class="info-value">₱${service.price}</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Duration</div>
+                                    <div class="info-value">${service.duration} min</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Points</div>
+                                    <div class="info-value">+${service.pointsEarned}</div>
+                                </div>
+                            </div>
+                            <a href="/appointments/book/${service._id}" class="btn-book">Book Now</a>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            initializeModals();
+        }
+
+        // Initialize modals
+        function initializeModals() {
+            document.querySelectorAll('.service-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const modalId = this.getAttribute('data-modal');
+                    document.getElementById(modalId).style.display = 'flex';
+                });
+            });
+
+            document.querySelectorAll('.modal-close').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    this.closest('.modal').style.display = 'none';
+                });
+            });
+
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.style.display = 'none';
+                    }
+                });
+            });
+        }
+
+        // Search functionality
+        function searchServices(query) {
+            searchQuery = query.toLowerCase().trim();
+            if (!searchQuery) {
+                return isLocationFiltered ? currentServices : originalServices;
+            }
+
+            const servicesToSearch = isLocationFiltered ? currentServices : originalServices;
+            return servicesToSearch.filter(service => {
+                const name = service.name.toLowerCase();
+                const description = service.description.toLowerCase();
+                const category = service.category ? service.category.toLowerCase() : '';
+                const businessName = service.businessId?.businessName?.toLowerCase() || '';
+                
+                return name.includes(searchQuery) || 
+                       description.includes(searchQuery) || 
+                       category.includes(searchQuery) ||
+                       businessName.includes(searchQuery);
+            });
+        }
+
+        // Search input
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            searchQuery = e.target.value;
+            const results = searchServices(searchQuery);
+            renderServices(results);
+            document.getElementById('clearSearchBtn').style.display = searchQuery ? 'flex' : 'none';
+        });
+
+        // Clear search
+        document.getElementById('clearSearchBtn').addEventListener('click', function() {
+            document.getElementById('searchInput').value = '';
+            searchQuery = '';
+            this.style.display = 'none';
+            renderServices(isLocationFiltered ? currentServices : originalServices);
+        });
+
+        // Show status
+        function showStatus(message, type = 'success') {
+            const statusEl = document.getElementById('locationStatus');
+            statusEl.className = `status-message status-${type}`;
+            statusEl.textContent = message;
+            statusEl.style.display = 'block';
+        }
+
+        function hideStatus() {
+            document.getElementById('locationStatus').style.display = 'none';
+        }
+
+        // Use location
+        document.getElementById('useLocationBtn').addEventListener('click', async function() {
+            const btn = this;
+            btn.disabled = true;
+            btn.textContent = 'Getting location...';
+
+            if (!navigator.geolocation) {
+                showStatus('Geolocation is not supported', 'error');
+                btn.disabled = false;
+                btn.textContent = 'Use My Location';
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                async (position) => {
+                    userLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+
+                    const radius = document.getElementById('radiusSelect').value;
+
+                    try {
+                        const response = await fetch(`/home/api/filter-by-location?lat=${userLocation.lat}&lng=${userLocation.lng}&radius=${radius}`);
+                        const data = await response.json();
+
+                        if (data.success) {
+                            currentServices = data.services;
+                            isLocationFiltered = true;
+                            const results = searchQuery ? searchServices(searchQuery) : currentServices;
+                            renderServices(results);
+                            showStatus(`Found ${data.count} service(s) within ${radius} km`, 'success');
+                            document.getElementById('resetFilterBtn').style.display = 'inline-flex';
+                        } else {
+                            showStatus('Error filtering services', 'error');
+                        }
+                    } catch (error) {
+                        showStatus('Error filtering services', 'error');
+                    }
+
+                    btn.disabled = false;
+                    btn.textContent = 'Use My Location';
+                },
+                (error) => {
+                    showStatus('Unable to get your location', 'error');
+                    btn.disabled = false;
+                    btn.textContent = 'Use My Location';
+                }
+            );
+        });
+
+        // Map functionality
+        function initMap() {
+            if (map) return;
+
+            const defaultCenter = [14.5995, 120.9842];
+            map = L.map('map').setView(defaultCenter, 13);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap',
+                maxZoom: 19
+            }).addTo(map);
+
+            map.on('click', function(e) {
+                selectedLocation = { lat: e.latlng.lat, lng: e.latlng.lng };
+
+                if (marker) map.removeLayer(marker);
+
+                marker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
+                marker.bindPopup('Selected Location').openPopup();
+
+                document.getElementById('confirmLocationBtn').disabled = false;
+            });
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((position) => {
+                    const userPos = [position.coords.latitude, position.coords.longitude];
+                    map.setView(userPos, 15);
+                    L.marker(userPos).addTo(map).bindPopup('Your Location');
+                });
+            }
+        }
+
+        document.getElementById('selectOnMapBtn').addEventListener('click', function() {
+            document.getElementById('mapModal').style.display = 'flex';
+            setTimeout(() => {
+                initMap();
+                if (map) map.invalidateSize();
+            }, 100);
+        });
+
+        document.getElementById('closeMapBtn').addEventListener('click', function() {
+            document.getElementById('mapModal').style.display = 'none';
+        });
+
+        document.getElementById('cancelMapBtn').addEventListener('click', function() {
+            document.getElementById('mapModal').style.display = 'none';
+        });
+
+        document.getElementById('confirmLocationBtn').addEventListener('click', async function() {
+            if (!selectedLocation) return;
+
+            userLocation = selectedLocation;
+            document.getElementById('mapModal').style.display = 'none';
+
+            const radius = document.getElementById('radiusSelect').value;
+
+            try {
+                const response = await fetch(`/home/api/filter-by-location?lat=${userLocation.lat}&lng=${userLocation.lng}&radius=${radius}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    currentServices = data.services;
+                    isLocationFiltered = true;
+                    const results = searchQuery ? searchServices(searchQuery) : currentServices;
+                    renderServices(results);
+                    showStatus(`Found ${data.count} service(s) within ${radius} km`, 'success');
+                    document.getElementById('resetFilterBtn').style.display = 'inline-flex';
+                }
+            } catch (error) {
+                showStatus('Error filtering services', 'error');
+            }
+        });
+
+        // Reset filters
+        document.getElementById('resetFilterBtn').addEventListener('click', function() {
+            currentServices = [...originalServices];
+            userLocation = null;
+            isLocationFiltered = false;
+            document.getElementById('searchInput').value = '';
+            searchQuery = '';
+            document.getElementById('clearSearchBtn').style.display = 'none';
+            renderServices(currentServices);
+            hideStatus();
+            this.style.display = 'none';
+        });
+
+        // Radius change
+        document.getElementById('radiusSelect').addEventListener('change', function() {
+            if (userLocation) {
+                document.getElementById('useLocationBtn').click();
+            }
+        });
+
+        // Initial render
+        renderServices(currentServices);
+    </script>
+
+    <script src="/js/headerAndNavigation.js"></script>
+    <script src="/js/footer.js"></script>
+    <script src="/js/debug-mode-switch.js"></script>
+</body>
+</html>

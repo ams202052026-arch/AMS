@@ -183,3 +183,26 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+
+// Load notification badge count
+async function loadNotificationCount() {
+    try {
+        const response = await fetch('/api/notifications/unread-count');
+        const data = await response.json();
+        const badge = document.getElementById('notificationBadge');
+        
+        if (badge && data.count > 0) {
+            badge.textContent = data.count > 99 ? '99+' : data.count;
+            badge.style.display = 'block';
+        }
+    } catch (error) {
+        console.error('Error loading notification count:', error);
+    }
+}
+
+// Load on page load
+document.addEventListener('DOMContentLoaded', loadNotificationCount);
+
+// Refresh every 30 seconds
+setInterval(loadNotificationCount, 30000);

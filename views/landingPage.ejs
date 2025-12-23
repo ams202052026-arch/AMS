@@ -3,13 +3,267 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title></title>
+    <title>AMS - Appointment Management System</title>
+    <link rel="stylesheet" href="/css/scrollbar.css">
+    <link rel="stylesheet" href="/css/landingPage.css">
+    <link rel="stylesheet" href="/css/footer.css">
 </head>
 <body>
+    <!-- Header -->
+    <header class="landing-header">
+        <div class="header-container">
+            <div class="logo-section">
+                <img src="/image/logo.png" alt="AMS Logo" class="logo-image">
+                <span class="system-title">AMS</span>
+            </div>
+            <nav class="header-nav">
+                <a href="/login" class="nav-link">Login</a>
+                <a href="/signup" class="nav-button">Get Started</a>
+            </nav>
+        </div>
+    </header>
 
-    <a href="/login"><p>Login</p></a>
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-container">
+            <div class="hero-content-wrapper">
+                <div class="hero-logo-animated">
+                    <img src="/image/logo.png" alt="AMS Logo" class="hero-logo-image">
+                </div>
+                <div class="hero-text-content">
+                    <h1 class="hero-title">Book Your Appointment.<br>Skip the Line.</h1>
+                    <a href="/signup" class="hero-cta">Book Now</a>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    <a href="/SignUp"><p>Sign up</p></a>
-    
+    <!-- Services Showcase Carousel -->
+    <% if (services && services.length > 0) { %>
+    <section class="services-showcase">
+        <div class="services-container">
+            <div class="infinite-carousel">
+                <div class="carousel-track-infinite">
+                    <% services.forEach(service => { %>
+                        <div class="service-card-infinite">
+                            <div class="service-image-wrapper">
+                                <% if (service.image) { %>
+                                    <img src="<%= service.image %>" alt="<%= service.name %>" class="service-image">
+                                <% } else { %>
+                                    <div class="service-placeholder">
+                                        <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                                            <polyline points="21 15 16 10 5 21"/>
+                                        </svg>
+                                    </div>
+                                <% } %>
+                            </div>
+                            <h3 class="service-name-infinite"><%= service.name %></h3>
+                        </div>
+                    <% }) %>
+                    <!-- Duplicate for seamless loop -->
+                    <% services.forEach(service => { %>
+                        <div class="service-card-infinite">
+                            <div class="service-image-wrapper">
+                                <% if (service.image) { %>
+                                    <img src="<%= service.image %>" alt="<%= service.name %>" class="service-image">
+                                <% } else { %>
+                                    <div class="service-placeholder">
+                                        <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                                            <polyline points="21 15 16 10 5 21"/>
+                                        </svg>
+                                    </div>
+                                <% } %>
+                            </div>
+                            <h3 class="service-name-infinite"><%= service.name %></h3>
+                        </div>
+                    <% }) %>
+                </div>
+            </div>
+        </div>
+    </section>
+    <% } %>
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <div class="features-container">
+            <div class="feature-card">
+                <h3 class="feature-title">Fast and Easy Booking</h3>
+                <p class="feature-description">No more long lines. Reserve your slot anytime.</p>
+            </div>
+            <div class="feature-card">
+                <h3 class="feature-title">Real-Time Queue Updates</h3>
+                <p class="feature-description">Know your queue number instantly and receive updates right away.</p>
+            </div>
+            <div class="feature-card">
+                <h3 class="feature-title">Choose Your Preferred Staff</h3>
+                <p class="feature-description">Get served by the person you trust most.</p>
+            </div>
+            <div class="feature-card">
+                <h3 class="feature-title">Earn Rewards</h3>
+                <p class="feature-description">Collect points every time you book.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Process Section -->
+    <section class="process-section">
+        <div class="process-container">
+            <div class="process-step">
+                <div class="step-number">01</div>
+                <h3 class="step-title">Create an Account</h3>
+                <p class="step-description">Register using your email and verify it quickly.</p>
+            </div>
+            <div class="process-step">
+                <div class="step-number">02</div>
+                <h3 class="step-title">Choose a Service</h3>
+                <p class="step-description">Browse available services and see which staff are available.</p>
+            </div>
+            <div class="process-step">
+                <div class="step-number">03</div>
+                <h3 class="step-title">Book Your Schedule</h3>
+                <p class="step-description">Pick your preferred date and time then receive a queue number instantly.</p>
+            </div>
+            <div class="process-step">
+                <div class="step-number">04</div>
+                <h3 class="step-title">Visit and Get Served</h3>
+                <p class="step-description">Simply show up at your scheduled time and pay on site.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section class="benefits-section">
+        <div class="benefits-container">
+            <div class="benefit-item">
+                <span class="benefit-text">Easy online appointment booking</span>
+            </div>
+            <div class="benefit-item">
+                <span class="benefit-text">Queue number generation</span>
+            </div>
+            <div class="benefit-item">
+                <span class="benefit-text">Real-time email notifications</span>
+            </div>
+            <div class="benefit-item">
+                <span class="benefit-text">Calendar preview of your upcoming appointments</span>
+            </div>
+            <div class="benefit-item">
+                <span class="benefit-text">Loyalty and reward points</span>
+            </div>
+            <div class="benefit-item">
+                <span class="benefit-text">On-site payment during your visit</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials-section">
+        <div class="testimonials-container">
+            <div class="testimonial-card">
+                <p class="testimonial-quote">"Super convenient! No more waiting sa salon."</p>
+                <p class="testimonial-author">Maria S.</p>
+            </div>
+            <div class="testimonial-card">
+                <p class="testimonial-quote">"I love the instant queue number and reminders."</p>
+                <p class="testimonial-author">Kyle D.</p>
+            </div>
+            <div class="testimonial-card">
+                <p class="testimonial-quote">"Booking appointments has never been this easy!"</p>
+                <p class="testimonial-author">Sarah L.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="cta-container">
+            <h2 class="cta-title">Ready to book your next appointment?</h2>
+            <p class="cta-subtitle">Experience a smoother way to schedule your visits.</p>
+            <a href="/signup" class="cta-button">Start Booking Today</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <%- include('partials/footer') %>
+
+    <script>
+        // Wait for DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // 3D Depth Parallax Logo Effect - AGGRESSIVE VERSION
+            const heroLogo = document.querySelector('.hero-logo-animated');
+            
+            console.log('🔍 Looking for logo:', heroLogo);
+            
+            if (heroLogo) {
+                console.log('✅ PARALLAX ACTIVE - Move your mouse!');
+                
+            // Track mouse on entire document for better tracking
+            document.addEventListener('mousemove', (e) => {
+                // Calculate from center of viewport
+                const centerX = window.innerWidth / 2;
+                const centerY = window.innerHeight / 2;
+                
+                const deltaX = (e.clientX - centerX) / centerX;
+                const deltaY = (e.clientY - centerY) / centerY;
+                
+                // Subtle 3D parallax - smooth and elegant
+                const rotateY = deltaX * 12; // Subtle rotation
+                const rotateX = -deltaY * 12; // Subtle rotation
+                const translateX = deltaX * 15; // Gentle movement
+                const translateY = deltaY * 15; // Gentle movement
+                
+                heroLogo.style.transform = `
+                    perspective(1000px)
+                    rotateX(${rotateX}deg)
+                    rotateY(${rotateY}deg)
+                    translateX(${translateX}px)
+                    translateY(${translateY}px)
+                    scale(1.05)
+                `;
+                heroLogo.style.transition = 'transform 0.2s ease-out';
+                
+                // Subtle dynamic shadow
+                const shadowX = -deltaX * 15;
+                const shadowY = -deltaY * 15;
+                heroLogo.style.filter = `drop-shadow(${shadowX}px ${shadowY}px 30px rgba(0, 0, 0, 0.2))`;
+            });
+            
+
+        } else {
+            console.log('❌ Logo NOT found - parallax disabled');
+        }
+        
+        // Infinite carousel auto-scroll
+        const track = document.querySelector('.carousel-track-infinite');
+        if (track) {
+            const cards = document.querySelectorAll('.service-card-infinite');
+            const cardWidth = cards[0]?.offsetWidth || 0;
+            const gap = 32;
+            const totalWidth = (cardWidth + gap) * (cards.length / 2); // Half because duplicated
+            
+            let position = 0;
+            const speed = 3; // pixels per frame - smooth and steady!
+            
+            // Animate function - continuous scroll, no pause
+            function animate() {
+                position += speed;
+                
+                if (position >= totalWidth) {
+                    position = 0;
+                }
+                
+                track.style.transform = `translateX(-${position}px)`;
+                requestAnimationFrame(animate);
+            }
+            
+            // Start animation
+            animate();
+        }
+        
+        }); // End DOMContentLoaded
+    </script>
 </body>
 </html>

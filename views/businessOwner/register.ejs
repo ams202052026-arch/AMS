@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Application - AMS</title>
+    <link rel="stylesheet" href="/css/scrollbar.css">
+    <!-- Leaflet CSS for OpenStreetMap -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #fafafa;
+            color: #1a1a1a;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .registration-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .registration-header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .registration-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .registration-header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .form-content {
+            padding: 40px 30px;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            color: #1565c0;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border-left: 4px solid #1976d2;
+        }
+
+        .info-box strong {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .info-box ul {
+            margin: 10px 0 0 20px;
+        }
+
+        .info-box li {
+            margin-bottom: 5px;
+        }
+
+        .form-section {
+            margin-bottom: 40px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+        }
+
+        .form-section h2 {
+            color: #1a1a1a;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #1a1a1a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #1a1a1a;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group label .required {
+            color: #e74c3c;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #1a1a1a;
+            box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            border-left: 4px solid #e74c3c;
+            font-weight: 500;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: #1a1a1a;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover {
+            background: #333;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .back-link a {
+            color: #1a1a1a;
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .back-link a:hover {
+            background: #f8f9fa;
+            transform: translateX(-2px);
+        }
+
+        /* Map Styles */
+        .map-container {
+            margin-top: 10px;
+        }
+
+        .map-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .map-btn {
+            padding: 8px 16px;
+            background: #1a1a1a;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .map-btn:hover {
+            background: #333;
+            transform: translateY(-1px);
+        }
+
+        .map-info {
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 3px solid #1a1a1a;
+        }
+
+        .map-info small {
+            color: #666;
+            font-size: 12px;
+        }
+
+        #map {
+            transition: border-color 0.3s ease;
+        }
+
+        #map.map-active {
+            border-color: #1a1a1a;
+            box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.1);
+        }
+
+        /* Address field update animation */
+        .address-updating {
+            background-color: #fff3cd !important;
+            border-color: #ffc107 !important;
+            transition: all 0.3s ease;
+        }
+
+        .address-updated {
+            background-color: #d4edda !important;
+            border-color: #28a745 !important;
+            transition: all 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .registration-header {
+                padding: 30px 20px;
+            }
+
+            .registration-header h1 {
+                font-size: 24px;
+            }
+
+            .form-content {
+                padding: 30px 20px;
+            }
+
+            .form-section {
+                padding: 20px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="registration-container">
+        <div class="registration-header">
+            <h1>🏢 <%= isUnifiedMode ? 'Business Application' : 'Business Owner Registration' %></h1>
+            <p><%= isUnifiedMode ? 'Apply to offer your services as a business owner' : 'Join our marketplace and start offering your services to customers' %></p>
+        </div>
+
+            <% if (error) { %>
+                <div class="error-message">
+                    ⚠️ <%= error %>
+                </div>
+            <% } %>
+
+            <div class="info-box">
+                <strong>📋 Required Documents:</strong>
+                <ul>
+                    <li>DTI Business Registration or SEC Certificate</li>
+                    <li>Mayor's Permit / Business Permit</li>
+                    <li>Valid Government ID</li>
+                    <li>BIR Certificate of Registration (Optional)</li>
+                </ul>
+                <p style="margin-top: 10px;"><em>You'll upload these documents in the next step.</em></p>
+            </div>
+
+            <form action="<%= isUnifiedMode ? '/business/register' : '/business-owner/register' %>" method="POST">
+            <% if (!isUnifiedMode) { %>
+            <!-- Personal Information (Only for new business owners) -->
+            <div class="form-section">
+                <h2>👤 Personal Information</h2>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>First Name <span class="required">*</span></label>
+                        <input type="text" name="firstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name <span class="required">*</span></label>
+                        <input type="text" name="lastName" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Email Address <span class="required">*</span></label>
+                        <input type="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number <span class="required">*</span></label>
+                        <input type="tel" name="phoneNumber" placeholder="09XX-XXX-XXXX" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Password <span class="required">*</span></label>
+                        <input type="password" name="password" minlength="6" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm Password <span class="required">*</span></label>
+                        <input type="password" name="confirmPassword" minlength="6" required>
+                    </div>
+                </div>
+            </div>
+            <% } else { %>
+            <!-- User Info Display (For existing customers) -->
+            <div class="form-section">
+                <h2>👤 Account Information</h2>
+                <div class="info-box">
+                    <p><strong>Applying as:</strong> <%= user.fullName %> (<%= user.email %>)</p>
+                    <p><em>Your business application will be linked to this account.</em></p>
+                </div>
+            </div>
+            <% } %>
+
+            <!-- Business Information -->
+            <div class="form-section">
+                <h2>🏢 Business Information</h2>
+                
+                <div class="form-group">
+                    <label>Business Name <span class="required">*</span></label>
+                    <input type="text" name="businessName" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Business Type <span class="required">*</span></label>
+                        <select name="businessType" required>
+                            <option value="">Select Type</option>
+                            <option value="salon">Beauty Salon</option>
+                            <option value="barbershop">Barbershop</option>
+                            <option value="spa">Spa</option>
+                            <option value="clinic">Clinic</option>
+                            <option value="gym">Gym</option>
+                            <option value="wellness">Wellness Center</option>
+                            <option value="beauty">Beauty Services</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Business Phone <span class="required">*</span></label>
+                        <input type="tel" name="businessPhone" placeholder="09XX-XXX-XXXX" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Website (Optional)</label>
+                        <input type="url" name="website" placeholder="https://...">
+                    </div>
+                    <div class="form-group">
+                        <!-- Empty div for grid alignment -->
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Business Description</label>
+                    <textarea name="description" placeholder="Tell us about your business..."></textarea>
+                </div>
+            </div>
+
+            <!-- Business Address -->
+            <div class="form-section">
+                <h2>📍 Business Address</h2>
+                
+                <div class="form-group">
+                    <label>Street Address <span class="required">*</span></label>
+                    <input type="text" id="street" name="street" placeholder="Building No., Street Name" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Barangay <span class="required">*</span></label>
+                        <input type="text" id="barangay" name="barangay" required>
+                    </div>
+                    <div class="form-group">
+                        <label>City <span class="required">*</span></label>
+                        <input type="text" id="city" name="city" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Province <span class="required">*</span></label>
+                        <input type="text" id="province" name="province" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Zip Code</label>
+                        <input type="text" id="zipCode" name="zipCode" placeholder="Optional">
+                    </div>
+                </div>
+
+                <!-- Map Section -->
+                <div class="form-group">
+                    <label>📍 Pin Your Business Location</label>
+                    <div class="map-container">
+                        <div id="map" style="height: 300px; width: 100%; border-radius: 8px; border: 2px solid #e9ecef;"></div>
+                        <div class="map-controls">
+                            <button type="button" id="searchAddress" class="map-btn">🔍 Search Address</button>
+                            <button type="button" id="getCurrentLocation" class="map-btn">📍 Use Current Location</button>
+                        </div>
+                        <div class="map-info">
+                            <small>Click on the map to set your business location or use the buttons above</small>
+                            <div id="address-status" style="margin-top: 5px; font-size: 11px; color: #666;"></div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="latitude" name="latitude">
+                    <input type="hidden" id="longitude" name="longitude">
+                </div>
+            </div>
+
+                <button type="submit" class="submit-btn">
+                    Continue to Document Upload →
+                </button>
+            </form>
+
+            <div class="back-link">
+                <% if (isUnifiedMode) { %>
+                    <a href="/home">← Back to Customer Dashboard</a>
+                <% } else { %>
+                    <a href="/login">Already have an account? Login here</a>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JavaScript for OpenStreetMap -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        let map;
+        let marker;
+        
+        // Initialize OpenStreetMap
+        function initMap() {
+            console.log('🚀 Initializing OpenStreetMap...');
+            
+            // Default location (Philippines center)
+            const defaultLocation = [14.5995, 120.9842];
+            
+            // Create map
+            map = L.map('map').setView(defaultLocation, 13);
+            
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            
+            // Initialize marker (hidden initially)
+            marker = L.marker(defaultLocation, {
+                draggable: true
+            });
+            
+            // Add click listener to map
+            map.on('click', function(e) {
+                const lat = e.latlng.lat;
+                const lng = e.latlng.lng;
+                
+                setMarkerPosition(lat, lng);
+                updateAddressFromCoordinates(lat, lng);
+            });
+            
+            // Add drag listener to marker
+            marker.on('dragend', function(e) {
+                const position = e.target.getLatLng();
+                updateCoordinates(position.lat, position.lng);
+                updateAddressFromCoordinates(position.lat, position.lng);
+            });
+            
+            // Try to get user's current location
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const userLocation = [position.coords.latitude, position.coords.longitude];
+                    map.setView(userLocation, 15);
+                });
+            }
+            
+            console.log('✅ OpenStreetMap initialized successfully');
+        }
+        
+        // Set marker position
+        function setMarkerPosition(lat, lng) {
+            marker.setLatLng([lat, lng]);
+            
+            // Add marker to map if not already added
+            if (!map.hasLayer(marker)) {
+                marker.addTo(map);
+            }
+            
+            updateCoordinates(lat, lng);
+            
+            // Add visual feedback
+            document.getElementById('map').classList.add('map-active');
+            setTimeout(() => {
+                document.getElementById('map').classList.remove('map-active');
+            }, 1000);
+        }
+        
+        // Update coordinate inputs
+        function updateCoordinates(lat, lng) {
+            document.getElementById('latitude').value = lat;
+            document.getElementById('longitude').value = lng;
+            console.log(`📍 Location updated: ${lat}, ${lng}`);
+        }
+        
+        // Update address fields from coordinates using Nominatim
+        function updateAddressFromCoordinates(lat, lng) {
+            console.log(`🔍 Reverse geocoding: ${lat}, ${lng}`);
+            
+            // Show loading status
+            const statusDiv = document.getElementById('address-status');
+            if (statusDiv) {
+                statusDiv.textContent = '🔍 Getting address...';
+                statusDiv.style.color = '#666';
+            }
+            
+            // Add updating class to address fields
+            const addressFields = ['street', 'barangay', 'city', 'province', 'zipCode'];
+            addressFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    field.classList.add('address-updating');
+                }
+            });
+            
+            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.address) {
+                        const address = data.address;
+                        console.log('📍 Address found:', address);
+                        
+                        // Always update form fields to show the address from map click
+                        if (address.road) {
+                            const streetAddress = address.road + (address.house_number ? ' ' + address.house_number : '');
+                            document.getElementById('street').value = streetAddress;
+                        }
+                        
+                        // Update barangay
+                        const barangay = address.suburb || address.neighbourhood || address.village || address.sublocality || '';
+                        if (barangay) {
+                            document.getElementById('barangay').value = barangay;
+                        }
+                        
+                        // Update city
+                        const city = address.city || address.town || address.municipality || address.county || '';
+                        if (city) {
+                            document.getElementById('city').value = city;
+                        }
+                        
+                        // Update province
+                        if (address.state) {
+                            document.getElementById('province').value = address.state;
+                        }
+                        
+                        // Update zip code
+                        if (address.postcode) {
+                            document.getElementById('zipCode').value = address.postcode;
+                        }
+                        
+                        // Show success status
+                        if (statusDiv) {
+                            statusDiv.textContent = '✅ Address updated from map';
+                            statusDiv.style.color = '#28a745';
+                            setTimeout(() => {
+                                statusDiv.textContent = '';
+                            }, 3000);
+                        }
+                        
+                        // Add updated class to fields
+                        addressFields.forEach(fieldId => {
+                            const field = document.getElementById(fieldId);
+                            if (field) {
+                                field.classList.remove('address-updating');
+                                field.classList.add('address-updated');
+                                setTimeout(() => {
+                                    field.classList.remove('address-updated');
+                                }, 2000);
+                            }
+                        });
+                        
+                        console.log('✅ Address fields updated');
+                    } else {
+                        console.log('❌ No address data found');
+                        if (statusDiv) {
+                            statusDiv.textContent = '⚠️ Address not found for this location';
+                            statusDiv.style.color = '#ffc107';
+                            setTimeout(() => {
+                                statusDiv.textContent = '';
+                            }, 3000);
+                        }
+                        
+                        // Remove updating class
+                        addressFields.forEach(fieldId => {
+                            const field = document.getElementById(fieldId);
+                            if (field) {
+                                field.classList.remove('address-updating');
+                            }
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Reverse geocoding error:', error);
+                    if (statusDiv) {
+                        statusDiv.textContent = '❌ Error getting address';
+                        statusDiv.style.color = '#dc3545';
+                        setTimeout(() => {
+                            statusDiv.textContent = '';
+                        }, 3000);
+                    }
+                    
+                    // Remove updating class
+                    addressFields.forEach(fieldId => {
+                        const field = document.getElementById(fieldId);
+                        if (field) {
+                            field.classList.remove('address-updating');
+                        }
+                    });
+                });
+        }
+        
+        // Search address using Nominatim
+        function searchAddress() {
+            const street = document.getElementById('street').value;
+            const barangay = document.getElementById('barangay').value;
+            const city = document.getElementById('city').value;
+            const province = document.getElementById('province').value;
+            
+            const fullAddress = [street, barangay, city, province, 'Philippines']
+                .filter(Boolean).join(', ');
+            
+            if (!fullAddress.trim()) {
+                alert('Please fill in at least the street and city fields to search.');
+                return;
+            }
+            
+            console.log(`🔍 Searching for: ${fullAddress}`);
+            
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(fullAddress)}&limit=1`;
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.length > 0) {
+                        const result = data[0];
+                        const lat = parseFloat(result.lat);
+                        const lng = parseFloat(result.lon);
+                        
+                        console.log(`✅ Address found: ${lat}, ${lng}`);
+                        
+                        // Move map and set marker
+                        map.setView([lat, lng], 16);
+                        setMarkerPosition(lat, lng);
+                        
+                        // Show popup with found address
+                        marker.bindPopup(`<strong>Found:</strong><br>${result.display_name}`).openPopup();
+                    } else {
+                        console.log('❌ Address not found');
+                        alert('Address not found. Please try a different address or click on the map to set location manually.');
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Geocoding error:', error);
+                    alert('Error searching for address. Please try again.');
+                });
+        }
+        
+        // Get current location
+        function getCurrentLocation() {
+            console.log('📍 Getting current location...');
+            
+            if (!navigator.geolocation) {
+                alert('Geolocation is not supported by this browser.');
+                return;
+            }
+            
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    
+                    console.log(`✅ Current location: ${lat}, ${lng}`);
+                    
+                    // Move map and set marker
+                    map.setView([lat, lng], 16);
+                    setMarkerPosition(lat, lng);
+                    updateAddressFromCoordinates(lat, lng);
+                },
+                function(error) {
+                    console.error('❌ Geolocation error:', error);
+                    alert('Unable to get your location: ' + error.message);
+                }
+            );
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize map
+            initMap();
+            
+            // Search address button
+            document.getElementById('searchAddress').addEventListener('click', function() {
+                searchAddress();
+            });
+            
+            // Get current location button
+            document.getElementById('getCurrentLocation').addEventListener('click', function() {
+                getCurrentLocation();
+            });
+            
+            // Auto-search when address fields are filled
+            const addressFields = ['street', 'barangay', 'city', 'province'];
+            addressFields.forEach(fieldId => {
+                document.getElementById(fieldId).addEventListener('blur', function() {
+                    // Auto-search when user finishes typing
+                    setTimeout(() => {
+                        if (this.value) {
+                            const city = document.getElementById('city').value;
+                            const province = document.getElementById('province').value;
+                            if (city && province) {
+                                searchAddress();
+                            }
+                        }
+                    }, 500);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

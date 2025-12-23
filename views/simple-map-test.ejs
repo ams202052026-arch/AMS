@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Map Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        
+        #map {
+            height: 400px;
+            width: 100%;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+        }
+        
+        .loading {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .debug {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗺️ Simple Map Test</h1>
+        
+        <div id="status" class="status loading">
+            ⏳ Loading Google Maps...
+        </div>
+        
+        <div id="map"></div>
+        
+        <div class="debug" id="debug">
+Initializing map test...
+        </div>
+    </div>
+
+    <!-- Google Maps API with direct key -->
+    <script>
+        function log(message) {
+            const debug = document.getElementById('debug');
+            const timestamp = new Date().toLocaleTimeString();
+            debug.textContent += `\n[${timestamp}] ${message}`;
+            debug.scrollTop = debug.scrollHeight;
+            console.log(message);
+        }
+        
+        function updateStatus(message, type = 'loading') {
+            const status = document.getElementById('status');
+            status.className = `status ${type}`;
+            status.textContent = message;
+        }
+        
+        // This function will be called by Google Maps API
+        function initSimpleMap() {
+            log('🚀 initSimpleMap() called');
+            
+            try {
+                // Check if Google Maps is available
+                if (typeof google === 'undefined') {
+                    throw new Error('Google object not found');
+                }
+                
+                if (!google.maps) {
+                    throw new Error('Google Maps not found');
+                }
+                
+                log('✅ Google Maps API detected');
+                log(`📊 Version: ${google.maps.version}`);
+                
+                // Get map element
+                const mapElement = document.getElementById('map');
+                if (!mapElement) {
+                    throw new Error('Map element not found');
+                }
+                
+                log(`📐 Map element: ${mapElement.offsetWidth}x${mapElement.offsetHeight}`);
+                
+                // Create map
+                const map = new google.maps.Map(mapElement, {
+                    zoom: 13,
+                    center: { lat: 14.5995, lng: 120.9842 }, // Manila
+                    mapTypeControl: true,
+                    streetViewControl: true,
+                    fullscreenControl: true
+                });
+                
+                log('✅ Map created successfully');
+                
+                // Add a marker
+                const marker = new google.maps.Marker({
+                    position: { lat: 14.5995, lng: 120.9842 },
+                    map: map,
+                    title: 'Test Location',
+                    draggable: true
+                });
+                
+                log('✅ Marker added');
+                
+                // Add click listener
+                map.addListener('click', function(event) {
+                    log(`🖱️ Map clicked: ${event.latLng.lat()}, ${event.latLng.lng()}`);
+                    marker.setPosition(event.latLng);
+                });
+                
+                log('✅ Event listeners added');
+                updateStatus('✅ Map loaded successfully!', 'success');
+                
+            } catch (error) {
+                log(`❌ Error: ${error.message}`);
+                updateStatus(`❌ Error: ${error.message}`, 'error');
+                console.error('Map error:', error);
+            }
+        }
+        
+        // Handle API authentication failures
+        window.gm_authFailure = function() {
+            log('❌ Google Maps authentication failed');
+            updateStatus('❌ API key authentication failed', 'error');
+        };
+        
+        // Timeout fallback
+        setTimeout(() => {
+            if (typeof google === 'undefined') {
+                log('❌ Google Maps failed to load after 10 seconds');
+                updateStatus('❌ Google Maps failed to load', 'error');
+            }
+        }, 10000);
+        
+        log('🔄 Script loaded, waiting for Google Maps API...');
+    </script>
+    
+    <!-- Load Google Maps API -->
+    <script async defer 
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBOti4mM-6x9WDnZIjIeyEU21OpBXqWBgw&callback=initSimpleMap">
+    </script>
+</body>
+</html>

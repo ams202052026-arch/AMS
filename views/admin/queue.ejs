@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AMS Admin - Queue Management</title>
+    <link rel="stylesheet" href="/css/admin/main.css">
+    <link rel="stylesheet" href="/css/admin/queue.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <%- include('partials/sidebar') %>
+
+        <main class="admin-main">
+            <header class="admin-header">
+                <h1>Queue Management</h1>
+                <span class="date">Today: <%= new Date().toLocaleDateString() %></span>
+            </header>
+
+            <% if (unassigned.length > 0) { %>
+                <section class="unassigned-queue">
+                    <h2>Unassigned Appointments</h2>
+                    <div class="queue-cards">
+                        <% unassigned.forEach(apt => { %>
+                            <div class="queue-card">
+                                <div class="queue-number"><%= apt.queueNumber %></div>
+                                <div class="queue-info">
+                                    <strong><%= apt.customer ? apt.customer.name : 'Walk-in' %></strong>
+                                    <p><%= apt.service ? apt.service.name : 'N/A' %></p>
+                                    <p><%= apt.timeSlot.startFormatted %></p>
+                                </div>
+                                <form action="/admin/appointments/<%= apt._id %>/assign-staff" method="POST">
+                                    <select name="staffId" onchange="this.form.submit()">
+                                        <option value="">Assign Staff</option>
+                                        <% staff.forEach(s => { %>
+                                            <option value="<%= s._id %>"><%= s.name %></option>
+                                        <% }) %>
+                                    </select>
+                                </form>
+                            </div>
+                        <% }) %>
+                    </div>
+                </section>
+            <% } %>
+
+            <section class="staff-queues">
+                <h2>Staff Queues</h2>
+                <div class="staff-queue-grid">
+                    <% queueByStaff.forEach(sq => { %>
+                        <div class="staff-queue-column">
+                            <div class="staff-header">
+                                <h3><%= sq.staff.name %></h3>
+                                <span class="count"><%= sq.appointments.length %> in queue</span>
+                            </div>
+                            <div class="queue-list">
+                                <% sq.appointments.forEach((apt, index) => { %>
+                                    <div class="queue-item status-<%= apt.status %>">
+                                        <div class="queue-position"><%= index + 1 %></div>
+                                        <div class="queue-details">
+                                            <span class="queue-number"><%= apt.queueNumber %></span>
+                                            <strong><%= apt.customer ? apt.customer.name : 'Walk-in' %></strong>
+                                            <p><%= apt.service ? apt.service.name : 'N/A' %></p>
+                                            <p class="time"><%= apt.timeSlot.startFormatted %></p>
+                                        </div>
+                                        <div class="queue-actions">
+                                            <% if (apt.status === 'approved') { %>
+                                                <form action="/admin/queue/<%= apt._id %>/start" method="POST">
+                                                    <button type="submit" class="btn-sm btn-primary">Start</button>
+                                                </form>
+                                            <% } else if (apt.status === 'in-progress') { %>
+                                                <span class="status-badge in-progress">Serving</span>
+                                                <form action="/admin/appointments/<%= apt._id %>/complete" method="POST">
+                                                    <button type="submit" class="btn-sm btn-success">Done</button>
+                                                </form>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                <% }) %>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

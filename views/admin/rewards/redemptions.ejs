@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reward Redemptions - AMS Admin</title>
+    <link rel="stylesheet" href="/css/admin/main.css">
+    <style>
+        .admin-main {
+            margin-left: 280px;
+            padding: 2rem;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-header h1 {
+            font-size: 2rem;
+            color: #1a1a1a;
+        }
+
+        .btn-back {
+            padding: 0.75rem 1.5rem;
+            background: #f3f4f6;
+            color: #374151;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-back:hover {
+            background: #e5e7eb;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .stat-card h3 {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1a1a1a;
+        }
+
+        .redemptions-table {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f9fafb;
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            padding: 1rem;
+            border-top: 1px solid #f3f4f6;
+        }
+
+        tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-badge.active {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-badge.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-badge.used {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-badge.expired {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .customer-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .customer-name {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .customer-email {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .reward-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .reward-name {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .reward-discount {
+            font-size: 0.875rem;
+            color: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <%- include('../partials/sidebar') %>
+
+        <main class="admin-main">
+            <div class="page-header">
+                <h1>📊 Reward Redemptions</h1>
+                <a href="/admin/rewards" class="btn-back">← Back to Rewards</a>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Redemptions</h3>
+                    <div class="value"><%= redemptions.length %></div>
+                </div>
+                <div class="stat-card">
+                    <h3>Active</h3>
+                    <div class="value"><%= redemptions.filter(r => r.status === 'active').length %></div>
+                </div>
+                <div class="stat-card">
+                    <h3>Pending</h3>
+                    <div class="value"><%= redemptions.filter(r => r.status === 'pending').length %></div>
+                </div>
+                <div class="stat-card">
+                    <h3>Used</h3>
+                    <div class="value"><%= redemptions.filter(r => r.status === 'used').length %></div>
+                </div>
+            </div>
+
+            <div class="redemptions-table">
+                <% if (redemptions.length === 0) { %>
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📊</div>
+                        <h3>No redemptions yet</h3>
+                        <p>Redemptions will appear here when customers claim rewards</p>
+                    </div>
+                <% } else { %>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Redeemed Date</th>
+                                <th>Customer</th>
+                                <th>Reward</th>
+                                <th>Points Used</th>
+                                <th>Status</th>
+                                <th>Used Date</th>
+                                <th>Appointment</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% redemptions.forEach(redemption => { %>
+                                <tr>
+                                    <td><%= new Date(redemption.redeemedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></td>
+                                    <td>
+                                        <% if (redemption.customer) { %>
+                                            <div class="customer-info">
+                                                <span class="customer-name"><%= redemption.customer.firstName %> <%= redemption.customer.lastName %></span>
+                                                <span class="customer-email"><%= redemption.customer.email %></span>
+                                            </div>
+                                        <% } else { %>
+                                            <span style="color: #9ca3af;">N/A</span>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <% if (redemption.reward) { %>
+                                            <div class="reward-info">
+                                                <span class="reward-name"><%= redemption.reward.name %></span>
+                                                <span class="reward-discount">
+                                                    <%= redemption.reward.discountType === 'percentage' 
+                                                        ? redemption.reward.discountValue + '% OFF' 
+                                                        : '₱' + redemption.reward.discountValue + ' OFF' %>
+                                                </span>
+                                            </div>
+                                        <% } else { %>
+                                            <span style="color: #9ca3af;">Deleted Reward</span>
+                                        <% } %>
+                                    </td>
+                                    <td><strong><%= redemption.pointsUsed %></strong> pts</td>
+                                    <td>
+                                        <span class="status-badge <%= redemption.status %>">
+                                            <%= redemption.status %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <%= redemption.usedAt 
+                                            ? new Date(redemption.usedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) 
+                                            : '-' %>
+                                    </td>
+                                    <td>
+                                        <% if (redemption.appliedToAppointment) { %>
+                                            <span style="color: #2563eb;">✓ Applied</span>
+                                        <% } else { %>
+                                            <span style="color: #9ca3af;">-</span>
+                                        <% } %>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                <% } %>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

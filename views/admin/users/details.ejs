@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= user.fullName %> - User Details</title>
+    <link rel="stylesheet" href="/css/admin/main.css">
+    <style>
+        .user-details-container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            margin-left: 280px; /* Space for sidebar */
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .user-header {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .user-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+        }
+        
+        .user-main-info h1 {
+            margin: 0 0 10px 0;
+        }
+        
+        .user-meta {
+            color: #666;
+            margin: 5px 0;
+        }
+        
+        .user-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-ban { background: #f44336; color: white; }
+        .btn-unban { background: #4caf50; color: white; }
+        .btn-deactivate { background: #ff9800; color: white; }
+        .btn-activate { background: #2196f3; color: white; }
+        .btn-reset { background: #9c27b0; color: white; }
+        
+        .badge {
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            display: inline-block;
+            margin-left: 10px;
+        }
+        
+        .badge-active { background: #e8f5e9; color: #2e7d32; }
+        .badge-inactive { background: #ffebee; color: #c62828; }
+        .badge-banned { background: #000; color: #fff; }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .stat-card h3 {
+            font-size: 14px;
+            color: #666;
+            margin: 0 0 10px 0;
+        }
+        
+        .stat-card .number {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .section h2 {
+            margin-top: 0;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .info-item {
+            padding: 10px 0;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .info-value {
+            color: #333;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        .status-completed { background: #e8f5e9; color: #2e7d32; }
+        .status-pending { background: #fff3e0; color: #f57c00; }
+        .status-cancelled { background: #ffebee; color: #c62828; }
+        
+        .ban-info {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <%- include('../partials/sidebar') %>
+    
+    <div class="user-details-container">
+        <a href="/admin/users" class="back-link">← Back to Users</a>
+        
+        <!-- User Header -->
+        <div class="user-header">
+            <div class="user-info">
+                <div class="user-main-info">
+                    <h1>
+                        <%= user.fullName %>
+                        <% if (user.isBanned) { %>
+                            <span class="badge badge-banned">Banned</span>
+                        <% } else if (user.isActive) { %>
+                            <span class="badge badge-active">Active</span>
+                        <% } else { %>
+                            <span class="badge badge-inactive">Inactive</span>
+                        <% } %>
+                    </h1>
+                    <div class="user-meta">
+                        <strong>Email:</strong> <%= user.email %>
+                    </div>
+                    <div class="user-meta">
+                        <strong>Role:</strong> <%= user.role === 'customer' ? 'Customer' : 'Business Owner' %>
+                    </div>
+                    <div class="user-meta">
+                        <strong>Joined:</strong> <%= new Date(user.createdAt).toLocaleDateString() %>
+                    </div>
+                    <div class="user-meta">
+                        <strong>Last Login:</strong> <%= user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never' %>
+                    </div>
+                    
+                    <% if (user.isBanned) { %>
+                        <div class="ban-info">
+                            <strong>Ban Reason:</strong> <%= user.banReason || 'No reason provided' %><br>
+                            <strong>Banned At:</strong> <%= new Date(user.bannedAt).toLocaleString() %>
+                        </div>
+                    <% } %>
+                </div>
+                
+                <div class="user-actions">
+                    <% if (user.isBanned) { %>
+                        <button onclick="unbanUser()" class="btn btn-unban">Unban User</button>
+                    <% } else { %>
+                        <button onclick="banUser()" class="btn btn-ban">Ban User</button>
+                    <% } %>
+                    
+                    <% if (user.isActive) { %>
+                        <button onclick="deactivateUser()" class="btn btn-deactivate">Deactivate</button>
+                    <% } else { %>
+                        <button onclick="reactivateUser()" class="btn btn-activate">Reactivate</button>
+                    <% } %>
+                    
+                    <button onclick="resetPassword()" class="btn btn-reset">Reset Password</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Appointments</h3>
+                <div class="number"><%= appointmentStats.total %></div>
+            </div>
+            <div class="stat-card">
+                <h3>Completed</h3>
+                <div class="number"><%= appointmentStats.completed %></div>
+            </div>
+            <div class="stat-card">
+                <h3>Cancelled</h3>
+                <div class="number"><%= appointmentStats.cancelled %></div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Spent</h3>
+                <div class="number">₱<%= totalSpent.toLocaleString() %></div>
+            </div>
+        </div>
+        
+        <!-- Business Information (if applicable) -->
+        <% if (business) { %>
+            <div class="section">
+                <h2>🏢 Business Information</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Business Name</div>
+                        <div class="info-value"><%= business.businessName %></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Status</div>
+                        <div class="info-value"><%= business.verificationStatus %></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Category</div>
+                        <div class="info-value"><%= business.category %></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Phone</div>
+                        <div class="info-value"><%= business.contactNumber %></div>
+                    </div>
+                </div>
+                <div style="margin-top: 15px;">
+                    <a href="/admin/businesses/<%= business._id %>" class="btn btn-activate">View Business Details</a>
+                </div>
+            </div>
+        <% } %>
+        
+        <!-- Recent Appointments -->
+        <div class="section">
+            <h2>📅 Recent Appointments</h2>
+            <% if (recentAppointments.length === 0) { %>
+                <p>No appointments yet</p>
+            <% } else { %>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Service</th>
+                            <th>Business</th>
+                            <th>Status</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% recentAppointments.forEach(apt => { %>
+                            <tr>
+                                <td><%= new Date(apt.date).toLocaleDateString() %></td>
+                                <td><%= apt.service?.name || 'N/A' %></td>
+                                <td><%= apt.businessId?.businessName || 'N/A' %></td>
+                                <td>
+                                    <span class="status-badge status-<%= apt.status %>">
+                                        <%= apt.status %>
+                                    </span>
+                                </td>
+                                <td><%= apt.timeSlot?.start || 'N/A' %></td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            <% } %>
+        </div>
+    </div>
+    
+    <script>
+        const userId = '<%= user._id %>';
+        
+        function banUser() {
+            const reason = prompt('Enter ban reason:');
+            if (!reason) return;
+            
+            if (confirm('Are you sure you want to ban this user?')) {
+                fetch(`/admin/users/${userId}/ban`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reason })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('User banned successfully');
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                });
+            }
+        }
+        
+        function unbanUser() {
+            if (confirm('Are you sure you want to unban this user?')) {
+                fetch(`/admin/users/${userId}/unban`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('User unbanned successfully');
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                });
+            }
+        }
+        
+        function deactivateUser() {
+            if (confirm('Are you sure you want to deactivate this user?')) {
+                fetch(`/admin/users/${userId}/deactivate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('User deactivated successfully');
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                });
+            }
+        }
+        
+        function reactivateUser() {
+            if (confirm('Are you sure you want to reactivate this user?')) {
+                fetch(`/admin/users/${userId}/reactivate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('User reactivated successfully');
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                });
+            }
+        }
+        
+        function resetPassword() {
+            const newPassword = prompt('Enter new password (min 6 characters):');
+            if (!newPassword) return;
+            
+            if (newPassword.length < 6) {
+                alert('Password must be at least 6 characters');
+                return;
+            }
+            
+            if (confirm('Are you sure you want to reset this user\'s password?')) {
+                fetch(`/admin/users/${userId}/reset-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ newPassword })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Password reset successfully');
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>

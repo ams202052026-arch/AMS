@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= business.businessName %> - <%= service ? 'Edit' : 'Add' %> Service</title>
+    <link rel="stylesheet" href="/css/businessOwner/main.css">
+</head>
+<body>
+    <div class="dashboard-layout">
+        <!-- Shared Sidebar -->
+        <%- include('../partials/sidebar', { currentPage: 'services' }) %>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="form-header">
+                <h1><%= service ? 'Edit' : 'Add New' %> Service</h1>
+                <div class="breadcrumb">
+                    <a href="/business-owner/services">Services</a> / <%= service ? 'Edit' : 'Add New' %>
+                </div>
+            </div>
+
+            <% if (typeof error !== 'undefined' && error) { %>
+                <div class="error-message">
+                    <%= error %>
+                </div>
+            <% } %>
+
+            <form class="service-form" action="<%= service ? `/business-owner/services/${service._id}` : '/business-owner/services' %>" method="POST" enctype="multipart/form-data">
+                <% if (service) { %>
+                    <input type="hidden" name="_method" value="PUT">
+                <% } %>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label" for="name">Service Name *</label>
+                        <input type="text" id="name" name="name" class="form-input" 
+                               value="<%= service ? service.name : '' %>" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="category">Category *</label>
+                        <select id="category" name="category" class="form-select" required>
+                            <option value="">Select Category</option>
+                            <option value="hair" <%= service && service.category === 'hair' ? 'selected' : '' %>>Hair</option>
+                            <option value="skin" <%= service && service.category === 'skin' ? 'selected' : '' %>>Skin</option>
+                            <option value="nails" <%= service && service.category === 'nails' ? 'selected' : '' %>>Nails</option>
+                            <option value="spa" <%= service && service.category === 'spa' ? 'selected' : '' %>>Spa</option>
+                            <option value="other" <%= service && service.category === 'other' ? 'selected' : '' %>>Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="price">Price (₱) *</label>
+                        <input type="number" id="price" name="price" class="form-input" 
+                               value="<%= service ? service.price : '' %>" min="0" step="0.01" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="duration">Duration (minutes) *</label>
+                        <input type="number" id="duration" name="duration" class="form-input" 
+                               value="<%= service ? service.duration : '' %>" min="1" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="pointsEarned">
+                            Points Earned
+                            <% if (typeof settings !== 'undefined' && settings) { %>
+                                <span style="color: #6b7280; font-weight: normal; font-size: 0.875rem;">
+                                    (Min: <%= settings.minPointsPerService %>, Max: <%= settings.maxPointsPerService %>)
+                                </span>
+                            <% } %>
+                        </label>
+                        <input type="number" id="pointsEarned" name="pointsEarned" class="form-input" 
+                               value="<%= service ? service.pointsEarned : '10' %>" 
+                               min="<%= typeof settings !== 'undefined' && settings ? settings.minPointsPerService : 0 %>"
+                               max="<%= typeof settings !== 'undefined' && settings ? settings.maxPointsPerService : 1000 %>"
+                               required>
+                        <div class="form-help">Points customers earn when they book this service</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="serviceImage">Service Image</label>
+                        <input type="file" id="serviceImage" name="serviceImage" class="form-input" 
+                               accept="image/jpeg,image/jpg,image/png,image/webp">
+                        <div class="form-help">Upload a thumbnail image for this service (JPG, PNG, WEBP - Max 2MB)</div>
+                        
+                        <!-- Image Preview -->
+                        <div id="imagePreview" class="image-preview-container" style="display: none;">
+                            <img id="previewImg" src="" alt="Preview" class="image-preview">
+                            <button type="button" id="removeImage" class="btn btn-secondary btn-sm">Remove Image</button>
+                        </div>
+                        
+                        <!-- Current Image (for edit mode) -->
+                        <% if (service && service.image && service.image !== '/image/default-service.jpg') { %>
+                            <div class="current-image-container">
+                                <p class="form-help">Current Image:</p>
+                                <img src="<%= service.image %>" alt="Current Service Image" class="image-preview">
+                                <input type="hidden" name="keepCurrentImage" value="true">
+                            </div>
+                        <% } %>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="image">Image URL (Alternative)</label>
+                        <input type="url" id="image" name="image" class="form-input" 
+                               value="<%= service ? service.image : '' %>" placeholder="https://example.com/image.jpg">
+                        <div class="form-help">Or provide an image URL instead of uploading</div>
+                    </div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label class="form-label" for="description">Description</label>
+                    <textarea id="description" name="description" class="form-textarea" 
+                              placeholder="Describe your service..."><%= service ? service.description : '' %></textarea>
+                </div>
+
+                <div class="form-group full-width">
+                    <label class="form-label" for="details">Service Details</label>
+                    <textarea id="details" name="details" class="form-textarea" 
+                              placeholder="Enter each detail on a new line..."><%= service && service.details ? service.details.join('\n') : '' %></textarea>
+                    <div class="form-help">Enter each detail on a separate line</div>
+                </div>
+
+                <% if (staff && staff.length > 0) { %>
+                    <div class="form-group full-width">
+                        <label class="form-label">Assigned Staff</label>
+                        <div class="staff-selection">
+                            <% staff.forEach(s => { %>
+                                <label class="staff-checkbox">
+                                    <input type="checkbox" name="assignedStaff" value="<%= s._id %>"
+                                           <%= service && service.assignedStaff && service.assignedStaff.some(as => as._id.toString() === s._id.toString()) ? 'checked' : '' %>>
+                                    <%= s.name %>
+                                </label>
+                            <% }) %>
+                        </div>
+                        <div class="form-help">Select staff members who can provide this service</div>
+                    </div>
+                <% } %>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label" for="minAdvanceBookingValue">Minimum Advance Booking</label>
+                        <input type="number" id="minAdvanceBookingValue" name="minAdvanceBookingValue" class="form-input" 
+                               value="<%= service && service.minAdvanceBooking ? service.minAdvanceBooking.value : '0' %>" min="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="minAdvanceBookingUnit">Booking Unit</label>
+                        <select id="minAdvanceBookingUnit" name="minAdvanceBookingUnit" class="form-select">
+                            <option value="hours" <%= service && service.minAdvanceBooking && service.minAdvanceBooking.unit === 'hours' ? 'selected' : '' %>>Hours</option>
+                            <option value="days" <%= service && service.minAdvanceBooking && service.minAdvanceBooking.unit === 'days' ? 'selected' : '' %>>Days</option>
+                        </select>
+                    </div>
+                </div>
+
+                <% if (service) { %>
+                    <div class="form-group">
+                        <label class="staff-checkbox">
+                            <input type="checkbox" name="isActive" value="true" <%= service.isActive ? 'checked' : '' %>>
+                            Service is active
+                        </label>
+                    </div>
+                <% } %>
+
+                <div class="form-actions">
+                    <a href="/business-owner/services" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">
+                        <%= service ? 'Update Service' : 'Add Service' %>
+                    </button>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <script>
+        // Image preview functionality
+        const serviceImageInput = document.getElementById('serviceImage');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImg = document.getElementById('previewImg');
+        const removeImageBtn = document.getElementById('removeImage');
+        const imageUrlInput = document.getElementById('image');
+        const keepCurrentImageInput = document.querySelector('input[name="keepCurrentImage"]');
+
+        serviceImageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Validate file size (2MB)
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('File size must be less than 2MB');
+                    e.target.value = '';
+                    return;
+                }
+
+                // Show preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                    
+                    // Clear image URL input when file is selected
+                    imageUrlInput.value = '';
+                    
+                    // Hide current image if editing
+                    if (keepCurrentImageInput) {
+                        keepCurrentImageInput.value = 'false';
+                        const currentImageContainer = document.querySelector('.current-image-container');
+                        if (currentImageContainer) {
+                            currentImageContainer.style.opacity = '0.5';
+                        }
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        removeImageBtn.addEventListener('click', function() {
+            serviceImageInput.value = '';
+            imagePreview.style.display = 'none';
+            previewImg.src = '';
+            
+            // Restore current image if editing
+            if (keepCurrentImageInput) {
+                keepCurrentImageInput.value = 'true';
+                const currentImageContainer = document.querySelector('.current-image-container');
+                if (currentImageContainer) {
+                    currentImageContainer.style.opacity = '1';
+                }
+            }
+        });
+
+        // Clear file input when URL is entered
+        imageUrlInput.addEventListener('input', function() {
+            if (this.value.trim()) {
+                serviceImageInput.value = '';
+                imagePreview.style.display = 'none';
+                previewImg.src = '';
+            }
+        });
+    </script>
+</body>
+</html>

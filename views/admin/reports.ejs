@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AMS Admin - Reports</title>
+    <link rel="stylesheet" href="/css/admin/main.css">
+    <link rel="stylesheet" href="/css/admin/reports.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="admin-layout">
+        <%- include('partials/sidebar') %>
+
+        <main class="admin-main">
+            <header class="admin-header">
+                <h1>📊 Reports Dashboard</h1>
+                <div class="period-selector">
+                    <a href="/admin/reports?period=day" class="btn-sm <%= period === 'day' ? 'btn-primary' : 'btn-secondary' %>">Today</a>
+                    <a href="/admin/reports?period=week" class="btn-sm <%= period === 'week' ? 'btn-primary' : 'btn-secondary' %>">Week</a>
+                    <a href="/admin/reports?period=month" class="btn-sm <%= period === 'month' ? 'btn-primary' : 'btn-secondary' %>">Month</a>
+                    <a href="/admin/reports?period=year" class="btn-sm <%= period === 'year' ? 'btn-primary' : 'btn-secondary' %>">Year</a>
+                </div>
+            </header>
+
+            <!-- Appointment Statistics -->
+            <section class="report-category">
+                <h2 class="category-title">📅 Appointment Statistics</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-icon">📋</span>
+                        <span class="stat-number"><%= stats.totalAppointments %></span>
+                        <span class="stat-label">Total Appointments</span>
+                    </div>
+                    <div class="stat-card success">
+                        <span class="stat-icon">✅</span>
+                        <span class="stat-number"><%= stats.completedAppointments %></span>
+                        <span class="stat-label">Completed</span>
+                    </div>
+                    <div class="stat-card warning">
+                        <span class="stat-icon">⏳</span>
+                        <span class="stat-number"><%= stats.pendingAppointments %></span>
+                        <span class="stat-label">Pending</span>
+                    </div>
+                    <div class="stat-card danger">
+                        <span class="stat-icon">❌</span>
+                        <span class="stat-number"><%= stats.cancelledAppointments %></span>
+                        <span class="stat-label">Cancelled</span>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card highlight">
+                        <span class="stat-icon">📈</span>
+                        <span class="stat-number"><%= stats.completionRate %>%</span>
+                        <span class="stat-label">Completion Rate</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-icon">📉</span>
+                        <span class="stat-number"><%= stats.cancellationRate %>%</span>
+                        <span class="stat-label">Cancellation Rate</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-icon">✔️</span>
+                        <span class="stat-number"><%= stats.approvedAppointments %></span>
+                        <span class="stat-label">Approved</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Revenue Statistics -->
+            <section class="report-category">
+                <h2 class="category-title">💰 Revenue Statistics</h2>
+                <div class="revenue-stats">
+                    <div class="revenue-card large">
+                        <span class="revenue-icon">💵</span>
+                        <div class="revenue-info">
+                            <span class="revenue-label">Total Revenue</span>
+                            <span class="revenue-amount">₱<%= stats.totalRevenue.toLocaleString() %></span>
+                        </div>
+                    </div>
+                    <div class="revenue-card">
+                        <span class="revenue-icon">📊</span>
+                        <div class="revenue-info">
+                            <span class="revenue-label">Average per Appointment</span>
+                            <span class="revenue-amount">₱<%= Math.round(stats.averageRevenue).toLocaleString() %></span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Customer Statistics -->
+            <section class="report-category">
+                <h2 class="category-title">👥 Customer Statistics</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-icon">👤</span>
+                        <span class="stat-number"><%= stats.totalCustomers %></span>
+                        <span class="stat-label">Total Customers</span>
+                    </div>
+                    <div class="stat-card success">
+                        <span class="stat-icon">🆕</span>
+                        <span class="stat-number"><%= stats.newCustomers %></span>
+                        <span class="stat-label">New Customers</span>
+                    </div>
+                    <div class="stat-card highlight">
+                        <span class="stat-icon">🔄</span>
+                        <span class="stat-number"><%= stats.returningCustomers %></span>
+                        <span class="stat-label">Returning Customers</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Loyalty Program Statistics -->
+            <section class="report-category">
+                <h2 class="category-title">🎁 Loyalty Program</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-icon">🎫</span>
+                        <span class="stat-number"><%= stats.totalRedemptions %></span>
+                        <span class="stat-label">Total Redemptions</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-icon">⭐</span>
+                        <span class="stat-number"><%= stats.pointsAwarded.toLocaleString() %></span>
+                        <span class="stat-label">Points Awarded</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-icon">💎</span>
+                        <span class="stat-number"><%= stats.pointsRedeemed.toLocaleString() %></span>
+                        <span class="stat-label">Points Redeemed</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Service Popularity & Staff Performance -->
+            <div class="reports-grid">
+                <section class="report-section">
+                    <h2>🔥 Service Popularity</h2>
+                    <div class="chart-container">
+                        <% if (servicePopularity.length > 0) { %>
+                            <% servicePopularity.forEach(item => { %>
+                                <div class="bar-item">
+                                    <span class="bar-label"><%= item.service ? item.service.name : 'Unknown' %></span>
+                                    <div class="bar-wrapper">
+                                        <div class="bar" style="width: <%= (item.count / (servicePopularity[0]?.count || 1)) * 100 %>%">
+                                            <span class="bar-text"><%= item.count %> bookings</span>
+                                        </div>
+                                    </div>
+                                    <div class="bar-stats">
+                                        <span class="stat-item">✅ <%= item.completed %> completed</span>
+                                        <span class="stat-item">💰 ₱<%= item.revenue.toLocaleString() %></span>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        <% } else { %>
+                            <p class="empty-state">No service data available for this period</p>
+                        <% } %>
+                    </div>
+                </section>
+
+                <section class="report-section">
+                    <h2>⭐ Staff Performance</h2>
+                    <% if (staffPerformance.length > 0) { %>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Staff</th>
+                                    <th>Total</th>
+                                    <th>Completed</th>
+                                    <th>Rate</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% staffPerformance.forEach((item, index) => { %>
+                                    <tr>
+                                        <td>
+                                            <span class="rank-badge">
+                                                <% if (index === 0) { %>🥇
+                                                <% } else if (index === 1) { %>🥈
+                                                <% } else if (index === 2) { %>🥉
+                                                <% } else { %>#<%= index + 1 %><% } %>
+                                            </span>
+                                        </td>
+                                        <td><strong><%= item.staff.name %></strong></td>
+                                        <td><%= item.totalAppointments %></td>
+                                        <td><%= item.completedAppointments %></td>
+                                        <td>
+                                            <span class="completion-badge <%= item.completionRate >= 80 ? 'high' : item.completionRate >= 60 ? 'medium' : 'low' %>">
+                                                <%= Math.round(item.completionRate) %>%
+                                            </span>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    <% } else { %>
+                        <p class="empty-state">No staff performance data available for this period</p>
+                    <% } %>
+                </section>
+            </div>
+
+            <!-- Export Section -->
+            <section class="export-section">
+                <h3>📥 Export to Excel</h3>
+                <div class="export-buttons">
+                    <a href="/admin/reports/export?type=appointments&period=<%= period %>" class="btn-secondary">
+                        📊 Export Appointments to Excel
+                    </a>
+                    <a href="/admin/reports/export?type=staff&period=<%= period %>" class="btn-secondary">
+                        👥 Export Staff Performance to Excel
+                    </a>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

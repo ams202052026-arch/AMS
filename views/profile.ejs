@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMS - Settings</title>
+    <link rel="stylesheet" href="/css/scrollbar.css">
+    <link rel="stylesheet" href="/css/profile.css?v=2">
+    <link rel="stylesheet" href="/css/headerAndNavigation.css">
+    <link rel="stylesheet" href="/css/footer.css">
+</head>
+<body>
+    <%- include('partials/headerAndNavigation') %>
+
+    <main class="main-content">
+        <h1 class="page-title">Settings</h1>
+
+        <div class="settings-list">
+            <!-- Account Information -->
+            <div class="settings-card">
+                <h2>Account Information</h2>
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" value="<%= customer.name %>" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" value="<%= customer.email %>" disabled>
+                </div>
+            </div>
+
+            <!-- Change Password -->
+            <div class="settings-card">
+                <h2>Change Password</h2>
+                <form id="changePasswordForm" action="/profile/change-password" method="POST">
+                    <div class="form-group">
+                        <label>Current Password</label>
+                        <div class="password-input-wrapper">
+                            <input type="password" name="currentPassword" id="currentPassword" required>
+                            <button type="button" class="toggle-password" onclick="togglePassword('currentPassword')">
+                                <svg class="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>New Password</label>
+                        <div class="password-input-wrapper">
+                            <input type="password" name="newPassword" id="newPassword" minlength="6" required>
+                            <button type="button" class="toggle-password" onclick="togglePassword('newPassword')">
+                                <svg class="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <small class="hint">At least 6 characters</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm New Password</label>
+                        <div class="password-input-wrapper">
+                            <input type="password" name="confirmPassword" id="confirmPassword" minlength="6" required>
+                            <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword')">
+                                <svg class="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="button-section">
+                        <button type="button" class="btn-primary" onclick="showPasswordConfirmModal()">Change Password</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Delete Account -->
+            <div class="settings-card danger-card">
+                <h2>Delete Account</h2>
+                <p class="warning-text">Once you delete your account, there is no going back. All your data will be permanently deleted.</p>
+                <div class="button-section">
+                    <button type="button" class="btn-danger" onclick="showDeleteModal()">Delete My Account</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <%- include('partials/footer') %>
+
+    <!-- Change Password Confirmation Modal -->
+    <div id="passwordConfirmModal" class="modal-overlay" style="display: none;">
+        <div class="modal-box">
+            <span class="close-btn" onclick="closePasswordConfirmModal()">&times;</span>
+            <h3>Confirm Password Change</h3>
+            <p>Are you sure you want to change your password? You will be logged out after this action.</p>
+            
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closePasswordConfirmModal()">Cancel</button>
+                <button type="button" class="btn-primary" onclick="confirmPasswordChange()">Change Password</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Account Confirmation Modal -->
+    <div id="deleteAccountModal" class="modal-overlay" style="display: none;">
+        <div class="modal-box">
+            <span class="close-btn" onclick="closeDeleteModal()">&times;</span>
+            <h3>Delete Account</h3>
+            <p>This action cannot be undone. The following will be permanently deleted:</p>
+            
+            <div class="delete-warning">
+                <ul>
+                    <li>All appointments</li>
+                    <li>All notifications</li>
+                    <li>All reward points and redemptions</li>
+                    <li>Account information</li>
+                </ul>
+            </div>
+
+            <form id="deleteAccountForm" action="/profile/delete" method="POST">
+                <div class="form-group">
+                    <label>Enter your password to confirm</label>
+                    <div class="password-input-wrapper">
+                        <input type="password" name="password" id="deletePassword" required>
+                        <button type="button" class="toggle-password" onclick="togglePassword('deletePassword')">
+                            <svg class="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Type <strong>DELETE</strong> to confirm</label>
+                    <input type="text" name="confirmText" id="deleteConfirmText" placeholder="DELETE" required>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeDeleteModal()">Keep Account</button>
+                    <button type="button" class="btn-danger" onclick="showFinalConfirmation()">Delete Account</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Final Confirmation Modal -->
+    <div id="finalConfirmModal" class="modal-overlay" style="display: none;">
+        <div class="modal-box final-warning">
+            <h3>Final Warning</h3>
+            <p class="final-warning-text">This is your last chance to cancel.</p>
+            
+            <div class="final-warning-box">
+                <p><strong>Once you proceed:</strong></p>
+                <ul>
+                    <li>All your data will be permanently deleted</li>
+                    <li>This action cannot be reversed</li>
+                    <li>You will need to create a new account to use our services again</li>
+                    <li>All points and rewards will be lost</li>
+                </ul>
+            </div>
+            
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closeFinalConfirmation()">Keep My Account</button>
+                <button type="button" class="btn-danger" onclick="confirmDelete()">Permanently Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal-overlay" style="display: none;">
+        <div class="modal-box">
+            <span class="close-btn" onclick="closeSuccessModal()">&times;</span>
+            <h3>Success</h3>
+            <p id="successMessage"></p>
+            <div class="modal-actions">
+                <button type="button" class="btn-primary" onclick="closeSuccessModal()">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div id="errorModal" class="modal-overlay" style="display: none;">
+        <div class="modal-box">
+            <span class="close-btn" onclick="closeErrorModal()">&times;</span>
+            <h3>Unable to Complete Request</h3>
+            <p id="errorMessage"></p>
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closeErrorModal()">Understood</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Show success/error messages on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const success = urlParams.get('success');
+            const error = urlParams.get('error');
+            
+            if (success) {
+                showSuccessModal(decodeURIComponent(success));
+            }
+            if (error) {
+                showErrorModal(decodeURIComponent(error));
+            }
+        });
+
+        // Success Modal
+        function showSuccessModal(message) {
+            document.getElementById('successMessage').textContent = message;
+            document.getElementById('successModal').style.display = 'flex';
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('successModal').style.display = 'none';
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        // Error Modal
+        function showErrorModal(message) {
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorModal').style.display = 'flex';
+        }
+
+        function closeErrorModal() {
+            document.getElementById('errorModal').style.display = 'none';
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        // Toggle Password Visibility
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const button = input.parentElement.querySelector('.toggle-password');
+            const svg = button.querySelector('.eye-icon');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                // Change to eye-off icon
+                svg.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+            } else {
+                input.type = 'password';
+                // Change back to eye icon
+                svg.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+            }
+        }
+
+        // Change Password Confirmation
+        function showPasswordConfirmModal() {
+            // Validate form first
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (!currentPassword) {
+                showErrorModal('Please enter your current password');
+                return;
+            }
+            
+            if (!newPassword || newPassword.length < 6) {
+                showErrorModal('New password must be at least 6 characters');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                showErrorModal('New passwords do not match');
+                return;
+            }
+            
+            // Show confirmation modal
+            document.getElementById('passwordConfirmModal').style.display = 'flex';
+        }
+
+        function closePasswordConfirmModal() {
+            document.getElementById('passwordConfirmModal').style.display = 'none';
+        }
+
+        function confirmPasswordChange() {
+            closePasswordConfirmModal();
+            document.getElementById('changePasswordForm').submit();
+        }
+
+        // Delete Account Modals
+        function showDeleteModal() {
+            console.log('Opening delete modal');
+            const modal = document.getElementById('deleteAccountModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                console.log('Modal displayed');
+            } else {
+                console.error('Modal not found!');
+            }
+        }
+
+        function closeDeleteModal() {
+            console.log('Closing delete modal');
+            const modal = document.getElementById('deleteAccountModal');
+            if (modal) {
+                modal.style.display = 'none';
+                // Don't reset form - we need the values for submission
+            }
+        }
+
+        function showFinalConfirmation() {
+            console.log('Showing final confirmation');
+            
+            // Validate form first
+            const password = document.getElementById('deletePassword').value;
+            const confirmText = document.getElementById('deleteConfirmText').value;
+            
+            if (!password) {
+                showErrorModal('Please enter your password');
+                return;
+            }
+            
+            if (confirmText !== 'DELETE') {
+                showErrorModal('Please type DELETE to confirm');
+                return;
+            }
+            
+            // Close first modal and show final confirmation
+            closeDeleteModal();
+            document.getElementById('finalConfirmModal').style.display = 'flex';
+        }
+
+        function closeFinalConfirmation() {
+            console.log('Closing final confirmation - account saved!');
+            document.getElementById('finalConfirmModal').style.display = 'none';
+        }
+
+        function confirmDelete() {
+            console.log('Final confirmation - deleting account');
+            console.log('Submitting form...');
+            
+            // Close the final modal
+            document.getElementById('finalConfirmModal').style.display = 'none';
+            
+            // Submit the form (validation already done in showFinalConfirmation)
+            document.getElementById('deleteAccountForm').submit();
+        }
+
+        // Close modals when clicking outside
+        document.getElementById('passwordConfirmModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePasswordConfirmModal();
+            }
+        });
+
+        document.getElementById('deleteAccountModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDeleteModal();
+            }
+        });
+
+        document.getElementById('finalConfirmModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeFinalConfirmation();
+            }
+        });
+
+        // Auto-hide alerts after 5 seconds
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => alert.style.display = 'none');
+        }, 5000);
+    </script>
+    <script src="/js/headerAndNavigation.js"></script>
+</body>
+</html>

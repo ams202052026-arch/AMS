@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= business.businessName %> - Appointments</title>
+    <link rel="stylesheet" href="/css/businessOwner/main.css">
+</head>
+<body>
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <%- include('../partials/sidebar', { currentPage: 'appointments' }) %>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="appointments-header">
+                <h1>Appointments Management</h1>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-number"><%= stats.today %></div>
+                    <div class="stat-label">Today</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number"><%= stats.pending %></div>
+                    <div class="stat-label">Pending</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number"><%= stats.confirmed %></div>
+                    <div class="stat-label">Confirmed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number"><%= stats.completed %></div>
+                    <div class="stat-label">Completed</div>
+                </div>
+            </div>
+
+            <!-- Filter Tabs -->
+            <div class="filter-tabs">
+                <a href="/business-owner/appointments" class="filter-tab <%= !filter || filter === 'all' ? 'active' : '' %>">All</a>
+                <a href="/business-owner/appointments?filter=today" class="filter-tab <%= filter === 'today' ? 'active' : '' %>">Today</a>
+                <a href="/business-owner/appointments?filter=pending" class="filter-tab <%= filter === 'pending' ? 'active' : '' %>">Pending</a>
+                <a href="/business-owner/appointments?filter=confirmed" class="filter-tab <%= filter === 'confirmed' ? 'active' : '' %>">Confirmed</a>
+                <a href="/business-owner/appointments?filter=completed" class="filter-tab <%= filter === 'completed' ? 'active' : '' %>">Completed</a>
+            </div>
+
+            <% if (appointments.length > 0) { %>
+                <div class="appointments-table">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Queue</th>
+                                <th>Customer</th>
+                                <th>Service</th>
+                                <th>Staff</th>
+                                <th>Date & Time</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% appointments.forEach(appointment => { %>
+                                <tr>
+                                    <td>
+                                        <span class="queue-number">#<%= appointment.queueNumber %></span>
+                                    </td>
+                                    <td>
+                                        <div class="customer-info">
+                                            <span class="customer-name"><%= appointment.customer ? appointment.customer.fullName : 'N/A' %></span>
+                                            <span class="customer-email"><%= appointment.customer ? appointment.customer.email : 'N/A' %></span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="service-info">
+                                            <span class="service-name"><%= appointment.service ? appointment.service.name : 'N/A' %></span>
+                                            <span class="service-price">₱<%= appointment.finalPrice || (appointment.service ? appointment.service.price : 0) %></span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <%= appointment.staff ? appointment.staff.name : 'Any Staff' %>
+                                    </td>
+                                    <td>
+                                        <div class="appointment-date">
+                                            <span class="date-text"><%= new Date(appointment.date).toLocaleDateString() %></span>
+                                            <span class="time-text"><%= appointment.timeSlot %></span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge status-<%= appointment.status %>">
+                                            <%= appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1) %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="appointment-actions">
+                                            <% if (appointment.status === 'pending') { %>
+                                                <form action="/business-owner/appointments/<%= appointment._id %>/confirm" method="POST" style="display: inline;">
+                                                    <button type="submit" class="btn-sm btn-success">Confirm</button>
+                                                </form>
+                                                <form action="/business-owner/appointments/<%= appointment._id %>/cancel" method="POST" style="display: inline;">
+                                                    <button type="submit" class="btn-sm btn-danger">Cancel</button>
+                                                </form>
+                                            <% } else if (appointment.status === 'confirmed') { %>
+                                                <form action="/business-owner/appointments/<%= appointment._id %>/complete" method="POST" style="display: inline;">
+                                                    <button type="submit" class="btn-sm btn-success">Complete</button>
+                                                </form>
+                                                <form action="/business-owner/appointments/<%= appointment._id %>/no-show" method="POST" style="display: inline;">
+                                                    <button type="submit" class="btn-sm btn-warning">No Show</button>
+                                                </form>
+                                            <% } %>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } else { %>
+                <div class="empty-state">
+                    <div class="icon">📅</div>
+                    <h3>No Appointments</h3>
+                    <p>No appointments found for the selected filter.</p>
+                </div>
+            <% } %>
+        </main>
+    </div>
+</body>
+</html>

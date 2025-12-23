@@ -1,0 +1,149 @@
+/* Custom Scrollbar Styles - Professional Design */
+
+/* Main Page Scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f5f5f5;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #333, #1a1a1a);
+    border-radius: 10px;
+    border: 2px solid #f5f5f5;
+    transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #1a1a1a, #000);
+}
+
+::-webkit-scrollbar-thumb:active {
+    background: #000;
+}
+
+/* Firefox Scrollbar */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #1a1a1a #f5f5f5;
+}
+
+/* Modal Scrollbar - Thinner and more subtle */
+.modal-box::-webkit-scrollbar {
+    width: 6px;
+}
+
+.modal-box::-webkit-scrollbar-track {
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+
+.modal-box::-webkit-scrollbar-thumb {
+    background: #d0d0d0;
+    border-radius: 10px;
+    transition: background 0.3s ease;
+}
+
+.modal-box::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
+
+.modal-box::-webkit-scrollbar-thumb:active {
+    background: #666;
+}
+
+/* Time Slots Scrollbar */
+.time-slots::-webkit-scrollbar {
+    width: 6px;
+}
+
+.time-slots::-webkit-scrollbar-track {
+    background: #e5e5e5;
+    border-radius: 10px;
+}
+
+.time-slots::-webkit-scrollbar-thumb {
+    background: #999;
+    border-radius: 10px;
+}
+
+.time-slots::-webkit-scrollbar-thumb:hover {
+    background: #666;
+}
+
+/* About Modal Scrollbar */
+.about-modal::-webkit-scrollbar {
+    width: 6px;
+}
+
+.about-modal::-webkit-scrollbar-track {
+    background: #f5f5f5;
+    border-radius: 10px;
+}
+
+.about-modal::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+}
+
+.about-modal::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
+
+/* Dropdown Menu Scrollbar (if needed) */
+.dropdown-menu::-webkit-scrollbar {
+    width: 4px;
+}
+
+.dropdown-menu::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb {
+    background: #e0e0e0;
+    border-radius: 10px;
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb:hover {
+    background: #ccc;
+}
+
+/* Mobile Optimization */
+@media (max-width: 768px) {
+    ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        border: 1px solid #f5f5f5;
+    }
+}
+
+/* Hide scrollbar on very small screens but keep functionality */
+@media (max-width: 480px) {
+    ::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
+    }
+}
+
+/* Smooth scrolling behavior */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Optional: Hide scrollbar completely (uncomment if preferred) */
+/*
+::-webkit-scrollbar {
+    display: none;
+}
+
+* {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+*/

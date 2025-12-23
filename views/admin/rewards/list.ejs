@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rewards Management - AMS Admin</title>
+    <link rel="stylesheet" href="/css/admin/main.css">
+    <style>
+        .admin-main {
+            margin-left: 280px;
+            padding: 2rem;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-header h1 {
+            font-size: 2rem;
+            color: #1a1a1a;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .stat-card h3 {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1a1a1a;
+        }
+
+        .rewards-table {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f9fafb;
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            padding: 1rem;
+            border-top: 1px solid #f3f4f6;
+        }
+
+        tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-badge.active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-badge.inactive {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .discount-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.75rem;
+            background: #dbeafe;
+            color: #1e40af;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            border-radius: 6px;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-edit {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #2563eb;
+        }
+
+        .btn-toggle {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-toggle:hover {
+            background: #d97706;
+        }
+
+        .btn-delete {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #dc2626;
+        }
+
+        .inline-form {
+            display: inline;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <%- include('../partials/sidebar') %>
+
+        <main class="admin-main">
+            <div class="page-header">
+                <h1>🎁 Rewards Management</h1>
+                <div class="header-actions">
+                    <a href="/admin/rewards/redemptions" class="btn btn-secondary">📊 View Redemptions</a>
+                    <a href="/admin/rewards/add" class="btn btn-primary">+ Add New Reward</a>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Rewards</h3>
+                    <div class="value"><%= rewards.length %></div>
+                </div>
+                <div class="stat-card">
+                    <h3>Active Rewards</h3>
+                    <div class="value"><%= rewards.filter(r => r.isActive).length %></div>
+                </div>
+                <div class="stat-card">
+                    <h3>Inactive Rewards</h3>
+                    <div class="value"><%= rewards.filter(r => !r.isActive).length %></div>
+                </div>
+            </div>
+
+            <!-- Points Configuration Section -->
+            <div class="rewards-table" style="margin-bottom: 2rem;">
+                <div style="padding: 2rem;">
+                    <h2 style="font-size: 1.25rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                        🎯 Loyalty Points Configuration
+                    </h2>
+                    <p style="color: #6b7280; margin-bottom: 1.5rem; font-size: 0.95rem;">
+                        Set the range of points that business owners can assign to their services
+                    </p>
+
+                    <div id="pointsSuccessMessage" class="success-message" style="display: none; background: #d1fae5; color: #065f46; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;"></div>
+                    <div id="pointsErrorMessage" class="error-message" style="display: none; background: #fee2e2; color: #991b1b; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;"></div>
+
+                    <form id="pointsSettingsForm" style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 1rem; align-items: end;">
+                        <div>
+                            <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 0.5rem; font-size: 0.875rem;">
+                                Minimum Points
+                                <span style="color: #2563eb; font-weight: normal;">(Current: <%= settings.minPointsPerService %>)</span>
+                            </label>
+                            <input 
+                                type="number" 
+                                id="minPointsPerService" 
+                                name="minPointsPerService" 
+                                value="<%= settings.minPointsPerService %>"
+                                min="0"
+                                max="100"
+                                required
+                                style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem;"
+                            >
+                        </div>
+
+                        <div>
+                            <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 0.5rem; font-size: 0.875rem;">
+                                Maximum Points
+                                <span style="color: #2563eb; font-weight: normal;">(Current: <%= settings.maxPointsPerService %>)</span>
+                            </label>
+                            <input 
+                                type="number" 
+                                id="maxPointsPerService" 
+                                name="maxPointsPerService" 
+                                value="<%= settings.maxPointsPerService %>"
+                                min="1"
+                                max="1000"
+                                required
+                                style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem;"
+                            >
+                        </div>
+
+                        <button type="submit" id="savePointsBtn" style="padding: 0.75rem 2rem; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s;">
+                            Save Settings
+                        </button>
+                    </form>
+
+                    <p style="color: #6b7280; margin-top: 1rem; font-size: 0.875rem;">
+                        ℹ️ Business owners can only set points within this range when creating or editing services
+                    </p>
+                </div>
+            </div>
+
+            <div class="rewards-table">
+                <% if (rewards.length === 0) { %>
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🎁</div>
+                        <h3>No rewards yet</h3>
+                        <p>Create your first reward to start the loyalty program</p>
+                        <a href="/admin/rewards/add" class="btn btn-primary" style="margin-top: 1rem;">Add First Reward</a>
+                    </div>
+                <% } else { %>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Reward Name</th>
+                                <th>Description</th>
+                                <th>Points Required</th>
+                                <th>Discount</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% rewards.forEach(reward => { %>
+                                <tr>
+                                    <td><strong><%= reward.name %></strong></td>
+                                    <td><%= reward.description %></td>
+                                    <td><%= reward.pointsRequired %> pts</td>
+                                    <td>
+                                        <span class="discount-badge">
+                                            <% if (reward.discountType === 'percentage') { %>
+                                                <%= reward.discountValue %>% OFF
+                                            <% } else { %>
+                                                ₱<%= reward.discountValue %> OFF
+                                            <% } %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge <%= reward.isActive ? 'active' : 'inactive' %>">
+                                            <%= reward.isActive ? 'Active' : 'Inactive' %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="actions">
+                                            <a href="/admin/rewards/<%= reward._id %>/edit" class="btn-sm btn-edit">Edit</a>
+                                            <% if (reward.isActive) { %>
+                                                <form action="/admin/rewards/<%= reward._id %>/deactivate" method="POST" class="inline-form">
+                                                    <button type="submit" class="btn-sm btn-toggle" onclick="return confirm('Deactivate this reward?')">Deactivate</button>
+                                                </form>
+                                            <% } else { %>
+                                                <form action="/admin/rewards/<%= reward._id %>/activate" method="POST" class="inline-form">
+                                                    <button type="submit" class="btn-sm btn-toggle" onclick="return confirm('Activate this reward?')">Activate</button>
+                                                </form>
+                                            <% } %>
+                                            <button class="btn-sm btn-delete" onclick="deleteReward('<%= reward._id %>')">Delete</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                <% } %>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Points Settings Form
+        document.getElementById('pointsSettingsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const btn = document.getElementById('savePointsBtn');
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+            
+            const formData = new FormData(e.target);
+            const data = {
+                minPointsPerService: formData.get('minPointsPerService'),
+                maxPointsPerService: formData.get('maxPointsPerService')
+            };
+            
+            try {
+                const response = await fetch('/admin/rewards/points-settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showPointsSuccess('Points settings updated successfully!');
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showPointsError(result.error || 'Failed to update settings');
+                }
+            } catch (error) {
+                showPointsError('Error updating settings: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Save Settings';
+            }
+        });
+
+        function showPointsSuccess(message) {
+            const el = document.getElementById('pointsSuccessMessage');
+            el.textContent = '✅ ' + message;
+            el.style.display = 'block';
+            setTimeout(() => el.style.display = 'none', 5000);
+        }
+
+        function showPointsError(message) {
+            const el = document.getElementById('pointsErrorMessage');
+            el.textContent = '❌ ' + message;
+            el.style.display = 'block';
+            setTimeout(() => el.style.display = 'none', 5000);
+        }
+
+        // Validation
+        document.getElementById('minPointsPerService').addEventListener('input', validatePoints);
+        document.getElementById('maxPointsPerService').addEventListener('input', validatePoints);
+
+        function validatePoints() {
+            const min = parseInt(document.getElementById('minPointsPerService').value);
+            const max = parseInt(document.getElementById('maxPointsPerService').value);
+            
+            if (min >= max) {
+                document.getElementById('maxPointsPerService').setCustomValidity('Maximum must be greater than minimum');
+            } else {
+                document.getElementById('maxPointsPerService').setCustomValidity('');
+            }
+        }
+
+        async function deleteReward(rewardId) {
+            if (!confirm('Are you sure you want to delete this reward? This action cannot be undone.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/admin/rewards/${rewardId}/delete`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Reward deleted successfully');
+                    location.reload();
+                } else {
+                    alert(data.error || 'Failed to delete reward');
+                }
+            } catch (error) {
+                alert('Error deleting reward: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

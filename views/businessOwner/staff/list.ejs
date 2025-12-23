@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= business.businessName %> - Staff</title>
+    <link rel="stylesheet" href="/css/businessOwner/main.css">
+</head>
+<body>
+    <div class="dashboard-layout">
+        <!-- Shared Sidebar -->
+        <%- include('../partials/sidebar', { currentPage: 'staff' }) %>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="staff-header">
+                <h1>Staff Management</h1>
+                <a href="/business-owner/staff/add" class="btn-primary">+ Add Staff</a>
+            </div>
+
+            <% if (staff.length > 0) { %>
+                <div class="staff-grid">
+                    <% staff.forEach(s => { %>
+                        <div class="staff-card">
+                            <h3 class="staff-name"><%= s.name %></h3>
+                            <div class="staff-email">📧 <%= s.email %></div>
+                            <% if (s.phone) { %>
+                                <div class="staff-phone">📱 <%= s.phone %></div>
+                            <% } %>
+
+                            <div class="staff-specialties">
+                                <% if (s.specialties && s.specialties.length > 0) { %>
+                                    <% s.specialties.forEach(specialty => { %>
+                                        <span class="specialty-tag"><%= specialty %></span>
+                                    <% }) %>
+                                <% } else { %>
+                                    <span class="specialty-tag">No specialties</span>
+                                <% } %>
+                            </div>
+
+                            <div class="staff-stats">
+                                <div class="stat-item">
+                                    <div class="stat-number"><%= s.appointmentsCompleted %></div>
+                                    <div class="stat-label">Completed</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-number"><%= s.rating.toFixed(1) %></div>
+                                    <div class="stat-label">Rating</div>
+                                </div>
+                            </div>
+
+                            <span class="status-badge <%= s.isActive ? 'active' : 'inactive' %>">
+                                <%= s.isActive ? 'Active' : 'Inactive' %>
+                            </span>
+
+                            <div class="staff-actions">
+                                <a href="/business-owner/staff/<%= s._id %>/edit" class="btn-sm btn-secondary">Edit</a>
+                                <% if (s.isActive) { %>
+                                    <form action="/business-owner/staff/<%= s._id %>/deactivate" method="POST" style="display: inline;">
+                                        <button type="submit" class="btn-sm btn-danger">Deactivate</button>
+                                    </form>
+                                <% } else { %>
+                                    <form action="/business-owner/staff/<%= s._id %>/activate" method="POST" style="display: inline;">
+                                        <button type="submit" class="btn-sm btn-secondary">Activate</button>
+                                    </form>
+                                <% } %>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            <% } else { %>
+                <div class="empty-state">
+                    <div class="icon">👥</div>
+                    <h3>No Staff Members Yet</h3>
+                    <p>Add your first staff member to start managing your team.</p>
+                    <a href="/business-owner/staff/add" class="btn-primary">+ Add Your First Staff Member</a>
+                </div>
+            <% } %>
+        </main>
+    </div>
+</body>
+</html>

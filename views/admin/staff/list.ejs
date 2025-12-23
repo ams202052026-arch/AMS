@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AMS Admin - Staff</title>
+    <link rel="stylesheet" href="/css/admin/main.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <%- include('../partials/sidebar') %>
+
+        <main class="admin-main">
+            <header class="admin-header">
+                <h1>Staff Management</h1>
+                <a href="/admin/staff/add" class="btn-primary">+ Add Staff</a>
+            </header>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Specialties</th>
+                        <th>Completed</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% staff.forEach(s => { %>
+                        <tr>
+                            <td><%= s.name %></td>
+                            <td><%= s.email %></td>
+                            <td><%= s.phone || '-' %></td>
+                            <td>
+                                <% if (s.specialties && s.specialties.length > 0) { %>
+                                    <%= s.specialties.join(', ') %>
+                                <% } else { %>
+                                    -
+                                <% } %>
+                            </td>
+                            <td><%= s.appointmentsCompleted %></td>
+                            <td>
+                                <span class="status-badge <%= s.isActive ? 'active' : 'inactive' %>">
+                                    <%= s.isActive ? 'Active' : 'Inactive' %>
+                                </span>
+                            </td>
+                            <td class="actions">
+                                <a href="/admin/staff/<%= s._id %>/edit" class="btn-sm btn-secondary">Edit</a>
+                                <% if (s.isActive) { %>
+                                    <form action="/admin/staff/<%= s._id %>/deactivate" method="POST" class="inline-form">
+                                        <button type="submit" class="btn-sm btn-warning">Deactivate</button>
+                                    </form>
+                                <% } %>
+                                <button type="button" class="btn-sm btn-danger" onclick="confirmDelete('<%= s._id %>', '<%= s.name %>')">Delete</button>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </main>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeDeleteModal()">&times;</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentStaffId = null;
+        let currentStaffName = null;
+
+        async function confirmDelete(staffId, staffName) {
+            currentStaffId = staffId;
+            currentStaffName = staffName;
+
+            // Check if staff has active appointments
+            try {
+                const response = await fetch(`/admin/staff/${staffId}/check-appointments`);
+                const data = await response.json();
+
+                const modalContent = document.getElementById('modalContent');
+                const modal = document.getElementById('deleteModal');
+
+                if (data.hasAppointments) {
+                    // Staff has appointments - show warning
+                    modalContent.innerHTML = `
+                        <div class="warning-icon">⚠️</div>
+                        <h2>Cannot Delete Staff</h2>
+                        <p><strong>${staffName}</strong> has <strong>${data.count}</strong> active appointment(s).</p>
+                        <div class="appointment-list">
+                            ${data.appointments.map(apt => `
+                                <div class="appointment-item">
+                                    <span class="queue">${apt.queueNumber}</span>
+                                    <span class="customer">${apt.customerName}</span>
+                                    <span class="date">${new Date(apt.date).toLocaleDateString()}</span>
+                                    <span class="status">${apt.status}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <p class="warning-text">Please cancel or reassign these appointments first before deleting this staff member.</p>
+                        <div class="modal-actions">
+                            <a href="/admin/appointments?staff=${staffId}" class="btn-primary">View Appointments</a>
+                            <button onclick="closeDeleteModal()" class="btn-secondary">Close</button>
+                        </div>
+                    `;
+                } else {
+                    // No appointments - confirm deletion
+                    modalContent.innerHTML = `
+                        <div class="confirm-icon">🗑️</div>
+                        <h2>Confirm Delete</h2>
+                        <p>Are you sure you want to delete <strong>${staffName}</strong>?</p>
+                        <p class="warning-text">This action cannot be undone.</p>
+                        <div class="modal-actions">
+                            <button onclick="deleteStaff()" class="btn-danger">Yes, Delete</button>
+                            <button onclick="closeDeleteModal()" class="btn-secondary">Cancel</button>
+                        </div>
+                    `;
+                }
+
+                modal.classList.add('active');
+            } catch (error) {
+                console.error('Error checking appointments:', error);
+                alert('Error checking staff appointments. Please try again.');
+            }
+        }
+
+        async function deleteStaff() {
+            try {
+                const response = await fetch(`/admin/staff/${currentStaffId}/delete`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    const data = await response.json();
+                    alert(data.error || 'Error deleting staff');
+                }
+            } catch (error) {
+                console.error('Error deleting staff:', error);
+                alert('Error deleting staff. Please try again.');
+            }
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('active');
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('deleteModal');
+            if (event.target === modal) {
+                closeDeleteModal();
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= business.businessName %> - Dashboard</title>
+    <link rel="stylesheet" href="/css/businessOwner/dashboard.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        .dashboard-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header h2 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-header p {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .sidebar-nav {
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 12px 20px;
+            color: white;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .nav-item .icon {
+            margin-right: 10px;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 30px;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-header h1 {
+            font-size: 28px;
+            color: #333;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #667eea;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 20px;
+            border-bottom: 1px solid #e1e5e9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header h3 {
+            font-size: 18px;
+            color: #333;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .logout-btn {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <% if (business) { %>
+            <%- include('partials/sidebar', { currentPage: 'dashboard' }) %>
+        <% } else { %>
+            <!-- No Business Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <h2><%= user.fullName %></h2>
+                    <p>Business Owner Account</p>
+                    
+                    <!-- Mode Switch Button for Customers in Business Mode -->
+                    <% if (user.role === 'customer') { %>
+                        <div class="mode-switch-container" style="margin-top: 15px;">
+                            <a href="/switch-to-customer" class="mode-switch-btn" style="display: inline-block; padding: 8px 12px; background: rgba(255,255,255,0.2); color: white; text-decoration: none; border-radius: 4px; font-size: 12px; border: 1px solid rgba(255,255,255,0.3); transition: all 0.3s; text-align: center; width: 100%; box-sizing: border-box;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                                ← Switch to Customer Mode
+                            </a>
+                        </div>
+                    <% } %>
+                </div>
+
+                <nav class="sidebar-nav">
+                    <a href="/business-owner/dashboard" class="nav-item active">
+                        <span class="icon">📊</span>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="/business-owner/apply" class="nav-item">
+                        <span class="icon">📝</span>
+                        <span>Apply for Business</span>
+                    </a>
+                    <a href="/logout" class="nav-item logout">
+                        <span class="icon">🚪</span>
+                        <span>Logout</span>
+                    </a>
+                </nav>
+            </aside>
+        <% } %>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="dashboard-header">
+                <div>
+                    <h1>Welcome back, <%= user.firstName %>!</h1>
+                    <% if (business) { %>
+                        <span class="status-badge status-<%= business.verificationStatus %>">
+                            <%= business.verificationStatus.toUpperCase() %>
+                        </span>
+                    <% } else { %>
+                        <span class="status-badge status-pending">
+                            NO BUSINESS APPLICATION
+                        </span>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-icon">💼</span>
+                    <span class="stat-number"><%= stats.totalServices %></span>
+                    <span class="stat-label">Active Services</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-icon">👥</span>
+                    <span class="stat-number"><%= stats.totalStaff %></span>
+                    <span class="stat-label">Active Staff</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-icon">📅</span>
+                    <span class="stat-number"><%= stats.todayAppointments %></span>
+                    <span class="stat-label">Today's Appointments</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-icon">⏳</span>
+                    <span class="stat-number"><%= stats.pendingAppointments %></span>
+                    <span class="stat-label">Pending Bookings</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-icon">✅</span>
+                    <span class="stat-number"><%= stats.completedAppointments %></span>
+                    <span class="stat-label">Completed</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-icon">📊</span>
+                    <span class="stat-number"><%= stats.completionRate %>%</span>
+                    <span class="stat-label">Completion Rate</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-icon">⭐</span>
+                    <span class="stat-number"><%= (stats.averageRating || 0).toFixed(1) %></span>
+                    <span class="stat-label">Average Rating (<%= stats.totalReviews || 0 %> reviews)</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-icon">💰</span>
+                    <span class="stat-number">₱<%= stats.monthlyRevenue.toLocaleString() %></span>
+                    <span class="stat-label">This Month</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-icon">💵</span>
+                    <span class="stat-number">₱<%= stats.totalRevenue.toLocaleString() %></span>
+                    <span class="stat-label">Total Revenue</span>
+                </div>
+            </div>
+
+            <!-- Dashboard Grid -->
+            <div class="dashboard-grid">
+                <!-- Staff Performance KPIs -->
+                <div class="card" style="grid-column: 1 / -1;">
+                    <div class="card-header">
+                        <h3>👥 Staff Performance</h3>
+                        <a href="/business-owner/staff" class="btn btn-primary">Manage Staff</a>
+                    </div>
+                    <div class="card-body">
+                        <% if (staffPerformance && staffPerformance.length > 0) { %>
+                            <div style="overflow-x: auto;">
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <thead>
+                                        <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+                                            <th style="padding: 12px; text-align: left; font-weight: 600;">Rank</th>
+                                            <th style="padding: 12px; text-align: left; font-weight: 600;">Staff Name</th>
+                                            <th style="padding: 12px; text-align: center; font-weight: 600;">Total Appointments</th>
+                                            <th style="padding: 12px; text-align: center; font-weight: 600;">Completed</th>
+                                            <th style="padding: 12px; text-align: center; font-weight: 600;">Pending</th>
+                                            <th style="padding: 12px; text-align: center; font-weight: 600;">Completion Rate</th>
+                                            <th style="padding: 12px; text-align: right; font-weight: 600;">Total Revenue</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% staffPerformance.forEach((staff, index) => { %>
+                                            <tr style="border-bottom: 1px solid #eee;">
+                                                <td style="padding: 12px;">
+                                                    <span style="display: inline-block; width: 32px; height: 32px; background: <%= index === 0 ? '#FFD700' : index === 1 ? '#C0C0C0' : index === 2 ? '#CD7F32' : '#667eea' %>; color: white; border-radius: 50%; text-align: center; line-height: 32px; font-weight: bold;">
+                                                        <%= index + 1 %>
+                                                    </span>
+                                                </td>
+                                                <td style="padding: 12px;">
+                                                    <strong><%= staff.staffName %></strong>
+                                                </td>
+                                                <td style="padding: 12px; text-align: center;">
+                                                    <span style="font-size: 18px; font-weight: bold; color: #667eea;">
+                                                        <%= staff.totalAppointments %>
+                                                    </span>
+                                                </td>
+                                                <td style="padding: 12px; text-align: center;">
+                                                    <span style="padding: 4px 12px; background: #d4edda; color: #155724; border-radius: 12px; font-weight: 600;">
+                                                        <%= staff.completedAppointments %>
+                                                    </span>
+                                                </td>
+                                                <td style="padding: 12px; text-align: center;">
+                                                    <span style="padding: 4px 12px; background: #fff3cd; color: #856404; border-radius: 12px; font-weight: 600;">
+                                                        <%= staff.pendingAppointments %>
+                                                    </span>
+                                                </td>
+                                                <td style="padding: 12px; text-align: center;">
+                                                    <div style="position: relative; width: 100%; max-width: 150px; margin: 0 auto;">
+                                                        <div style="background: #e9ecef; height: 24px; border-radius: 12px; overflow: hidden;">
+                                                            <div style="background: linear-gradient(90deg, #667eea, #764ba2); height: 100%; width: <%= staff.completionRate.toFixed(0) %>%; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: bold;">
+                                                                <%= staff.completionRate.toFixed(0) %>%
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td style="padding: 12px; text-align: right;">
+                                                    <span style="font-size: 18px; font-weight: bold; color: #28a745;">
+                                                        ₱<%= staff.totalRevenue.toLocaleString() %>
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        <% }) %>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr style="background: #f8f9fa; border-top: 2px solid #dee2e6; font-weight: bold;">
+                                            <td colspan="2" style="padding: 12px;">TOTAL</td>
+                                            <td style="padding: 12px; text-align: center; color: #667eea;">
+                                                <%= staffPerformance.reduce((sum, s) => sum + s.totalAppointments, 0) %>
+                                            </td>
+                                            <td style="padding: 12px; text-align: center; color: #28a745;">
+                                                <%= staffPerformance.reduce((sum, s) => sum + s.completedAppointments, 0) %>
+                                            </td>
+                                            <td style="padding: 12px; text-align: center; color: #ffc107;">
+                                                <%= staffPerformance.reduce((sum, s) => sum + s.pendingAppointments, 0) %>
+                                            </td>
+                                            <td style="padding: 12px; text-align: center;"></td>
+                                            <td style="padding: 12px; text-align: right; color: #28a745;">
+                                                ₱<%= staffPerformance.reduce((sum, s) => sum + s.totalRevenue, 0).toLocaleString() %>
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        <% } else { %>
+                            <div class="empty-state">
+                                <div class="icon">👥</div>
+                                <p>No staff performance data yet</p>
+                                <small>Add staff members and start accepting appointments</small>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- Recent Appointments -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Recent Appointments</h3>
+                        <a href="/business-owner/appointments" class="btn btn-primary">View All</a>
+                    </div>
+                    <div class="card-body">
+                        <% if (recentAppointments.length > 0) { %>
+                            <% recentAppointments.forEach(appointment => { %>
+                                <div style="padding: 10px 0; border-bottom: 1px solid #eee;">
+                                    <strong><%= appointment.customer ? appointment.customer.fullName : 'N/A' %></strong><br>
+                                    <small><%= appointment.service ? appointment.service.name : 'N/A' %> - <%= new Date(appointment.date).toLocaleDateString() %></small>
+                                    <span style="float: right; padding: 2px 8px; border-radius: 12px; font-size: 11px; background: <%= appointment.status === 'completed' ? '#d4edda' : appointment.status === 'pending' ? '#fff3cd' : '#f8d7da' %>; color: <%= appointment.status === 'completed' ? '#155724' : appointment.status === 'pending' ? '#856404' : '#721c24' %>;">
+                                        <%= appointment.status.toUpperCase() %>
+                                    </span>
+                                </div>
+                            <% }) %>
+                        <% } else { %>
+                            <div class="empty-state">
+                                <div class="icon">📅</div>
+                                <p>No appointments yet</p>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- Top Services -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Top Services</h3>
+                        <a href="/business-owner/services" class="btn btn-primary">Manage</a>
+                    </div>
+                    <div class="card-body">
+                        <% if (topServices && topServices.length > 0) { %>
+                            <% topServices.forEach((service, index) => { %>
+                                <div style="padding: 12px 0; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <span style="display: inline-block; width: 24px; height: 24px; background: #667eea; color: white; border-radius: 50%; text-align: center; line-height: 24px; font-size: 12px; font-weight: bold; margin-right: 10px;">
+                                            <%= index + 1 %>
+                                        </span>
+                                        <strong><%= service.name %></strong><br>
+                                        <small style="margin-left: 34px; color: #666;">₱<%= service.price.toLocaleString() %></small>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div style="font-size: 18px; font-weight: bold; color: #667eea;"><%= service.count %></div>
+                                        <small style="color: #666;">bookings</small>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        <% } else { %>
+                            <div class="empty-state">
+                                <div class="icon">💼</div>
+                                <p>No services booked yet</p>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Stats Row -->
+            <div style="margin-top: 30px;">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Business Performance</h3>
+                    </div>
+                    <div class="card-body">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                            <div style="text-align: center; padding: 15px;">
+                                <div style="font-size: 32px; font-weight: bold; color: #28a745;"><%= stats.totalAppointments %></div>
+                                <div style="color: #666; font-size: 14px; margin-top: 5px;">Total Appointments</div>
+                            </div>
+                            <div style="text-align: center; padding: 15px;">
+                                <div style="font-size: 32px; font-weight: bold; color: #dc3545;"><%= stats.cancelledAppointments %></div>
+                                <div style="color: #666; font-size: 14px; margin-top: 5px;">Cancelled</div>
+                            </div>
+                            <div style="text-align: center; padding: 15px;">
+                                <div style="font-size: 32px; font-weight: bold; color: #667eea;">
+                                    <%= stats.totalAppointments > 0 ? ((stats.completedAppointments / stats.totalAppointments) * 100).toFixed(0) : 0 %>%
+                                </div>
+                                <div style="color: #666; font-size: 14px; margin-top: 5px;">Success Rate</div>
+                            </div>
+                            <div style="text-align: center; padding: 15px;">
+                                <div style="font-size: 32px; font-weight: bold; color: #ffc107;">
+                                    ₱<%= stats.totalAppointments > 0 ? (stats.totalRevenue / stats.totalAppointments).toFixed(0) : 0 %>
+                                </div>
+                                <div style="color: #666; font-size: 14px; margin-top: 5px;">Avg. Transaction</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions (moved below) -->
+            <div style="margin-top: 30px;">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Quick Actions</h3>
+                    </div>
+                    <div class="card-body">
+                        <% if (!business) { %>
+                            <div class="empty-state">
+                                <div class="icon">🏢</div>
+                                <h4>Ready to start your business?</h4>
+                                <p>Apply for business verification to start offering services</p>
+                                <br>
+                                <a href="/business-owner/apply" class="btn btn-primary" style="width: 100%;">
+                                    📝 Apply for Business Verification
+                                </a>
+                            </div>
+                        <% } else if (business.verificationStatus === 'approved') { %>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                                <a href="/business-owner/services/add" class="btn btn-primary" style="width: 100%; text-align: center;">
+                                    ➕ Add New Service
+                                </a>
+                                <a href="/business-owner/staff/add" class="btn btn-primary" style="width: 100%; text-align: center;">
+                                    👤 Add Staff Member
+                                </a>
+                                <a href="/business-owner/appointments" class="btn btn-primary" style="width: 100%; text-align: center;">
+                                    📅 View Appointments
+                                </a>
+                                <a href="/business-owner/business-hours" class="btn btn-primary" style="width: 100%; text-align: center;">
+                                    🕐 Business Hours
+                                </a>
+                            </div>
+                        <% } else if (business.verificationStatus === 'pending') { %>
+                            <div class="empty-state">
+                                <div class="icon">⏳</div>
+                                <p>Your business is pending approval</p>
+                                <small>You'll be able to add services once approved</small>
+                            </div>
+                        <% } else { %>
+                            <div class="empty-state">
+                                <div class="icon">❌</div>
+                                <p>Business verification required</p>
+                                <small>Please contact support</small>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

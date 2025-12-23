@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Management - Admin</title>
+    <link rel="stylesheet" href="/css/admin/main.css">
+    <style>
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            margin-left: 280px; /* Space for sidebar */
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-card.pending { border-left: 4px solid #ff9800; }
+        .stat-card.approved { border-left: 4px solid #4CAF50; }
+        .stat-card.rejected { border-left: 4px solid #f44336; }
+        .stat-card.suspended { border-left: 4px solid #9e9e9e; }
+
+        .stat-card h3 {
+            font-size: 32px;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .filters {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .filter-btn.active {
+            background: #2196F3;
+            color: white;
+            border-color: #2196F3;
+        }
+
+        .businesses-table {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f5f5f5;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #ddd;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tbody tr:hover {
+            background: #f9f9f9;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-suspended {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            margin-right: 5px;
+            transition: opacity 0.3s;
+        }
+
+        .action-btn:hover {
+            opacity: 0.8;
+        }
+
+        .btn-view {
+            background: #2196F3;
+            color: white;
+        }
+
+        .btn-approve {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-reject {
+            background: #f44336;
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .back-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #2196F3;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .back-btn:hover {
+            background: #1976D2;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            table {
+                font-size: 14px;
+            }
+
+            th, td {
+                padding: 10px 8px;
+            }
+
+            .action-btn {
+                padding: 4px 8px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <%- include('partials/sidebar') %>
+    
+    <div class="container">
+        <a href="/admin/dashboard" class="back-btn">← Back to Dashboard</a>
+
+        <div class="header">
+            <h1>🏢 Business Management</h1>
+            <p>Manage and verify business applications</p>
+        </div>
+
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card pending" onclick="filterByStatus('pending')">
+                <h3><%= statusCounts.pending %></h3>
+                <p>⏳ Pending Review</p>
+            </div>
+            <div class="stat-card approved" onclick="filterByStatus('approved')">
+                <h3><%= statusCounts.approved %></h3>
+                <p>✅ Approved</p>
+            </div>
+            <div class="stat-card rejected" onclick="filterByStatus('rejected')">
+                <h3><%= statusCounts.rejected %></h3>
+                <p>❌ Rejected</p>
+            </div>
+            <div class="stat-card suspended" onclick="filterByStatus('suspended')">
+                <h3><%= statusCounts.suspended %></h3>
+                <p>⚠️ Suspended</p>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+            <div class="filter-buttons">
+                <button class="filter-btn <%= currentFilter === 'all' ? 'active' : '' %>" onclick="filterByStatus('all')">
+                    All Businesses
+                </button>
+                <button class="filter-btn <%= currentFilter === 'pending' ? 'active' : '' %>" onclick="filterByStatus('pending')">
+                    Pending
+                </button>
+                <button class="filter-btn <%= currentFilter === 'approved' ? 'active' : '' %>" onclick="filterByStatus('approved')">
+                    Approved
+                </button>
+                <button class="filter-btn <%= currentFilter === 'rejected' ? 'active' : '' %>" onclick="filterByStatus('rejected')">
+                    Rejected
+                </button>
+                <button class="filter-btn <%= currentFilter === 'suspended' ? 'active' : '' %>" onclick="filterByStatus('suspended')">
+                    Suspended
+                </button>
+            </div>
+        </div>
+
+        <!-- Businesses Table -->
+        <div class="businesses-table">
+            <% if (businesses.length > 0) { %>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Business Name</th>
+                            <th>Owner</th>
+                            <th>Type</th>
+                            <th>Location</th>
+                            <th>Status</th>
+                            <th>Applied</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% businesses.forEach(business => { %>
+                            <tr>
+                                <td>
+                                    <strong><%= business.businessName %></strong>
+                                </td>
+                                <td>
+                                    <%= business.ownerId.firstName %> <%= business.ownerId.lastName %><br>
+                                    <small style="color: #666;"><%= business.ownerId.email %></small>
+                                </td>
+                                <td><%= business.businessType %></td>
+                                <td>
+                                    <%= business.address.city %>, <%= business.address.province %>
+                                </td>
+                                <td>
+                                    <span class="status-badge status-<%= business.verificationStatus %>">
+                                        <%= business.verificationStatus.toUpperCase() %>
+                                    </span>
+                                </td>
+                                <td>
+                                    <%= new Date(business.createdAt).toLocaleDateString() %>
+                                </td>
+                                <td>
+                                    <button class="action-btn btn-view" onclick="viewBusiness('<%= business._id %>')">
+                                        👁️ View
+                                    </button>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            <% } else { %>
+                <div class="empty-state">
+                    <div class="empty-state-icon">📭</div>
+                    <h3>No businesses found</h3>
+                    <p>There are no businesses matching your filter.</p>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <script>
+        function filterByStatus(status) {
+            if (status === 'all') {
+                window.location.href = '/admin/businesses';
+            } else {
+                window.location.href = `/admin/businesses?status=${status}`;
+            }
+        }
+
+        function viewBusiness(businessId) {
+            window.location.href = `/admin/businesses/${businessId}`;
+        }
+    </script>
+</body>
+</html>

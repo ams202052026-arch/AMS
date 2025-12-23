@@ -1,11 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const loginCon = require('../controllers/login');
+const authController = require('../controllers/auth');
 
-router.get('/', loginCon.loadLoginForm)
-
-// USE MIDDLE WARE
-router.post('/', loginCon.redirectToHome)
-
+router.get('/', authController.loadLoginPage);
+router.post('/', authController.login);
 
 module.exports = router;

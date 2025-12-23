@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map Test - AMS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .map-container {
+            margin: 20px 0;
+        }
+        
+        #map {
+            height: 400px;
+            width: 100%;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+        }
+        
+        .controls {
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            margin: 0 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            background: #0056b3;
+        }
+        
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        .debug {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗺️ Google Maps Integration Test</h1>
+        
+        <div class="info">
+            <strong>📋 Test Purpose:</strong>
+            <p>This page tests if Google Maps API is loading and working correctly for the business registration system.</p>
+        </div>
+        
+        <div id="status-container">
+            <div class="status error" id="loading-status">
+                ⏳ Loading Google Maps API...
+            </div>
+        </div>
+        
+        <div class="map-container">
+            <div id="map"></div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn" onclick="testGeocoding()">🔍 Test Geocoding</button>
+            <button class="btn" onclick="testCurrentLocation()">📍 Test Current Location</button>
+            <button class="btn" onclick="addTestMarker()">📌 Add Test Marker</button>
+        </div>
+        
+        <div class="debug" id="debug-log">
+            <strong>Debug Log:</strong><br>
+            Initializing...
+        </div>
+        
+        <div class="info">
+            <strong>🔧 Troubleshooting:</strong>
+            <ul>
+                <li>Check browser console for JavaScript errors</li>
+                <li>Verify Google Maps API key is valid</li>
+                <li>Ensure internet connection is working</li>
+                <li>Check if API key has proper permissions</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Google Maps API -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=<%= process.env.GOOGLE_MAPS_API_KEY || 'AIzaSyBOti4mM-6x9WDnZIjIeyEU21OpBXqWBgw' %>&libraries=places&callback=initTestMap"></script>
+    
+    <script>
+        let map;
+        let marker;
+        let geocoder;
+        
+        function log(message) {
+            const debugLog = document.getElementById('debug-log');
+            const timestamp = new Date().toLocaleTimeString();
+            debugLog.innerHTML += `<br>[${timestamp}] ${message}`;
+            debugLog.scrollTop = debugLog.scrollHeight;
+            console.log(message);
+        }
+        
+        function updateStatus(message, isSuccess = false) {
+            const statusContainer = document.getElementById('status-container');
+            const statusClass = isSuccess ? 'success' : 'error';
+            statusContainer.innerHTML = `<div class="status ${statusClass}">${message}</div>`;
+        }
+        
+        // Initialize Google Map
+        function initTestMap() {
+            log('🚀 initTestMap() called');
+            
+            try {
+                // Check if Google Maps API is available
+                if (typeof google === 'undefined' || !google.maps) {
+                    throw new Error('Google Maps API not loaded');
+                }
+                
+                log('✅ Google Maps API detected');
+                log(`📊 Google Maps version: ${google.maps.version}`);
+                
+                // Default location (Manila, Philippines)
+                const defaultLocation = { lat: 14.5995, lng: 120.9842 };
+                
+                // Get map element
+                const mapElement = document.getElementById('map');
+                if (!mapElement) {
+                    throw new Error('Map element not found');
+                }
+                
+                log(`📐 Map element dimensions: ${mapElement.offsetWidth}x${mapElement.offsetHeight}`);
+                
+                // Initialize map
+                map = new google.maps.Map(mapElement, {
+                    zoom: 13,
+                    center: defaultLocation,
+                    mapTypeControl: true,
+                    streetViewControl: true,
+                    fullscreenControl: true
+                });
+                
+                log('✅ Map initialized successfully');
+                
+                // Initialize geocoder
+                geocoder = new google.maps.Geocoder();
+                log('✅ Geocoder initialized');
+                
+                // Initialize marker
+                marker = new google.maps.Marker({
+                    map: map,
+                    draggable: true,
+                    title: 'Test Marker',
+                    position: defaultLocation
+                });
+                
+                log('✅ Marker added to map');
+                
+                // Add click listener to map
+                map.addListener('click', function(event) {
+                    log(`🖱️ Map clicked at: ${event.latLng.lat()}, ${event.latLng.lng()}`);
+                    marker.setPosition(event.latLng);
+                });
+                
+                // Add drag listener to marker
+                marker.addListener('dragend', function(event) {
+                    log(`🚚 Marker dragged to: ${event.latLng.lat()}, ${event.latLng.lng()}`);
+                });
+                
+                updateStatus('✅ Google Maps loaded successfully!', true);
+                log('🎉 Map test initialization complete');
+                
+            } catch (error) {
+                log(`❌ Map initialization failed: ${error.message}`);
+                updateStatus(`❌ Map initialization failed: ${error.message}`);
+                console.error('Map initialization error:', error);
+            }
+        }
+        
+        function testGeocoding() {
+            log('🔍 Testing geocoding...');
+            
+            if (!geocoder) {
+                log('❌ Geocoder not available');
+                return;
+            }
+            
+            const testAddress = 'SM Mall of Asia, Pasay City, Philippines';
+            
+            geocoder.geocode({ address: testAddress }, function(results, status) {
+                if (status === 'OK' && results[0]) {
+                    const location = results[0].geometry.location;
+                    log(`✅ Geocoding successful: ${testAddress}`);
+                    log(`📍 Coordinates: ${location.lat()}, ${location.lng()}`);
+                    
+                    map.setCenter(location);
+                    marker.setPosition(location);
+                    map.setZoom(16);
+                } else {
+                    log(`❌ Geocoding failed: ${status}`);
+                }
+            });
+        }
+        
+        function testCurrentLocation() {
+            log('📍 Testing current location...');
+            
+            if (!navigator.geolocation) {
+                log('❌ Geolocation not supported');
+                return;
+            }
+            
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    const userLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    
+                    log(`✅ Current location: ${userLocation.lat}, ${userLocation.lng}`);
+                    log(`📊 Accuracy: ${position.coords.accuracy} meters`);
+                    
+                    map.setCenter(userLocation);
+                    marker.setPosition(userLocation);
+                    map.setZoom(16);
+                },
+                function(error) {
+                    log(`❌ Geolocation error: ${error.message}`);
+                }
+            );
+        }
+        
+        function addTestMarker() {
+            log('📌 Adding test marker...');
+            
+            const randomLat = 14.5995 + (Math.random() - 0.5) * 0.1;
+            const randomLng = 120.9842 + (Math.random() - 0.5) * 0.1;
+            
+            const testMarker = new google.maps.Marker({
+                position: { lat: randomLat, lng: randomLng },
+                map: map,
+                title: 'Random Test Marker',
+                icon: {
+                    url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                        <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="8" fill="#ff4444" stroke="white" stroke-width="2"/>
+                            <text x="12" y="16" text-anchor="middle" fill="white" font-size="12">T</text>
+                        </svg>
+                    `),
+                    scaledSize: new google.maps.Size(24, 24)
+                }
+            });
+            
+            log(`✅ Test marker added at: ${randomLat}, ${randomLng}`);
+        }
+        
+        // Handle API load errors
+        window.gm_authFailure = function() {
+            log('❌ Google Maps API authentication failed');
+            updateStatus('❌ Google Maps API authentication failed - check API key');
+        };
+        
+        // Fallback if callback doesn't work
+        setTimeout(() => {
+            if (typeof google === 'undefined') {
+                log('❌ Google Maps API failed to load after 10 seconds');
+                updateStatus('❌ Google Maps API failed to load - check internet connection');
+            }
+        }, 10000);
+    </script>
+</body>
+</html>

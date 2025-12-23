@@ -2,10 +2,340 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AMS - Home</title>
+    <link rel="stylesheet" href="/css/scrollbar.css">
     <link rel="stylesheet" href="/css/home.css">
     <link rel="stylesheet" href="/css/headerAndNavigation.css">
     <link rel="stylesheet" href="/css/footer.css">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        .location-filter {
+            background: white;
+            padding: 1.5rem;
+            margin: 2rem auto;
+            max-width: 1200px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .filter-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .filter-header h3 {
+            margin: 0;
+            font-size: 1.25rem;
+            color: #1a1a1a;
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-input-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-input-group label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.875rem;
+        }
+
+        .filter-input-group select,
+        .filter-input-group input {
+            padding: 0.5rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.875rem;
+        }
+
+        .btn-location {
+            padding: 0.5rem 1.5rem;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.875rem;
+        }
+
+        .btn-location:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-location:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .btn-reset {
+            padding: 0.5rem 1.5rem;
+            background: #f3f4f6;
+            color: #374151;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.875rem;
+        }
+
+        .btn-reset:hover {
+            background: #e5e7eb;
+        }
+
+        .btn-map {
+            padding: 0.5rem 1.5rem;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.875rem;
+        }
+
+        .btn-map:hover {
+            background: #059669;
+        }
+
+        .location-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: #eff6ff;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            color: #1e40af;
+        }
+
+        .location-status.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .location-status.success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .service-distance {
+            display: inline-block;
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+
+        .no-results-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Map Modal */
+        .map-modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .map-modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .map-modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .map-modal-header h3 {
+            margin: 0;
+            font-size: 1.25rem;
+        }
+
+        .map-close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .map-close-btn:hover {
+            background: #f3f4f6;
+            color: #1a1a1a;
+        }
+
+        .map-container {
+            height: 500px;
+            width: 100%;
+        }
+
+        .map-modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .map-info {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .map-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-confirm {
+            padding: 0.75rem 2rem;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-confirm:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-confirm:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .btn-cancel {
+            padding: 0.75rem 2rem;
+            background: #f3f4f6;
+            color: #374151;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-cancel:hover {
+            background: #e5e7eb;
+        }
+
+        /* Search Bar */
+        .search-bar-container {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 3rem 1rem 1rem;
+            border: 2px solid #d1d5db;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn-clear-search {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #f3f4f6;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+            font-size: 1.25rem;
+            transition: all 0.2s;
+        }
+
+        .btn-clear-search:hover {
+            background: #e5e7eb;
+            color: #1a1a1a;
+        }
+
+        .search-results-info {
+            padding: 0.75rem 1rem;
+            background: #f9fafb;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+            color: #374151;
+        }
+
+        .search-highlight {
+            background: #fef3c7;
+            padding: 0.125rem 0.25rem;
+            border-radius: 3px;
+        }
+    </style>
 </head>
 
 <body>
@@ -15,336 +345,123 @@
 
     <main class="main-content">
 
-        <h2 class="section-title">Available Services</h2>
-
-        <div class="services-container">
-
-            <!-- 1 -->
-            <div class="service-card" data-modal="modal1">
-                <img src="/image/haircut.jpg" class="service-img" alt="Haircut">
-                <h3 class="service-name">Haircut</h3>
-                <p class="service-short-desc">Basic men's haircut.</p>
-                <div class="service-info">
-                    <span class="price">₱200</span>
-                    <span class="duration">25 mins</span>
-                </div>
+        <!-- Location Filter -->
+        <div class="location-filter">
+            <div class="filter-header">
+                <h3>🔍 Find Services</h3>
+            </div>
+            
+            <!-- Search Bar -->
+            <div class="search-bar-container">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    class="search-input" 
+                    placeholder="Search services by name, description, or category..."
+                >
+                <button id="clearSearchBtn" class="btn-clear-search" style="display: none;">
+                    ✕
+                </button>
             </div>
 
-            <!-- 2 -->
-            <div class="service-card" data-modal="modal2">
-                <img src="/image/hairColor.jpg" class="service-img" alt="Hair Coloring">
-                <h3 class="service-name">Hair Coloring</h3>
-                <p class="service-short-desc">Full hair color treatment.</p>
-                <div class="service-info">
-                    <span class="price">₱850</span>
-                    <span class="duration">90 mins</span>
-                </div>
-            </div>
-
-            <!-- 3 -->
-            <div class="service-card" data-modal="modal3">
-                <img src="/image/shave.jpg" class="service-img" alt="Shaving">
-                <h3 class="service-name">Shaving</h3>
-                <p class="service-short-desc">Clean professional shave.</p>
-                <div class="service-info">
-                    <span class="price">₱150</span>
-                    <span class="duration">15 mins</span>
-                </div>
-            </div>
-
-            <!-- 4 -->
-            <div class="service-card" data-modal="modal4">
-                <img src="/image/hairSpa.jpg" class="service-img" alt="Hair Spa">
-                <h3 class="service-name">Hair Spa</h3>
-                <p class="service-short-desc">Relaxing hair treatment.</p>
-                <div class="service-info">
-                    <span class="price">₱500</span>
-                    <span class="duration">45 mins</span>
-                </div>
-            </div>
-
-            <!-- 5 -->
-            <div class="service-card" data-modal="modal5">
-                <img src="/image/facial.jpg" class="service-img" alt="Facial">
-                <h3 class="service-name">Facial</h3>
-                <p class="service-short-desc">Deep cleaning facial.</p>
-                <div class="service-info">
-                    <span class="price">₱350</span>
-                    <span class="duration">30 mins</span>
-                </div>
-            </div>
-
-            <!-- 6 -->
-            <div class="service-card" data-modal="modal6">
-                <img src="/image/footSpa.jpg" class="service-img" alt="Foot Spa">
-                <h3 class="service-name">Foot Spa</h3>
-                <p class="service-short-desc">Foot cleaning & massage.</p>
-                <div class="service-info">
-                    <span class="price">₱300</span>
-                    <span class="duration">40 mins</span>
-                </div>
-            </div>
-
-            <!-- 7 -->
-            <div class="service-card" data-modal="modal7">
-                <img src="/image/manicure.jpg" class="service-img" alt="Manicure">
-                <h3 class="service-name">Manicure</h3>
-                <p class="service-short-desc">Classic manicure service.</p>
-                <div class="service-info">
-                    <span class="price">₱180</span>
-                    <span class="duration">20 mins</span>
-                </div>
-            </div>
-
-            <!-- 8 -->
-            <div class="service-card" data-modal="modal8">
-                <img src="/image/pedicure.jpg" class="service-img" alt="Pedicure">
-                <h3 class="service-name">Pedicure</h3>
-                <p class="service-short-desc">Classic pedicure service.</p>
-                <div class="service-info">
-                    <span class="price">₱200</span>
-                    <span class="duration">25 mins</span>
-                </div>
-            </div>
-
-        </div>
-
-
-
-        <!-- ========================= -->
-        <!--       SERVICE MODALS      -->
-        <!-- ========================= -->
-
-        <!-- MODAL 1 -->
-        <div id="modal1" class="modal">
-            <div class="modal-content">
-                <span class="close-btn">&times;</span>
-
-                <img class="modal-img" src="/image/haircut.jpg">
-                <h2>Haircut</h2>
-
-                <div class="modal-description">
-                    <p>Professional men's haircut.</p>
-                    <ul>
-                        <li>Scissor cut</li>
-                        <li>Razor shape-up</li>
-                        <li>Styling included</li>
-                    </ul>
-                </div>
-
-                <div class="modal-booking-info">
-                    <p>Price: ₱200</p>
-                    <p>Duration: 25 mins</p>
-
-                    <label>Available Crew</label>
-                    <select>
-                        <option>Michael Reyes</option>
-                        <option>Sarah Lim</option>
+            <!-- Location Controls -->
+            <div class="filter-controls">
+                <div class="filter-input-group">
+                    <label for="radiusSelect">Within:</label>
+                    <select id="radiusSelect">
+                        <option value="5">5 km</option>
+                        <option value="10" selected>10 km</option>
+                        <option value="20">20 km</option>
+                        <option value="50">50 km</option>
+                        <option value="100">100 km</option>
                     </select>
                 </div>
 
-                <button class="book-btn">Book Now</button>
+                <button id="useLocationBtn" class="btn-location">
+                    📍 Use My Location
+                </button>
+
+                <button id="selectOnMapBtn" class="btn-map">
+                    🗺️ Select on Map
+                </button>
+
+                <button id="resetFilterBtn" class="btn-reset" style="display: none;">
+                    🔄 Reset All Filters
+                </button>
+            </div>
+
+            <div id="locationStatus" style="margin-top: 1rem; display: none;"></div>
+        </div>
+
+        <!-- Map Modal -->
+        <div id="mapModal" class="map-modal">
+            <div class="map-modal-content">
+                <div class="map-modal-header">
+                    <h3>📍 Select Your Location</h3>
+                    <button class="map-close-btn" id="closeMapBtn">&times;</button>
+                </div>
+                <div id="map" class="map-container"></div>
+                <div class="map-modal-footer">
+                    <div class="map-info">
+                        Click on the map to select your location
+                    </div>
+                    <div class="map-actions">
+                        <button id="cancelMapBtn" class="btn-cancel">Cancel</button>
+                        <button id="confirmLocationBtn" class="btn-confirm" disabled>Confirm Location</button>
+                    </div>
+                </div>
             </div>
         </div>
 
-
-        <!-- Repeat pattern for remaining modals -->
-
-        <!-- MODAL 2 -->
-        <div id="modal2" class="modal">
-            <div class="modal-content">
-                <span class="close-btn">&times;</span>
-                <img class="modal-img" src="/image/hairColor.jpg">
-                <h2>Hair Coloring</h2>
-                <div class="modal-description">
-                    <p>Full-color package with premium dyes.</p>
-                    <ul>
-                        <li>Color consultation</li>
-                        <li>High-quality materials</li>
-                        <li>After-care treatment</li>
-                    </ul>
+        <div class="services-container" id="servicesContainer">
+            <% services.forEach((service, index) => { %>
+                <div class="service-card" data-modal="modal<%= index %>">
+                    <img src="<%= service.image %>" class="service-img" alt="<%= service.name %>">
+                    <div class="service-card-content">
+                        <div>
+                            <h3 class="service-name"><%= service.name %></h3>
+                            <p class="service-short-desc"><%= service.description %></p>
+                        </div>
+                        <div class="service-info">
+                            <span class="price">₱<%= service.price %></span>
+                            <span class="duration"><%= service.duration %> mins</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="modal-booking-info">
-                    <p>Price: ₱850</p>
-                    <p>Duration: 90 mins</p>
-
-                    <label>Available Crew</label>
-                    <select>
-                        <option>Angela Cruz</option>
-                        <option>Rico Santos</option>
-                    </select>
-                </div>
-                <button class="book-btn">Book Now</button>
-            </div>
+            <% }) %>
         </div>
 
+        <!-- Service Modals -->
+        <div id="modalsContainer">
+            <% services.forEach((service, index) => { %>
+                <div id="modal<%= index %>" class="modal">
+                    <div class="modal-content">
+                        <span class="close-btn">&times;</span>
 
-        <!-- MODAL 3 -->
-        <div id="modal3" class="modal">
-            <div class="modal-content">
-                <span class="close-btn">&times;</span>
-                <img class="modal-img" src="/image/shave.jpg">
-                <h2>Shaving</h2>
-                <div class="modal-description">
-                    <p>Clean professional shave with warm towel.</p>
-                    <ul>
-                        <li>Warm towel prep</li>
-                        <li>Razor shave</li>
-                        <li>Aftershave care</li>
-                    </ul>
+                        <img class="modal-img" src="<%= service.image %>">
+                        <h2><%= service.name %></h2>
+
+                        <div class="modal-description">
+                            <p><%= service.description %></p>
+                            <% if (service.details && service.details.length > 0) { %>
+                                <ul>
+                                    <% service.details.forEach(detail => { %>
+                                        <li><%= detail %></li>
+                                    <% }) %>
+                                </ul>
+                            <% } %>
+                        </div>
+
+                        <div class="modal-booking-info">
+                            <p>Price: ₱<%= service.price %></p>
+                            <p>Duration: <%= service.duration %> mins</p>
+                            <p>Points: +<%= service.pointsEarned %> pts</p>
+                        </div>
+
+                        <a href="/appointments/book/<%= service._id %>" class="book-btn">Book Now</a>
+                    </div>
                 </div>
-                <div class="modal-booking-info">
-                    <p>Price: ₱150</p>
-                    <p>Duration: 15 mins</p>
-
-                    <label>Available Crew</label>
-                    <select>
-                        <option>Leo Mendoza</option>
-                    </select>
-                </div>
-                <button class="book-btn">Book Now</button>
-            </div>
-        </div>
-
-
-        <!-- MODAL 4 -->
-        <div id="modal4" class="modal">
-            <div class="modal-content">
-                <span class="close-btn">&times;</span>
-                <img class="modal-img" src="/image/hairSpa.jpg">
-                <h2>Hair Spa</h2>
-                <div class="modal-description">
-                    <p>Relaxing treatment to hydrate hair.</p>
-                    <ul>
-                        <li>Scalp massage</li>
-                        <li>Moisturizing cream</li>
-                        <li>Steam treatment</li>
-                    </ul>
-                </div>
-                <div class="modal-booking-info">
-                    <p>Price: ₱500</p>
-                    <p>Duration: 45 mins</p>
-
-                    <label>Available Crew</label>
-                    <select>
-                        <option>Nina Torres</option>
-                        <option>Marco Delos Reyes</option>
-                    </select>
-                </div>
-                <button class="book-btn">Book Now</button>
-            </div>
-        </div>
-
-
-        <!-- MODAL 5 -->
-        <div id="modal5" class="modal">
-            <div class="modal-content">
-                <span class="close-btn">&times;</span>
-                <img class="modal-img" src="/image/facial.jpg">
-                <h2>Facial</h2>
-                <div class="modal-description">
-                    <p>Deep cleansing and exfoliation.</p>
-                    <ul>
-                        <li>Steam extraction</li>
-                        <li>Mask treatment</li>
-                        <li>Face massage</li>
-                    </ul>
-                </div>
-                <div class="modal-booking-info">
-                    <p>Price: ₱350</p>
-                    <p>Duration: 30 mins</p>
-
-                    <label>Available Crew</label>
-                    <select>
-                        <option>Jenny Cruz</option>
-                    </select>
-                </div>
-                <button class="book-btn">Book Now</button>
-            </div>
-        </div>
-
-
-        <!-- MODAL 6 -->
-        <div id="modal6" class="modal">
-            <div class="modal-content">
-                <span class="close-btn">&times;</span>
-                <img class="modal-img" src="/image/footSpa.jpg">
-                <h2>Foot Spa</h2>
-                <div class="modal-description">
-                    <p>Relaxing and soothing foot treatment.</p>
-                    <ul>
-                        <li>Foot soak</li>
-                        <li>Exfoliation</li>
-                        <li>Massage</li>
-                    </ul>
-                </div>
-                <div class="modal-booking-info">
-                    <p>Price: ₱300</p>
-                    <p>Duration: 40 mins</p>
-
-                    <label>Available Crew</label>
-                    <select>
-                        <option>Lara Jimenez</option>
-                    </select>
-                </div>
-                <button class="book-btn">Book Now</button>
-            </div>
-        </div>
-
-
-        <!-- MODAL 7 -->
-        <div id="modal7" class="modal">
-            <div class="modal-content">
-                <span class="close-btn">&times;</span>
-                <img class="modal-img" src="/image/manicure.jpg">
-                <h2>Manicure</h2>
-                <div class="modal-description">
-                    <p>Classic manicure package.</p>
-                    <ul>
-                        <li>Nail cleaning</li>
-                        <li>Nail shaping</li>
-                        <li>Polish application</li>
-                    </ul>
-                </div>
-                <div class="modal-booking-info">
-                    <p>Price: ₱180</p>
-                    <p>Duration: 20 mins</p>
-
-                    <label>Available Crew</label>
-                    <select>
-                        <option>Anna Mae</option>
-                    </select>
-                </div>
-                <button class="book-btn">Book Now</button>
-            </div>
-        </div>
-
-
-        <!-- MODAL 8 -->
-        <div id="modal8" class="modal">
-            <div class="modal-content">
-                <span class="close-btn">&times;</span>
-                <img class="modal-img" src="/image/pedicure.jpg">
-                <h2>Pedicure</h2>
-                <div class="modal-description">
-                    <p>Classic pedicure package.</p>
-                    <ul>
-                        <li>Nail cleaning</li>
-                        <li>Nail trimming</li>
-                        <li>Polish application</li>
-                    </ul>
-                </div>
-                <div class="modal-booking-info">
-                    <p>Price: ₱200</p>
-                    <p>Duration: 25 mins</p>
-
-                    <label>Available Crew</label>
-                    <select>
-                        <option>Maria Santos</option>
-                    </select>
-                </div>
-                <button class="book-btn">Book Now</button>
-            </div>
+            <% }) %>
         </div>
 
     </main>
@@ -353,8 +470,433 @@
     <!-- Include Footer -->
     <%- include('partials/footer') %>
 
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        // Store original services
+        const originalServices = <%- JSON.stringify(services) %>;
+        let currentServices = [...originalServices];
+        let userLocation = null;
+        let map = null;
+        let marker = null;
+        let selectedLocation = null;
+        let searchQuery = '';
+        let isLocationFiltered = false;
+
+        // Search functionality
+        function searchServices(query) {
+            searchQuery = query.toLowerCase().trim();
+            
+            if (!searchQuery) {
+                // If no search query, show current services (might be location filtered)
+                return isLocationFiltered ? currentServices : originalServices;
+            }
+
+            // Search in current services (respects location filter if active)
+            const servicesToSearch = isLocationFiltered ? currentServices : originalServices;
+            
+            return servicesToSearch.filter(service => {
+                const name = service.name.toLowerCase();
+                const description = service.description.toLowerCase();
+                const category = service.category ? service.category.toLowerCase() : '';
+                const businessName = service.businessId?.businessName?.toLowerCase() || '';
+                
+                return name.includes(searchQuery) || 
+                       description.includes(searchQuery) || 
+                       category.includes(searchQuery) ||
+                       businessName.includes(searchQuery);
+            });
+        }
+
+        // Update search results
+        function updateSearch() {
+            const results = searchServices(searchQuery);
+            renderServices(results);
+            
+            // Show/hide clear button
+            const clearBtn = document.getElementById('clearSearchBtn');
+            clearBtn.style.display = searchQuery ? 'flex' : 'none';
+            
+            // Show search info
+            if (searchQuery) {
+                const container = document.getElementById('servicesContainer');
+                const info = document.createElement('div');
+                info.className = 'search-results-info';
+                info.textContent = `Found ${results.length} service(s) matching "${searchQuery}"`;
+                container.insertAdjacentElement('beforebegin', info);
+            }
+        }
+
+        // Search input handler
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            searchQuery = e.target.value;
+            
+            // Remove existing search info
+            const existingInfo = document.querySelector('.search-results-info');
+            if (existingInfo) existingInfo.remove();
+            
+            updateSearch();
+        });
+
+        // Clear search button
+        document.getElementById('clearSearchBtn').addEventListener('click', function() {
+            document.getElementById('searchInput').value = '';
+            searchQuery = '';
+            this.style.display = 'none';
+            
+            // Remove search info
+            const existingInfo = document.querySelector('.search-results-info');
+            if (existingInfo) existingInfo.remove();
+            
+            // Show current services (respects location filter)
+            renderServices(isLocationFiltered ? currentServices : originalServices);
+        });
+
+        // Initialize map
+        function initMap() {
+            if (map) return; // Already initialized
+
+            // Default center (Philippines)
+            const defaultCenter = [14.5995, 120.9842]; // Manila
+            
+            map = L.map('map').setView(defaultCenter, 13);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(map);
+
+            // Add click handler
+            map.on('click', function(e) {
+                selectedLocation = {
+                    lat: e.latlng.lat,
+                    lng: e.latlng.lng
+                };
+
+                // Remove existing marker
+                if (marker) {
+                    map.removeLayer(marker);
+                }
+
+                // Add new marker
+                marker = L.marker([e.latlng.lat, e.latlng.lng], {
+                    icon: L.icon({
+                        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+                        iconSize: [25, 41],
+                        iconAnchor: [12, 41],
+                        popupAnchor: [1, -34],
+                        shadowSize: [41, 41]
+                    })
+                }).addTo(map);
+
+                marker.bindPopup('Selected Location').openPopup();
+
+                // Enable confirm button
+                document.getElementById('confirmLocationBtn').disabled = false;
+            });
+
+            // Try to get user's current location
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const userPos = [position.coords.latitude, position.coords.longitude];
+                        map.setView(userPos, 15);
+                        
+                        // Add a blue marker for current location
+                        L.marker(userPos, {
+                            icon: L.icon({
+                                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+                                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+                                iconSize: [25, 41],
+                                iconAnchor: [12, 41],
+                                popupAnchor: [1, -34],
+                                shadowSize: [41, 41]
+                            })
+                        }).addTo(map).bindPopup('Your Current Location');
+                    },
+                    (error) => {
+                        console.log('Could not get current location:', error);
+                    }
+                );
+            }
+        }
+
+        // Render services
+        function renderServices(services) {
+            const container = document.getElementById('servicesContainer');
+            const modalsContainer = document.getElementById('modalsContainer');
+            
+            if (services.length === 0) {
+                container.innerHTML = `
+                    <div class="no-results">
+                        <div class="no-results-icon">📍</div>
+                        <h3>No services found nearby</h3>
+                        <p>Try increasing the search radius or reset the filter to see all services</p>
+                    </div>
+                `;
+                modalsContainer.innerHTML = '';
+                return;
+            }
+
+            // Render service cards
+            container.innerHTML = services.map((service, index) => `
+                <div class="service-card" data-modal="modal${index}">
+                    <img src="${service.image}" class="service-img" alt="${service.name}">
+                    <div class="service-card-content">
+                        <div>
+                            <h3 class="service-name">${service.name}</h3>
+                            <p class="service-short-desc">${service.description}</p>
+                            ${service.distance ? `<span class="service-distance">📍 ${service.distance} km away</span>` : ''}
+                        </div>
+                        <div class="service-info">
+                            <span class="price">₱${service.price}</span>
+                            <span class="duration">${service.duration} mins</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Render modals
+            modalsContainer.innerHTML = services.map((service, index) => `
+                <div id="modal${index}" class="modal">
+                    <div class="modal-content">
+                        <span class="close-btn">&times;</span>
+                        <img class="modal-img" src="${service.image}">
+                        <h2>${service.name}</h2>
+                        ${service.distance ? `<p style="color: #2563eb; font-weight: 600; margin-bottom: 1rem;">📍 ${service.distance} km away</p>` : ''}
+                        <div class="modal-description">
+                            <p>${service.description}</p>
+                            ${service.details && service.details.length > 0 ? `
+                                <ul>
+                                    ${service.details.map(detail => `<li>${detail}</li>`).join('')}
+                                </ul>
+                            ` : ''}
+                        </div>
+                        <div class="modal-booking-info">
+                            <p>Price: ₱${service.price}</p>
+                            <p>Duration: ${service.duration} mins</p>
+                            <p>Points: +${service.pointsEarned} pts</p>
+                        </div>
+                        <a href="/appointments/book/${service._id}" class="book-btn">Book Now</a>
+                    </div>
+                </div>
+            `).join('');
+
+            // Reinitialize modal handlers
+            initializeModals();
+        }
+
+        // Initialize modal handlers
+        function initializeModals() {
+            const serviceCards = document.querySelectorAll('.service-card');
+            const modals = document.querySelectorAll('.modal');
+            const closeBtns = document.querySelectorAll('.close-btn');
+
+            serviceCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    const modalId = this.getAttribute('data-modal');
+                    const modal = document.getElementById(modalId);
+                    if (modal) modal.style.display = 'flex';
+                });
+            });
+
+            closeBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    this.closest('.modal').style.display = 'none';
+                });
+            });
+
+            window.addEventListener('click', function(e) {
+                if (e.target.classList.contains('modal')) {
+                    e.target.style.display = 'none';
+                }
+            });
+        }
+
+        // Show status message
+        function showStatus(message, type = 'info') {
+            const statusEl = document.getElementById('locationStatus');
+            statusEl.className = `location-status ${type}`;
+            statusEl.textContent = message;
+            statusEl.style.display = 'flex';
+        }
+
+        // Hide status message
+        function hideStatus() {
+            document.getElementById('locationStatus').style.display = 'none';
+        }
+
+        // Use location button
+        document.getElementById('useLocationBtn').addEventListener('click', async function() {
+            const btn = this;
+            btn.disabled = true;
+            btn.textContent = '📍 Getting location...';
+
+            if (!navigator.geolocation) {
+                showStatus('❌ Geolocation is not supported by your browser', 'error');
+                btn.disabled = false;
+                btn.textContent = '📍 Use My Location';
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                async (position) => {
+                    userLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+
+                    showStatus('✓ Location detected! Filtering services...', 'success');
+
+                    const radius = document.getElementById('radiusSelect').value;
+
+                    try {
+                        const response = await fetch(`/home/api/filter-by-location?lat=${userLocation.lat}&lng=${userLocation.lng}&radius=${radius}`);
+                        const data = await response.json();
+
+                        if (data.success) {
+                            currentServices = data.services;
+                            isLocationFiltered = true;
+                            
+                            // Apply search if active
+                            const results = searchQuery ? searchServices(searchQuery) : currentServices;
+                            renderServices(results);
+                            
+                            showStatus(`✓ Found ${data.count} service(s) within ${radius} km`, 'success');
+                            document.getElementById('resetFilterBtn').style.display = 'inline-block';
+                        } else {
+                            showStatus('❌ Error filtering services', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        showStatus('❌ Error filtering services', 'error');
+                    }
+
+                    btn.disabled = false;
+                    btn.textContent = '📍 Use My Location';
+                },
+                (error) => {
+                    let errorMsg = '❌ Unable to get your location. ';
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMsg += 'Please allow location access.';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMsg += 'Location information unavailable.';
+                            break;
+                        case error.TIMEOUT:
+                            errorMsg += 'Location request timed out.';
+                            break;
+                        default:
+                            errorMsg += 'Unknown error occurred.';
+                    }
+                    showStatus(errorMsg, 'error');
+                    btn.disabled = false;
+                    btn.textContent = '📍 Use My Location';
+                }
+            );
+        });
+
+        // Reset filter button
+        document.getElementById('resetFilterBtn').addEventListener('click', function() {
+            // Reset location
+            currentServices = [...originalServices];
+            userLocation = null;
+            isLocationFiltered = false;
+            
+            // Reset search
+            document.getElementById('searchInput').value = '';
+            searchQuery = '';
+            document.getElementById('clearSearchBtn').style.display = 'none';
+            
+            // Remove search info
+            const existingInfo = document.querySelector('.search-results-info');
+            if (existingInfo) existingInfo.remove();
+            
+            renderServices(currentServices);
+            hideStatus();
+            this.style.display = 'none';
+        });
+
+        // Radius change - re-filter if location is set
+        document.getElementById('radiusSelect').addEventListener('change', async function() {
+            if (userLocation) {
+                const btn = document.getElementById('useLocationBtn');
+                btn.click(); // Trigger location filter again
+            }
+        });
+
+        // Select on Map button
+        document.getElementById('selectOnMapBtn').addEventListener('click', function() {
+            document.getElementById('mapModal').style.display = 'flex';
+            setTimeout(() => {
+                initMap();
+                if (map) {
+                    map.invalidateSize(); // Fix map rendering
+                }
+            }, 100);
+        });
+
+        // Close map modal
+        document.getElementById('closeMapBtn').addEventListener('click', function() {
+            document.getElementById('mapModal').style.display = 'none';
+        });
+
+        document.getElementById('cancelMapBtn').addEventListener('click', function() {
+            document.getElementById('mapModal').style.display = 'none';
+        });
+
+        // Confirm location from map
+        document.getElementById('confirmLocationBtn').addEventListener('click', async function() {
+            if (!selectedLocation) return;
+
+            userLocation = selectedLocation;
+            document.getElementById('mapModal').style.display = 'none';
+
+            showStatus('✓ Location selected! Filtering services...', 'success');
+
+            const radius = document.getElementById('radiusSelect').value;
+
+            try {
+                const response = await fetch(`/home/api/filter-by-location?lat=${userLocation.lat}&lng=${userLocation.lng}&radius=${radius}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    currentServices = data.services;
+                    isLocationFiltered = true;
+                    
+                    // Apply search if active
+                    const results = searchQuery ? searchServices(searchQuery) : currentServices;
+                    renderServices(results);
+                    
+                    showStatus(`✓ Found ${data.count} service(s) within ${radius} km`, 'success');
+                    document.getElementById('resetFilterBtn').style.display = 'inline-block';
+                } else {
+                    showStatus('❌ Error filtering services', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showStatus('❌ Error filtering services', 'error');
+            }
+        });
+
+        // Close modal on outside click
+        window.addEventListener('click', function(e) {
+            const mapModal = document.getElementById('mapModal');
+            if (e.target === mapModal) {
+                mapModal.style.display = 'none';
+            }
+        });
+
+        // Initial render
+        renderServices(currentServices);
+    </script>
+
     <script src="/js/home.js"></script>
     <script src="/js/headerAndNavigation.js"></script>
     <script src="/js/footer.js"></script>
+    <script src="/js/debug-mode-switch.js"></script>
 </body>
 </html>

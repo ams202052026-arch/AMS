@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AMS Admin - <%= service ? 'Edit' : 'Add' %> Service</title>
+    <link rel="stylesheet" href="/css/admin/main.css">
+    <link rel="stylesheet" href="/css/admin/form.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <%- include('../partials/sidebar') %>
+
+        <main class="admin-main">
+            <header class="admin-header">
+                <h1><%= service ? 'Edit' : 'Add' %> Service</h1>
+                <a href="/admin/services" class="btn-secondary">← Back</a>
+            </header>
+
+            <form action="/admin/services/<%= service ? service._id + '/edit' : 'add' %>" method="POST" class="admin-form">
+                <div class="form-group">
+                    <label for="name">Service Name</label>
+                    <input type="text" name="name" id="name" value="<%= service ? service.name : '' %>" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea name="description" id="description" rows="3" required><%= service ? service.description : '' %></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="details">Details (one per line)</label>
+                    <textarea name="details" id="details" rows="4"><%= service ? service.details.join('\n') : '' %></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="price">Price (₱)</label>
+                        <input type="number" name="price" id="price" value="<%= service ? service.price : '' %>" required min="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="duration">Duration (mins)</label>
+                        <input type="number" name="duration" id="duration" value="<%= service ? service.duration : '' %>" required min="1">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pointsEarned">Points Earned</label>
+                        <input type="number" name="pointsEarned" id="pointsEarned" value="<%= service ? service.pointsEarned : 10 %>" min="0">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Minimum Advance Booking Time</label>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <input type="number" name="minAdvanceBookingValue" id="minAdvanceBookingValue" 
+                                   value="<%= service && service.minAdvanceBooking ? service.minAdvanceBooking.value : 0 %>" 
+                                   min="0" step="1" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <select name="minAdvanceBookingUnit" id="minAdvanceBookingUnit">
+                                <option value="minutes" <%= service && service.minAdvanceBooking && service.minAdvanceBooking.unit === 'minutes' ? 'selected' : '' %>>Minutes</option>
+                                <option value="hours" <%= !service || !service.minAdvanceBooking || service.minAdvanceBooking.unit === 'hours' ? 'selected' : '' %>>Hours</option>
+                                <option value="days" <%= service && service.minAdvanceBooking && service.minAdvanceBooking.unit === 'days' ? 'selected' : '' %>>Days</option>
+                            </select>
+                        </div>
+                    </div>
+                    <small class="form-help">How far in advance customers must book this service. Set to 0 for no restriction.</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select name="category" id="category">
+                        <option value="hair" <%= service && service.category === 'hair' ? 'selected' : '' %>>Hair</option>
+                        <option value="skin" <%= service && service.category === 'skin' ? 'selected' : '' %>>Skin</option>
+                        <option value="nails" <%= service && service.category === 'nails' ? 'selected' : '' %>>Nails</option>
+                        <option value="spa" <%= service && service.category === 'spa' ? 'selected' : '' %>>Spa</option>
+                        <option value="other" <%= service && service.category === 'other' ? 'selected' : '' %>>Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="image">Image URL</label>
+                    <input type="text" name="image" id="image" value="<%= service ? service.image : '/image/default-service.jpg' %>">
+                </div>
+
+                <div class="form-group">
+                    <label>Assigned Staff</label>
+                    <div class="checkbox-group">
+                        <% staff.forEach(s => { %>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="assignedStaff" value="<%= s._id %>"
+                                    <%= service && service.assignedStaff.some(as => as._id.toString() === s._id.toString()) ? 'checked' : '' %>>
+                                <%= s.name %>
+                            </label>
+                        <% }) %>
+                    </div>
+                </div>
+
+                <% if (service) { %>
+                    <div class="form-group">
+                        <label for="isActive">Status</label>
+                        <select name="isActive" id="isActive">
+                            <option value="true" <%= service.isActive ? 'selected' : '' %>>Active</option>
+                            <option value="false" <%= !service.isActive ? 'selected' : '' %>>Inactive</option>
+                        </select>
+                    </div>
+                <% } %>
+
+                <button type="submit" class="btn-primary"><%= service ? 'Update' : 'Add' %> Service</button>
+            </form>
+        </main>
+    </div>
+</body>
+</html>

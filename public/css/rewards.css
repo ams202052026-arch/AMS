@@ -1,0 +1,626 @@
+/* Reset and Base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: #ffffff;
+    color: #1a1a1a;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Main Content */
+.main-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 60px 20px;
+}
+
+/* Points Summary */
+.points-summary {
+    background: #1a1a1a;
+    color: #ffffff;
+    padding: 56px 40px;
+    border-radius: 24px;
+    text-align: center;
+    margin-bottom: 56px;
+    opacity: 0;
+    animation: fadeIn 0.6s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.points-summary h2 {
+    font-size: 16px;
+    opacity: 0.8;
+    margin-bottom: 16px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.points-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.points-number {
+    font-size: 80px;
+    font-weight: 700;
+    letter-spacing: -2px;
+    line-height: 1;
+}
+
+.points-label {
+    font-size: 18px;
+    opacity: 0.7;
+    margin-top: 8px;
+}
+
+/* Section Title */
+.section-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 32px;
+    color: #1a1a1a;
+    letter-spacing: -0.5px;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #333;
+    background: #f8f9fa;
+    border-radius: 16px;
+    font-size: 16px;
+}
+
+/* Rewards Section */
+.rewards-section {
+    margin-bottom: 64px;
+}
+
+.rewards-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+}
+
+/* Reward Card */
+.reward-card {
+    background: #f8f9fa;
+    border-radius: 16px;
+    padding: 28px;
+    transition: all 0.3s ease;
+    opacity: 0;
+    animation: fadeInUp 0.6s ease-out forwards;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.reward-card:nth-child(1) { animation-delay: 0.05s; }
+.reward-card:nth-child(2) { animation-delay: 0.1s; }
+.reward-card:nth-child(3) { animation-delay: 0.15s; }
+.reward-card:nth-child(4) { animation-delay: 0.2s; }
+.reward-card:nth-child(5) { animation-delay: 0.25s; }
+.reward-card:nth-child(6) { animation-delay: 0.3s; }
+
+.reward-card:hover {
+    background: #ffffff;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+    transform: translateY(-6px);
+}
+
+.reward-card h3 {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #1a1a1a;
+    letter-spacing: -0.3px;
+}
+
+.reward-card .description {
+    color: #333;
+    font-size: 15px;
+    margin-bottom: 20px;
+    line-height: 1.6;
+}
+
+.reward-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.points-required {
+    background: #ffffff;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    color: #1a1a1a;
+    font-size: 14px;
+}
+
+.reward-value {
+    color: #1a1a1a;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+/* Redeem Button */
+.btn-redeem {
+    width: 100%;
+    padding: 14px;
+    background: #1a1a1a;
+    color: #ffffff;
+    border: none;
+    border-radius: 24px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-redeem::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn-redeem:hover {
+    background: #333;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-redeem:active::after {
+    width: 400px;
+    height: 400px;
+}
+
+.btn-redeem.disabled {
+    background: #f5f5f5;
+    color: #999;
+    cursor: not-allowed;
+    border: 2px solid #e0e0e0;
+}
+
+.btn-redeem.disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* Redemptions Section */
+.redemptions-section {
+    margin-bottom: 64px;
+}
+
+.redemptions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Redemption Item */
+.redemption-item {
+    background: #f8f9fa;
+    padding: 24px;
+    border-radius: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+    opacity: 0;
+    animation: fadeInUp 0.6s ease-out forwards;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.redemption-item:nth-child(1) { animation-delay: 0.05s; }
+.redemption-item:nth-child(2) { animation-delay: 0.1s; }
+.redemption-item:nth-child(3) { animation-delay: 0.15s; }
+.redemption-item:nth-child(4) { animation-delay: 0.2s; }
+.redemption-item:nth-child(5) { animation-delay: 0.25s; }
+
+.redemption-item:hover {
+    background: #ffffff;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+    transform: translateY(-6px);
+}
+
+.redemption-info h4 {
+    margin-bottom: 6px;
+    color: #1a1a1a;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.redemption-info .date {
+    font-size: 14px;
+    color: #333;
+}
+
+/* Status Badge */
+.status-badge {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-badge.active {
+    background: #1a1a1a;
+    color: #ffffff;
+}
+
+.status-badge.used {
+    background: #f5f5f5;
+    color: #999;
+}
+
+.status-badge.expired {
+    background: #333;
+    color: #ffffff;
+}
+
+/* Modal Overlay */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    animation: fadeInModal 0.3s ease-out;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+@keyframes fadeInModal {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Modal Box */
+.modal-box {
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 40px;
+    max-width: 500px;
+    width: 100%;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: modalSlideIn 0.4s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    color: #1a1a1a;
+    font-size: 24px;
+    font-weight: 300;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10;
+    line-height: 1;
+}
+
+.close-btn:hover {
+    background: #f5f5f5;
+    transform: rotate(90deg);
+}
+
+.modal-box h3 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #1a1a1a;
+    letter-spacing: -0.5px;
+}
+
+.modal-box p {
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+/* Booking Summary */
+.booking-summary {
+    background: #f8f9fa;
+    padding: 24px;
+    border-radius: 16px;
+    margin: 24px 0;
+}
+
+.booking-summary p {
+    margin: 12px 0;
+    font-size: 15px;
+    color: #1a1a1a;
+}
+
+.booking-summary strong {
+    color: #1a1a1a;
+    font-weight: 600;
+}
+
+.warning-text {
+    color: #1a1a1a;
+    font-size: 14px;
+    font-weight: 500;
+    margin-top: 16px;
+}
+
+/* Modal Actions */
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 32px;
+}
+
+.modal-actions button {
+    flex: 1;
+    padding: 14px;
+    border: none;
+    border-radius: 24px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary {
+    background: #ffffff;
+    color: #1a1a1a;
+    border: 2px solid #e0e0e0;
+}
+
+.btn-secondary:hover {
+    background: #f5f5f5;
+    border-color: #1a1a1a;
+    transform: translateY(-1px);
+}
+
+.btn-primary {
+    background: #1a1a1a;
+    color: #ffffff;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn-primary:hover {
+    background: #333;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary:active::after {
+    width: 300px;
+    height: 300px;
+}
+
+/* Responsive Design - Mobile First */
+
+/* Small Mobile (320px - 480px) */
+@media (max-width: 480px) {
+    .main-content {
+        padding: 40px 16px;
+    }
+
+    .points-summary {
+        padding: 40px 24px;
+        margin-bottom: 40px;
+    }
+
+    .points-number {
+        font-size: 64px;
+    }
+
+    .points-label {
+        font-size: 16px;
+    }
+
+    .section-title {
+        font-size: 24px;
+        margin-bottom: 24px;
+    }
+
+    .reward-card {
+        padding: 24px;
+    }
+
+    .reward-card h3 {
+        font-size: 20px;
+    }
+
+    .reward-card .description {
+        font-size: 14px;
+    }
+
+    .reward-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .redemption-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 20px;
+    }
+
+    .modal-box {
+        padding: 32px 24px;
+        border-radius: 20px;
+    }
+
+    .modal-box h3 {
+        font-size: 24px;
+    }
+
+    .close-btn {
+        top: 16px;
+        right: 16px;
+        width: 32px;
+        height: 32px;
+        font-size: 20px;
+    }
+
+    .booking-summary {
+        padding: 20px;
+    }
+
+    .modal-actions {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .modal-actions button {
+        width: 100%;
+    }
+}
+
+/* Tablet (481px - 767px) */
+@media (min-width: 481px) and (max-width: 767px) {
+    .rewards-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Tablet Landscape / Desktop (768px+) */
+@media (min-width: 768px) {
+    .main-content {
+        padding: 80px 40px;
+    }
+
+    .points-summary {
+        padding: 64px 48px;
+        margin-bottom: 64px;
+    }
+
+    .section-title {
+        font-size: 32px;
+        margin-bottom: 40px;
+    }
+
+    .rewards-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+    .reward-card {
+        padding: 32px;
+    }
+}
+
+/* Large Desktop (1024px+) */
+@media (min-width: 1024px) {
+    .rewards-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+    }
+}
+
+/* Focus States */
+button:focus-visible {
+    outline: 2px solid #1a1a1a;
+    outline-offset: 4px;
+}
+
+/* Smooth Scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Selection Color */
+::selection {
+    background: #1a1a1a;
+    color: #ffffff;
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

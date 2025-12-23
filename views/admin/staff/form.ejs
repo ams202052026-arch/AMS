@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AMS Admin - <%= staff ? 'Edit' : 'Add' %> Staff</title>
+    <link rel="stylesheet" href="/css/admin/main.css">
+    <link rel="stylesheet" href="/css/admin/form.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <%- include('../partials/sidebar') %>
+
+        <main class="admin-main">
+            <header class="admin-header">
+                <h1><%= staff ? 'Edit' : 'Add' %> Staff</h1>
+                <a href="/admin/staff" class="btn-secondary">← Back</a>
+            </header>
+
+            <!-- Error Modal -->
+            <% if (error) { %>
+                <div id="errorModal" class="modal active">
+                    <div class="modal-content error-modal">
+                        <span class="close-btn" onclick="closeErrorModal()">&times;</span>
+                        <div class="error-icon">⚠️</div>
+                        <h2>Oops! Something went wrong</h2>
+                        <p class="error-message"><%= error %></p>
+                        <button onclick="closeErrorModal()" class="btn-primary">OK</button>
+                    </div>
+                </div>
+            <% } %>
+
+            <form action="/admin/staff/<%= staff ? staff._id + '/edit' : 'add' %>" method="POST" class="admin-form">
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" name="name" id="name" value="<%= staff ? staff.name : '' %>" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" name="email" id="email" value="<%= staff ? staff.email : '' %>" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Phone</label>
+                        <input type="text" name="phone" id="phone" value="<%= staff ? staff.phone : '' %>">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Specialties (Services)</label>
+                    <div id="specialtiesContainer">
+                        <% if (staff && staff.specialties && staff.specialties.length > 0) { %>
+                            <% staff.specialties.forEach((specialty, index) => { %>
+                                <div class="specialty-item">
+                                    <input type="text" name="specialties[]" value="<%= specialty %>" placeholder="e.g., Haircut" required>
+                                    <button type="button" class="btn-remove" onclick="removeSpecialty(this)">✕</button>
+                                </div>
+                            <% }) %>
+                        <% } else { %>
+                            <div class="specialty-item">
+                                <input type="text" name="specialties[]" placeholder="e.g., Haircut" required>
+                                <button type="button" class="btn-remove" onclick="removeSpecialty(this)">✕</button>
+                            </div>
+                        <% } %>
+                    </div>
+                    <button type="button" class="btn-add-specialty" onclick="addSpecialty()">+ Add Another Specialty</button>
+                </div>
+
+                <div class="form-group">
+                    <label>Availability</label>
+                    <div class="availability-grid">
+                        <% const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']; %>
+                        <% days.forEach(day => { %>
+                            <div class="day-row">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="availability[<%= day %>][isAvailable]" value="true"
+                                        <%= !staff || (staff.availability && staff.availability[day] && staff.availability[day].isAvailable) ? 'checked' : '' %>>
+                                    <%= day.charAt(0).toUpperCase() + day.slice(1) %>
+                                </label>
+                                <input type="time" name="availability[<%= day %>][start]" 
+                                    value="<%= staff && staff.availability && staff.availability[day] ? staff.availability[day].start : '09:00' %>">
+                                <span>to</span>
+                                <input type="time" name="availability[<%= day %>][end]"
+                                    value="<%= staff && staff.availability && staff.availability[day] ? staff.availability[day].end : '18:00' %>">
+                            </div>
+                        <% }) %>
+                    </div>
+                </div>
+
+                <% if (staff) { %>
+                    <div class="form-group">
+                        <label for="isActive">Status</label>
+                        <select name="isActive" id="isActive">
+                            <option value="true" <%= staff.isActive ? 'selected' : '' %>>Active</option>
+                            <option value="false" <%= !staff.isActive ? 'selected' : '' %>>Inactive</option>
+                        </select>
+                    </div>
+                <% } %>
+
+                <button type="submit" class="btn-primary"><%= staff ? 'Update' : 'Add' %> Staff</button>
+            </form>
+        </main>
+    </div>
+
+    <script>
+        function closeErrorModal() {
+            const modal = document.getElementById('errorModal');
+            if (modal) {
+                modal.classList.remove('active');
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('errorModal');
+            if (event.target === modal) {
+                closeErrorModal();
+            }
+        }
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeErrorModal();
+            }
+        });
+
+        // Add new specialty input field
+        function addSpecialty() {
+            const container = document.getElementById('specialtiesContainer');
+            const newItem = document.createElement('div');
+            newItem.className = 'specialty-item';
+            newItem.innerHTML = `
+                <input type="text" name="specialties[]" placeholder="e.g., Hair Coloring" required>
+                <button type="button" class="btn-remove" onclick="removeSpecialty(this)">✕</button>
+            `;
+            container.appendChild(newItem);
+            
+            // Focus on the new input
+            newItem.querySelector('input').focus();
+        }
+
+        // Remove specialty input field
+        function removeSpecialty(button) {
+            const container = document.getElementById('specialtiesContainer');
+            const items = container.querySelectorAll('.specialty-item');
+            
+            // Keep at least one specialty field
+            if (items.length > 1) {
+                button.parentElement.remove();
+            } else {
+                alert('At least one specialty is required');
+            }
+        }
+
+        // Allow Enter key to add new specialty
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('specialtiesContainer').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && e.target.tagName === 'INPUT') {
+                    e.preventDefault();
+                    addSpecialty();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

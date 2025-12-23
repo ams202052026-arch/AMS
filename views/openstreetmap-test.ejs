@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenStreetMap Test - Free Alternative</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        #map {
+            height: 400px;
+            width: 100%;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .controls {
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            margin: 0 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            background: #0056b3;
+        }
+        
+        .address-form {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .form-row input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .coordinates {
+            background: #d4edda;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗺️ OpenStreetMap Test (Free Alternative)</h1>
+        
+        <div class="info">
+            <strong>📋 About:</strong>
+            <p>This is a free alternative to Google Maps using OpenStreetMap and Leaflet. No API key required!</p>
+        </div>
+        
+        <div id="map"></div>
+        
+        <div class="coordinates" id="coordinates">
+            <strong>Selected Location:</strong> Click on the map to select a location
+        </div>
+        
+        <div class="controls">
+            <button class="btn" onclick="getCurrentLocation()">📍 Get Current Location</button>
+            <button class="btn" onclick="searchAddress()">🔍 Search Address</button>
+            <button class="btn" onclick="addRandomMarker()">📌 Add Random Marker</button>
+        </div>
+        
+        <div class="address-form">
+            <h3>📍 Address Form (for testing)</h3>
+            <div class="form-row">
+                <input type="text" id="street" placeholder="Street Address" value="123 Test Street">
+                <input type="text" id="barangay" placeholder="Barangay" value="Test Barangay">
+            </div>
+            <div class="form-row">
+                <input type="text" id="city" placeholder="City" value="Manila">
+                <input type="text" id="province" placeholder="Province" value="Metro Manila">
+            </div>
+            <input type="hidden" id="latitude" name="latitude">
+            <input type="hidden" id="longitude" name="longitude">
+        </div>
+    </div>
+
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        let map;
+        let marker;
+        
+        // Initialize map
+        function initMap() {
+            console.log('🚀 Initializing OpenStreetMap...');
+            
+            // Create map centered on Manila
+            map = L.map('map').setView([14.5995, 120.9842], 13);
+            
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            
+            // Add initial marker
+            marker = L.marker([14.5995, 120.9842], {
+                draggable: true
+            }).addTo(map);
+            
+            // Update coordinates when marker is dragged
+            marker.on('dragend', function(e) {
+                const position = e.target.getLatLng();
+                updateCoordinates(position.lat, position.lng);
+            });
+            
+            // Add click listener to map
+            map.on('click', function(e) {
+                const lat = e.latlng.lat;
+                const lng = e.latlng.lng;
+                
+                // Move marker to clicked location
+                marker.setLatLng([lat, lng]);
+                updateCoordinates(lat, lng);
+                
+                // Reverse geocode (get address from coordinates)
+                reverseGeocode(lat, lng);
+            });
+            
+            console.log('✅ OpenStreetMap initialized successfully');
+        }
+        
+        // Update coordinate display and hidden inputs
+        function updateCoordinates(lat, lng) {
+            document.getElementById('coordinates').innerHTML = 
+                `<strong>Selected Location:</strong> ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            
+            document.getElementById('latitude').value = lat;
+            document.getElementById('longitude').value = lng;
+            
+            console.log(`📍 Location updated: ${lat}, ${lng}`);
+        }
+        
+        // Get current location using browser geolocation
+        function getCurrentLocation() {
+            console.log('📍 Getting current location...');
+            
+            if (!navigator.geolocation) {
+                alert('Geolocation is not supported by this browser.');
+                return;
+            }
+            
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    
+                    console.log(`✅ Current location: ${lat}, ${lng}`);
+                    
+                    // Move map and marker to current location
+                    map.setView([lat, lng], 16);
+                    marker.setLatLng([lat, lng]);
+                    updateCoordinates(lat, lng);
+                    
+                    // Try to get address
+                    reverseGeocode(lat, lng);
+                },
+                function(error) {
+                    console.error('❌ Geolocation error:', error);
+                    alert('Unable to get your location: ' + error.message);
+                }
+            );
+        }
+        
+        // Search for address using Nominatim (OpenStreetMap geocoding)
+        function searchAddress() {
+            const street = document.getElementById('street').value;
+            const barangay = document.getElementById('barangay').value;
+            const city = document.getElementById('city').value;
+            const province = document.getElementById('province').value;
+            
+            const fullAddress = [street, barangay, city, province, 'Philippines']
+                .filter(Boolean).join(', ');
+            
+            if (!fullAddress.trim()) {
+                alert('Please enter an address to search');
+                return;
+            }
+            
+            console.log(`🔍 Searching for: ${fullAddress}`);
+            
+            // Use Nominatim API for geocoding
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(fullAddress)}&limit=1`;
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.length > 0) {
+                        const result = data[0];
+                        const lat = parseFloat(result.lat);
+                        const lng = parseFloat(result.lon);
+                        
+                        console.log(`✅ Address found: ${lat}, ${lng}`);
+                        
+                        // Move map and marker to found location
+                        map.setView([lat, lng], 16);
+                        marker.setLatLng([lat, lng]);
+                        updateCoordinates(lat, lng);
+                        
+                        // Show popup with found address
+                        marker.bindPopup(`<strong>Found:</strong><br>${result.display_name}`).openPopup();
+                    } else {
+                        console.log('❌ Address not found');
+                        alert('Address not found. Please try a different address.');
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Geocoding error:', error);
+                    alert('Error searching for address. Please try again.');
+                });
+        }
+        
+        // Reverse geocode (get address from coordinates)
+        function reverseGeocode(lat, lng) {
+            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.display_name) {
+                        console.log(`🏠 Address: ${data.display_name}`);
+                        
+                        // Try to parse address components
+                        const address = data.address || {};
+                        
+                        // Update form fields if they're empty
+                        if (!document.getElementById('street').value && address.road) {
+                            document.getElementById('street').value = address.road;
+                        }
+                        if (!document.getElementById('barangay').value && address.suburb) {
+                            document.getElementById('barangay').value = address.suburb;
+                        }
+                        if (!document.getElementById('city').value && address.city) {
+                            document.getElementById('city').value = address.city;
+                        }
+                        if (!document.getElementById('province').value && address.state) {
+                            document.getElementById('province').value = address.state;
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Reverse geocoding error:', error);
+                });
+        }
+        
+        // Add random marker for testing
+        function addRandomMarker() {
+            const lat = 14.5995 + (Math.random() - 0.5) * 0.1;
+            const lng = 120.9842 + (Math.random() - 0.5) * 0.1;
+            
+            const randomMarker = L.marker([lat, lng])
+                .addTo(map)
+                .bindPopup(`Random marker at ${lat.toFixed(4)}, ${lng.toFixed(4)}`);
+            
+            console.log(`📌 Random marker added at: ${lat}, ${lng}`);
+        }
+        
+        // Initialize map when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initMap();
+        });
+    </script>
+</body>
+</html>

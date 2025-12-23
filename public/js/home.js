@@ -50,23 +50,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Book button functionality
-    bookBtns.forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            createRipple(e, this);
-            
-            const modal = this.closest('.modal');
-            const serviceName = modal.querySelector('h2').textContent;
-            const selectedCrew = modal.querySelector('select').value;
-            
-            // Simulate booking (replace with actual booking logic)
-            setTimeout(() => {
-                alert(`Booking confirmed!\nService: ${serviceName}\nCrew: ${selectedCrew}`);
-                closeModal(modal);
-            }, 300);
-        });
-    });
+    // Book button functionality - just let the link work normally
+    // The button is already a link to /appointments/book/:serviceId
+    // No need to prevent default or show fake alerts
 
     // Crew selection interaction
     const crewSelects = document.querySelectorAll('.modal-booking-info select');

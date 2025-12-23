@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= business.businessName %> - <%= staff ? 'Edit' : 'Add' %> Staff</title>
+    <link rel="stylesheet" href="/css/businessOwner/main.css">
+</head>
+<body>
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <%- include('../partials/sidebar', { currentPage: 'staff' }) %>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="form-header">
+                <h1><%= staff ? 'Edit' : 'Add New' %> Staff Member</h1>
+                <div class="breadcrumb">
+                    <a href="/business-owner/staff">Staff</a> / <%= staff ? 'Edit' : 'Add New' %>
+                </div>
+            </div>
+
+            <% if (typeof error !== 'undefined' && error) { %>
+                <div class="error-message">
+                    <%= error %>
+                </div>
+            <% } %>
+
+            <form class="staff-form" action="<%= staff ? `/business-owner/staff/${staff._id}` : '/business-owner/staff' %>" method="POST">
+                <% if (staff) { %>
+                    <input type="hidden" name="_method" value="PUT">
+                <% } %>
+
+                <div class="form-group">
+                    <label class="form-label" for="name">Full Name *</label>
+                    <input type="text" id="name" name="name" class="form-input" 
+                           value="<%= staff ? staff.name : '' %>" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="email">Email Address *</label>
+                    <input type="email" id="email" name="email" class="form-input" 
+                           value="<%= staff ? staff.email : '' %>" required>
+                    <div class="form-help">Used for staff notifications and communication</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="phone">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" class="form-input" 
+                           value="<%= staff ? staff.phone : '' %>" placeholder="+639123456789">
+                    <div class="form-help">Optional - for direct contact</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Specialties</label>
+                    <div class="specialties-container">
+                        <div id="specialties-list">
+                            <% if (staff && staff.specialties && staff.specialties.length > 0) { %>
+                                <% staff.specialties.forEach((specialty, index) => { %>
+                                    <div class="specialty-input">
+                                        <input type="text" name="specialties" value="<%= specialty %>" placeholder="e.g., Hair Cutting, Manicure">
+                                        <button type="button" class="btn-remove" onclick="removeSpecialty(this)">Remove</button>
+                                    </div>
+                                <% }) %>
+                            <% } else { %>
+                                <div class="specialty-input">
+                                    <input type="text" name="specialties" placeholder="e.g., Hair Cutting, Manicure">
+                                    <button type="button" class="btn-remove" onclick="removeSpecialty(this)">Remove</button>
+                                </div>
+                            <% } %>
+                        </div>
+                        <button type="button" class="btn-add" onclick="addSpecialty()">+ Add Specialty</button>
+                        <div class="form-help">What services can this staff member provide?</div>
+                    </div>
+                </div>
+
+                <% if (staff) { %>
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="isActive" name="isActive" value="true" <%= staff.isActive ? 'checked' : '' %>>
+                            <label for="isActive">Staff member is active</label>
+                        </div>
+                        <div class="form-help">Inactive staff won't appear in service assignments</div>
+                    </div>
+                <% } %>
+
+                <div class="form-actions">
+                    <a href="/business-owner/staff" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">
+                        <%= staff ? 'Update Staff Member' : 'Add Staff Member' %>
+                    </button>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <script>
+        function addSpecialty() {
+            const specialtiesList = document.getElementById('specialties-list');
+            const newSpecialty = document.createElement('div');
+            newSpecialty.className = 'specialty-input';
+            newSpecialty.innerHTML = `
+                <input type="text" name="specialties" placeholder="e.g., Hair Cutting, Manicure">
+                <button type="button" class="btn-remove" onclick="removeSpecialty(this)">Remove</button>
+            `;
+            specialtiesList.appendChild(newSpecialty);
+        }
+
+        function removeSpecialty(button) {
+            const specialtyInput = button.parentElement;
+            const specialtiesList = document.getElementById('specialties-list');
+            
+            // Keep at least one specialty input
+            if (specialtiesList.children.length > 1) {
+                specialtyInput.remove();
+            } else {
+                // Clear the input instead of removing it
+                specialtyInput.querySelector('input').value = '';
+            }
+        }
+    </script>
+</body>
+</html>

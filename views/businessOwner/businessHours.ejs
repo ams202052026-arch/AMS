@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Hours Management - <%= business.businessName %></title>
+    <link rel="stylesheet" href="/css/businessOwner/main.css">
+    <style>
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        
+        #formStatus {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+            font-weight: 500;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <%- include('partials/sidebar', { currentPage: 'business-hours' }) %>
+
+        <main class="main-content">
+            <div class="content-header">
+                <h1>Business Hours Management</h1>
+                <p>Manage your business operating hours and availability</p>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2>Weekly Business Hours</h2>
+                    <p>Set your operating hours for each day of the week</p>
+                    <div style="margin-top: 10px; padding: 10px; background: #e3f2fd; border-radius: 5px; font-size: 12px;">
+                        <strong>Debug Info:</strong> Loaded <%= businessHours.length %> days from database
+                        <% businessHours.forEach(bh => { %>
+                            <div><%= bh.day %>: <%= bh.isOpen ? 'Open ' + bh.openTime + '-' + bh.closeTime : 'Closed' %></div>
+                        <% }) %>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <form id="businessHoursForm">
+                        <div class="hours-grid">
+                            <% businessHours.forEach(dayHour => { %>
+                                <div class="day-row">
+                                    <div class="day-name">
+                                        <label><%= dayHour.day %></label>
+                                    </div>
+                                    <div class="day-toggle">
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" 
+                                                   name="<%= dayHour.day.toLowerCase() %>[isOpen]" 
+                                                   <%= dayHour.isOpen ? 'checked' : '' %>
+                                                   onchange="toggleDayHours('<%= dayHour.day.toLowerCase() %>')">
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                        <span class="toggle-label">
+                                            <%= dayHour.isOpen ? 'Open' : 'Closed' %>
+                                        </span>
+                                    </div>
+                                    <div class="time-inputs" id="<%= dayHour.day.toLowerCase() %>-times" 
+                                         style="<%= dayHour.isOpen ? '' : 'display: none;' %>">
+                                        <div class="time-group">
+                                            <label>Open:</label>
+                                            <input type="time" 
+                                                   name="<%= dayHour.day.toLowerCase() %>[openTime]" 
+                                                   value="<%= dayHour.openTime %>"
+                                                   required>
+                                        </div>
+                                        <div class="time-group">
+                                            <label>Close:</label>
+                                            <input type="time" 
+                                                   name="<%= dayHour.day.toLowerCase() %>[closeTime]" 
+                                                   value="<%= dayHour.closeTime %>"
+                                                   required>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary" id="saveBtn">
+                                Save Business Hours
+                            </button>
+                            <button type="button" class="btn btn-secondary" id="defaultBtn" onclick="setDefaultHours()">
+                                Set Default Hours
+                            </button>
+                            
+                            <div id="formStatus"></div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        console.log('=== Business Hours Script Loading ===');
+        console.log('Business Hours Data from Server:');
+        console.log(<%- JSON.stringify(businessHours) %>);
+        
+        function toggleDayHours(day) {
+            const checkbox = document.querySelector(`input[name="${day}[isOpen]"]`);
+            const timesDiv = document.getElementById(`${day}-times`);
+            const label = checkbox.parentElement.nextElementSibling;
+            
+            if (checkbox.checked) {
+                timesDiv.style.display = 'flex';
+                label.textContent = 'Open';
+            } else {
+                timesDiv.style.display = 'none';
+                label.textContent = 'Closed';
+            }
+        }
+
+        function setDefaultHours() {
+            console.log('Setting default hours...');
+            const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+            
+            days.forEach(day => {
+                const checkbox = document.querySelector(`input[name="${day}[isOpen]"]`);
+                const openTime = document.querySelector(`input[name="${day}[openTime]"]`);
+                const closeTime = document.querySelector(`input[name="${day}[closeTime]"]`);
+                
+                if (day === 'sunday') {
+                    checkbox.checked = false;
+                } else {
+                    checkbox.checked = true;
+                    if (openTime) openTime.value = '09:00';
+                    if (closeTime) closeTime.value = '18:00';
+                }
+                
+                toggleDayHours(day);
+            });
+            
+            showStatus('✅ Default hours set! Click "Save Business Hours" to apply.', 'success');
+        }
+
+        function showStatus(message, type) {
+            const formStatus = document.getElementById('formStatus');
+            formStatus.style.display = 'block';
+            formStatus.innerHTML = message;
+            
+            if (type === 'success') {
+                formStatus.style.background = '#e8f5e8';
+                formStatus.style.color = '#2e7d32';
+                formStatus.style.borderColor = '#4caf50';
+            } else if (type === 'error') {
+                formStatus.style.background = '#ffebee';
+                formStatus.style.color = '#c62828';
+                formStatus.style.borderColor = '#f44336';
+            } else {
+                formStatus.style.background = '#e3f2fd';
+                formStatus.style.color = '#1976d2';
+                formStatus.style.borderColor = '#2196f3';
+            }
+            
+            if (type === 'success') {
+                setTimeout(() => {
+                    formStatus.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded');
+            
+            const form = document.getElementById('businessHoursForm');
+            const saveBtn = document.getElementById('saveBtn');
+            const defaultBtn = document.getElementById('defaultBtn');
+            
+            if (!form) {
+                console.error('Form not found!');
+                alert('ERROR: Form not found! Please refresh the page.');
+                return;
+            }
+            
+            console.log('Form found, adding submit handler');
+            
+            form.onsubmit = async function(e) {
+                e.preventDefault();
+                console.log('=== FORM SUBMITTED ===');
+                
+                // Disable buttons
+                saveBtn.disabled = true;
+                defaultBtn.disabled = true;
+                saveBtn.innerHTML = '<span class="spinner"></span> Saving...';
+                
+                showStatus('💾 Saving business hours...', 'loading');
+                
+                // Collect form data - manually check checkboxes
+                const businessHours = {};
+                const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+                
+                days.forEach(day => {
+                    const checkbox = document.querySelector(`input[name="${day}[isOpen]"]`);
+                    const openTime = document.querySelector(`input[name="${day}[openTime]"]`);
+                    const closeTime = document.querySelector(`input[name="${day}[closeTime]"]`);
+                    
+                    businessHours[day] = {
+                        isOpen: checkbox ? checkbox.checked : false,
+                        openTime: openTime ? openTime.value : '09:00',
+                        closeTime: closeTime ? closeTime.value : '18:00'
+                    };
+                    
+                    console.log(`${day}: isOpen=${businessHours[day].isOpen}, ${businessHours[day].openTime}-${businessHours[day].closeTime}`);
+                });
+                
+                console.log('Sending data:', businessHours);
+                
+                try {
+                    const response = await fetch('/business-owner/business-hours', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ businessHours })
+                    });
+                    
+                    console.log('Response status:', response.status);
+                    
+                    const result = await response.json();
+                    console.log('Response data:', result);
+                    
+                    if (result.success) {
+                        showStatus('✅ Business hours updated successfully!', 'success');
+                    } else {
+                        showStatus('❌ Error: ' + (result.error || 'Unknown error'), 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showStatus('❌ Network error: ' + error.message, 'error');
+                }
+                
+                // Re-enable buttons
+                saveBtn.disabled = false;
+                defaultBtn.disabled = false;
+                saveBtn.innerHTML = 'Save Business Hours';
+                
+                return false;
+            };
+            
+            console.log('Form handler attached successfully');
+        });
+    </script>
+</body>
+</html>

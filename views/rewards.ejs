@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMS - Rewards & Loyalty</title>
+    <link rel="stylesheet" href="/css/scrollbar.css">
+    <link rel="stylesheet" href="/css/rewards.css">
+    <link rel="stylesheet" href="/css/headerAndNavigation.css">
+    <link rel="stylesheet" href="/css/footer.css">
+</head>
+<body>
+    <%- include('partials/headerAndNavigation') %>
+
+    <main class="main-content">
+        <div class="points-summary">
+            <h2>Points</h2>
+            <div class="points-display">
+                <span class="points-number"><%= currentPoints %></span>
+            </div>
+        </div>
+
+        <section class="rewards-section">
+            <h2 class="section-title">Rewards</h2>
+            
+            <% if (availableRewards.length === 0) { %>
+                <p class="empty-state">No rewards available at the moment.</p>
+            <% } else { %>
+                <div class="rewards-grid">
+                    <% availableRewards.forEach(reward => { %>
+                        <div class="reward-card">
+                            <h3><%= reward.name %></h3>
+                            <p class="description"><%= reward.description %></p>
+                            <div class="reward-info">
+                                <span class="points-required"><%= reward.pointsRequired %> pts</span>
+                                <% if (reward.type === 'discount') { %>
+                                    <span class="reward-value">
+                                        <%= reward.discountType === 'percentage' ? reward.discountValue + '%' : '₱' + reward.discountValue %> OFF
+                                    </span>
+                                <% } %>
+                            </div>
+                            <% if (currentPoints >= reward.pointsRequired) { %>
+                                <form action="/rewards/redeem/<%= reward._id %>" method="POST" class="redeem-form"
+                                      data-reward-name="<%= reward.name %>" 
+                                      data-points-required="<%= reward.pointsRequired %>" 
+                                      data-current-points="<%= currentPoints %>">
+                                    <button type="submit" class="btn-redeem">Redeem</button>
+                                </form>
+                            <% } else { %>
+                                <button class="btn-redeem disabled" disabled>
+                                    Need <%= reward.pointsRequired - currentPoints %> more pts
+                                </button>
+                            <% } %>
+                        </div>
+                    <% }) %>
+                </div>
+            <% } %>
+        </section>
+
+        <section class="redemptions-section">
+            <h2 class="section-title">Redemptions</h2>
+            
+            <% if (myRedemptions.length === 0) { %>
+                <p class="empty-state">You haven't redeemed any rewards yet.</p>
+            <% } else { %>
+                <div class="redemptions-list">
+                    <% myRedemptions.forEach(redemption => { %>
+                        <div class="redemption-item status-<%= redemption.status %>">
+                            <div class="redemption-info">
+                                <h4><%= redemption.reward.name %></h4>
+                                <p class="date">Redeemed: <%= new Date(redemption.redeemedAt).toLocaleDateString() %></p>
+                            </div>
+                            <span class="status-badge <%= redemption.status %>"><%= redemption.status.toUpperCase() %></span>
+                        </div>
+                    <% }) %>
+                </div>
+            <% } %>
+        </section>
+    </main>
+
+    <%- include('partials/footer') %>
+    
+    <!-- Redeem Confirmation Modal -->
+    <div id="redeemModal" class="modal-overlay" style="display: none;">
+        <div class="modal-box">
+            <span class="close-btn" onclick="closeRedeemModal()">&times;</span>
+            <h3>Confirm Redemption</h3>
+            <p>Are you sure you want to redeem this reward?</p>
+            
+            <div class="booking-summary">
+                <p><strong>Reward:</strong> <span id="redeemRewardName"></span></p>
+                <p><strong>Points Required:</strong> <span id="redeemPoints"></span> points</p>
+                <p><strong>Remaining Points:</strong> <span id="redeemRemaining"></span> points</p>
+            </div>
+            
+            <p class="warning-text">This action cannot be undone.</p>
+            
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closeRedeemModal()">Cancel</button>
+                <button type="button" class="btn-primary" id="confirmRedeemBtn">Redeem</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentRedeemForm = null;
+
+        // Add event listeners to all redeem forms
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Rewards page loaded');
+            const forms = document.querySelectorAll('.redeem-form');
+            console.log('Found', forms.length, 'redeem forms');
+            
+            forms.forEach(form => {
+                form.addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    console.log('Redeem form submitted, showing confirmation');
+                    currentRedeemForm = this;
+                    
+                    const rewardName = this.dataset.rewardName;
+                    const pointsRequired = parseInt(this.dataset.pointsRequired);
+                    const currentPoints = parseInt(this.dataset.currentPoints);
+                    
+                    console.log('Reward:', rewardName, 'Points:', pointsRequired, 'Current:', currentPoints);
+                    
+                    document.getElementById('redeemRewardName').textContent = rewardName;
+                    document.getElementById('redeemPoints').textContent = pointsRequired;
+                    document.getElementById('redeemRemaining').textContent = currentPoints - pointsRequired;
+                    
+                    const modal = document.getElementById('redeemModal');
+                    modal.style.display = 'flex';
+                    console.log('Modal displayed');
+                });
+            });
+            
+            // Confirm button handler
+            document.getElementById('confirmRedeemBtn').onclick = function() {
+                console.log('Confirm button clicked');
+                
+                if (currentRedeemForm) {
+                    console.log('Form action:', currentRedeemForm.action);
+                    console.log('Form method:', currentRedeemForm.method);
+                    
+                    // Create a temporary form to bypass the event listener
+                    const tempForm = document.createElement('form');
+                    tempForm.method = currentRedeemForm.method;
+                    tempForm.action = currentRedeemForm.action;
+                    
+                    // Copy any hidden inputs if they exist
+                    const inputs = currentRedeemForm.querySelectorAll('input[type="hidden"]');
+                    inputs.forEach(input => {
+                        const newInput = document.createElement('input');
+                        newInput.type = 'hidden';
+                        newInput.name = input.name;
+                        newInput.value = input.value;
+                        tempForm.appendChild(newInput);
+                    });
+                    
+                    document.body.appendChild(tempForm);
+                    console.log('Submitting temporary form...');
+                    tempForm.submit();
+                    
+                    closeRedeemModal();
+                }
+            };
+        });
+
+        function closeRedeemModal() {
+            console.log('Closing modal');
+            document.getElementById('redeemModal').style.display = 'none';
+            currentRedeemForm = null;
+        }
+    </script>
+    
+    <script src="/js/headerAndNavigation.js"></script>
+</body>
+</html>

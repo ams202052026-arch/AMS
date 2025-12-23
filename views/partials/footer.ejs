@@ -1,11 +1,569 @@
 <footer class="footer">
-    <p>© 2025 AMS</p>
-
-    <div class="footer-links">
-        <a href="/contact">Contact Us</a>
-        <a href="/about">About Us</a>
-        <a href="/terms">Terms & Conditions</a>
-        <a href="/privacy">Privacy Policy</a>
-        <a href="/help">Help / FAQ</a>
+    <div class="footer-container">
+        <div class="footer-brand">
+            <h3 class="footer-logo">AMS</h3>
+            <p class="footer-tagline">Appointment Management System</p>
+        </div>
+        
+        <div class="footer-sections">
+            <div class="footer-column">
+                <h4 class="footer-heading">Company</h4>
+                <ul class="footer-list">
+                    <li><a href="#" onclick="showAboutModal(event)">About Us</a></li>
+                    <li><a href="#" onclick="showContactModal(event)">Contact</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h4 class="footer-heading">Support</h4>
+                <ul class="footer-list">
+                    <li><a href="#" onclick="showHelpModal(event)">Help Center</a></li>
+                    <li><a href="#" onclick="showHelpModal(event)">FAQ</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h4 class="footer-heading">Legal</h4>
+                <ul class="footer-list">
+                    <li><a href="#" onclick="showTermsModal(event)">Terms</a></li>
+                    <li><a href="#" onclick="showPrivacyModal(event)">Privacy</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer-bottom">
+        <p>© 2025 AMS. All rights reserved.</p>
     </div>
 </footer>
+
+<!-- Contact Us Modal -->
+<div id="contactModal" class="modal-overlay" style="display: none;">
+    <div class="modal-box about-modal">
+        <span class="close-btn" onclick="closeContactModal()">&times;</span>
+        <h2 class="about-title">Contact Us</h2>
+        
+        <div class="about-content">
+            <!-- Introduction -->
+            <section class="about-section">
+                <h3>Get in Touch</h3>
+                <p>We're here to help! If you have any questions, concerns, or feedback about our Appointment Management System, feel free to reach out to us through any of the following channels:</p>
+            </section>
+
+            <!-- Email -->
+            <section class="about-section">
+                <h3>Email</h3>
+                <p><strong>Email Address:</strong> <a href="mailto:ams202052026@gmail.com" style="color: #667eea; text-decoration: none;">ams202052026@gmail.com</a></p>
+                <p>Send us an email anytime, and we'll get back to you as soon as possible. Please include relevant details about your inquiry for faster assistance.</p>
+            </section>
+
+            <!-- Phone -->
+            <section class="about-section">
+                <h3>Phone</h3>
+                <p><strong>Phone Number:</strong> <a href="tel:+639173958326" style="color: #667eea; text-decoration: none;">+63 917 395 8326</a></p>
+                <p>Call or text us for immediate assistance. We're available during business hours to help with your appointments and answer your questions.</p>
+            </section>
+
+            <!-- Business Hours -->
+            <section class="about-section">
+                <h3>Business Hours</h3>
+                <ul class="about-list">
+                    <li>Monday - Friday: 9:00 AM - 6:00 PM</li>
+                    <li>Saturday: 10:00 AM - 4:00 PM</li>
+                    <li>Sunday: Closed</li>
+                </ul>
+                <p>We aim to respond to all inquiries within 24 hours during business days.</p>
+            </section>
+
+            <!-- What to Include -->
+            <section class="about-section">
+                <h3>When Contacting Us</h3>
+                <p>To help us assist you better, please include:</p>
+                <ul class="about-list">
+                    <li>Your registered email address</li>
+                    <li>A clear description of your issue or question</li>
+                    <li>Any relevant appointment or booking details</li>
+                    <li>Screenshots (if applicable)</li>
+                </ul>
+            </section>
+
+            <!-- Common Inquiries -->
+            <section class="about-section purpose">
+                <h3>Common Inquiries</h3>
+                <p>Before reaching out, you might find quick answers in our <a href="#" onclick="closeContactModal(); showHelpModal(event);" style="color: white; text-decoration: underline;">Help / FAQ</a> section.</p>
+                <p class="purpose-values">We're committed to providing excellent support!</p>
+            </section>
+        </div>
+    </div>
+</div>
+
+<!-- About Us Modal -->
+<div id="aboutModal" class="modal-overlay" style="display: none;">
+    <div class="modal-box about-modal">
+        <span class="close-btn" onclick="closeAboutModal()">&times;</span>
+        <h2 class="about-title">About Us</h2>
+        
+        <div class="about-content">
+            <!-- Who We Are -->
+            <section class="about-section">
+                <h3>Who We Are</h3>
+                <p>Our Digital Queue and Appointment Management System is created to give customers an easier and more convenient way to book services from small businesses. Whether you're visiting a salon, a clinic, or a repair shop, our platform helps you avoid long lines and stressful manual scheduling.</p>
+            </section>
+
+            <!-- What We Offer -->
+            <section class="about-section">
+                <h3>What We Offer for Customers</h3>
+                <p>We focus on making your experience simple and smooth. With our platform, you can:</p>
+                <ul class="about-list">
+                    <li>Create an account with secure email verification</li>
+                    <li>Browse services and choose your preferred staff</li>
+                    <li>Book an appointment based on your ideal date and time</li>
+                    <li>Receive an instant queue number</li>
+                    <li>Track all appointments in your personal calendar</li>
+                </ul>
+                <p>Everything is designed to save your time and give you full control over your bookings.</p>
+            </section>
+
+            <!-- How It Helps -->
+            <section class="about-section">
+                <h3>How It Helps You</h3>
+                <p>Our system keeps you updated every step of the way. You will receive:</p>
+                <ul class="about-list">
+                    <li>Appointment confirmation</li>
+                    <li>Reminders</li>
+                    <li>Status updates</li>
+                </ul>
+                <p>This ensures you never miss your schedule, never lose your place in line, and never get left wondering about your appointment.</p>
+            </section>
+
+            <!-- Why You'll Love It -->
+            <section class="about-section">
+                <h3>Why You'll Love Using It</h3>
+                <p>We believe every customer deserves a smooth experience, so we added a loyalty system where you earn points every time you book. These points encourage consistent use and give you a rewarding experience each time you visit.</p>
+            </section>
+
+            <!-- Our Purpose -->
+            <section class="about-section purpose">
+                <h3>Our Purpose</h3>
+                <p><strong>Our purpose is simple: to make your service experience faster, fairer, and more convenient.</strong></p>
+                <p class="purpose-values">No waiting • No confusion • No hassle</p>
+                <p>Just easy appointments and organized queues that put you first.</p>
+            </section>
+        </div>
+    </div>
+</div>
+
+<!-- Terms & Conditions Modal -->
+<div id="termsModal" class="modal-overlay" style="display: none;">
+    <div class="modal-box about-modal">
+        <span class="close-btn" onclick="closeTermsModal()">&times;</span>
+        <h2 class="about-title">Terms & Conditions</h2>
+        
+        <div class="about-content">
+            <!-- Introduction -->
+            <section class="about-section">
+                <h3>Introduction</h3>
+                <p>Welcome to our Appointment Management System (AMS). By accessing or using our platform, you agree to be bound by these Terms and Conditions. Please read them carefully before using our services.</p>
+            </section>
+
+            <!-- Account Registration -->
+            <section class="about-section">
+                <h3>Account Registration</h3>
+                <ul class="about-list">
+                    <li>You must provide accurate and complete information during registration</li>
+                    <li>You are responsible for maintaining the confidentiality of your account credentials</li>
+                    <li>You must verify your email address to activate your account</li>
+                    <li>One account per user is permitted</li>
+                </ul>
+            </section>
+
+            <!-- Booking and Appointments -->
+            <section class="about-section">
+                <h3>Booking and Appointments</h3>
+                <ul class="about-list">
+                    <li>All bookings are subject to availability</li>
+                    <li>You will receive a queue number upon successful booking</li>
+                    <li>Appointments can be rescheduled or cancelled according to the business's policy</li>
+                    <li>Late arrivals may result in appointment cancellation</li>
+                    <li>No-shows may affect your account standing and future booking privileges</li>
+                </ul>
+            </section>
+
+            <!-- Rewards Program -->
+            <section class="about-section">
+                <h3>Rewards Program</h3>
+                <ul class="about-list">
+                    <li>Points are earned for completed appointments</li>
+                    <li>Points have no cash value and cannot be transferred</li>
+                    <li>Rewards are subject to availability and may expire</li>
+                    <li>We reserve the right to modify or discontinue the rewards program</li>
+                </ul>
+            </section>
+
+            <!-- User Conduct -->
+            <section class="about-section">
+                <h3>User Conduct</h3>
+                <p>You agree not to:</p>
+                <ul class="about-list">
+                    <li>Use the platform for any illegal or unauthorized purpose</li>
+                    <li>Attempt to gain unauthorized access to any part of the system</li>
+                    <li>Interfere with or disrupt the service</li>
+                    <li>Create multiple accounts to abuse the system</li>
+                    <li>Share your account with others</li>
+                </ul>
+            </section>
+
+            <!-- Privacy and Data -->
+            <section class="about-section">
+                <h3>Privacy and Data</h3>
+                <ul class="about-list">
+                    <li>We collect and process your personal data as described in our Privacy Policy</li>
+                    <li>Your data is used to provide and improve our services</li>
+                    <li>We implement security measures to protect your information</li>
+                    <li>You can request account deletion at any time</li>
+                </ul>
+            </section>
+
+            <!-- Notifications -->
+            <section class="about-section">
+                <h3>Notifications</h3>
+                <ul class="about-list">
+                    <li>You will receive notifications about your appointments via the platform</li>
+                    <li>Notifications include confirmations, reminders, and status updates</li>
+                    <li>You can manage notification preferences in your account settings</li>
+                </ul>
+            </section>
+
+            <!-- Liability -->
+            <section class="about-section">
+                <h3>Limitation of Liability</h3>
+                <ul class="about-list">
+                    <li>The platform is provided "as is" without warranties of any kind</li>
+                    <li>We are not responsible for service quality provided by businesses</li>
+                    <li>We are not liable for any indirect or consequential damages</li>
+                    <li>Technical issues may occasionally affect service availability</li>
+                </ul>
+            </section>
+
+            <!-- Changes to Terms -->
+            <section class="about-section">
+                <h3>Changes to Terms</h3>
+                <p>We reserve the right to modify these Terms and Conditions at any time. Changes will be effective immediately upon posting. Continued use of the platform constitutes acceptance of modified terms.</p>
+            </section>
+
+            <!-- Termination -->
+            <section class="about-section">
+                <h3>Account Termination</h3>
+                <p>We reserve the right to suspend or terminate accounts that violate these terms or engage in fraudulent activity. You may also delete your account at any time through your profile settings.</p>
+            </section>
+
+
+        </div>
+    </div>
+</div>
+
+<!-- Privacy Policy Modal -->
+<div id="privacyModal" class="modal-overlay" style="display: none;">
+    <div class="modal-box about-modal">
+        <span class="close-btn" onclick="closePrivacyModal()">&times;</span>
+        <h2 class="about-title">Privacy Policy</h2>
+        
+        <div class="about-content">
+            <!-- Introduction -->
+            <section class="about-section">
+                <h3>Our Commitment to Privacy</h3>
+                <p>At AMS, we take your privacy seriously. This Privacy Policy explains how we collect, use, store, and protect your personal information when you use our Appointment Management System.</p>
+            </section>
+
+            <!-- Information We Collect -->
+            <section class="about-section">
+                <h3>Information We Collect</h3>
+                <p>We collect the following types of information:</p>
+                <ul class="about-list">
+                    <li><strong>Account Information:</strong> Name, email address, phone number, and password</li>
+                    <li><strong>Appointment Data:</strong> Service preferences, booking history, and queue numbers</li>
+                    <li><strong>Rewards Information:</strong> Points earned and redemption history</li>
+                    <li><strong>Usage Data:</strong> How you interact with our platform</li>
+                    <li><strong>Device Information:</strong> Browser type, IP address, and device identifiers</li>
+                </ul>
+            </section>
+
+            <!-- How We Use Your Information -->
+            <section class="about-section">
+                <h3>How We Use Your Information</h3>
+                <p>Your information is used to:</p>
+                <ul class="about-list">
+                    <li>Create and manage your account</li>
+                    <li>Process and confirm your appointments</li>
+                    <li>Send notifications about your bookings</li>
+                    <li>Manage your rewards and points</li>
+                    <li>Improve our services and user experience</li>
+                    <li>Communicate important updates and changes</li>
+                    <li>Provide customer support</li>
+                </ul>
+            </section>
+
+            <!-- Data Security -->
+            <section class="about-section">
+                <h3>Data Security</h3>
+                <p>We implement industry-standard security measures to protect your information:</p>
+                <ul class="about-list">
+                    <li>Secure data transmission and storage</li>
+                    <li>Regular security audits and updates</li>
+                    <li>Access controls and authentication</li>
+                    <li>Encrypted sensitive information</li>
+                </ul>
+            </section>
+
+            <!-- Information Sharing -->
+            <section class="about-section">
+                <h3>Information Sharing</h3>
+                <p>We do not sell your personal information. We may share your data only in these circumstances:</p>
+                <ul class="about-list">
+                    <li>With service providers to facilitate your appointments</li>
+                    <li>When required by law or legal process</li>
+                    <li>To protect our rights and prevent fraud</li>
+                    <li>With your explicit consent</li>
+                </ul>
+            </section>
+
+            <!-- Your Rights -->
+            <section class="about-section">
+                <h3>Your Rights</h3>
+                <p>You have the right to:</p>
+                <ul class="about-list">
+                    <li>Access your personal information</li>
+                    <li>Update or correct your data</li>
+                    <li>Delete your account and associated data</li>
+                </ul>
+            </section>
+
+            <!-- Changes to Policy -->
+            <section class="about-section">
+                <h3>Changes to This Policy</h3>
+                <p>We may update this Privacy Policy from time to time. We will notify you of significant changes through the platform or via email.</p>
+            </section>
+        </div>
+    </div>
+</div>
+
+<!-- Help / FAQ Modal -->
+<div id="helpModal" class="modal-overlay" style="display: none;">
+    <div class="modal-box about-modal">
+        <span class="close-btn" onclick="closeHelpModal()">&times;</span>
+        <h2 class="about-title">Help / FAQ</h2>
+        
+        <div class="about-content">
+            <!-- Getting Started -->
+            <section class="about-section">
+                <h3>Getting Started</h3>
+                <p><strong>Q: How do I create an account?</strong></p>
+                <p>Click "Sign Up" on the landing page, fill in your details, and verify your email address through the OTP code sent to your inbox.</p>
+                
+                <p><strong>Q: I didn't receive my verification code. What should I do?</strong></p>
+                <p>Check your spam folder. If you still don't see it, request a new code on the verification page.</p>
+            </section>
+
+            <!-- Booking Appointments -->
+            <section class="about-section">
+                <h3>Booking Appointments</h3>
+                <p><strong>Q: How do I book an appointment?</strong></p>
+                <p>Navigate to "Book" from the menu, select your desired service, choose a staff member, pick your preferred date and time, then confirm your booking.</p>
+                
+                <p><strong>Q: Can I choose a specific staff member?</strong></p>
+                <p>Yes! During the booking process, you can select your preferred staff member from the available options.</p>
+                
+                <p><strong>Q: What is a queue number?</strong></p>
+                <p>Your queue number is your place in line for your appointment. It helps organize the service order and ensures fairness.</p>
+            </section>
+
+            <!-- Managing Appointments -->
+            <section class="about-section">
+                <h3>Managing Appointments</h3>
+                <p><strong>Q: How do I reschedule an appointment?</strong></p>
+                <p>Go to "Appointments", find your booking, and click the reschedule option. Select a new date and time, then confirm.</p>
+                
+                <p><strong>Q: Can I cancel my appointment?</strong></p>
+                <p>Yes, you can cancel appointments from the "Appointments" page. Please cancel as early as possible to allow others to book that slot.</p>
+                
+                <p><strong>Q: Where can I see my appointment history?</strong></p>
+                <p>Visit the "History" page to view all your past appointments and their details.</p>
+            </section>
+
+            <!-- Notifications -->
+            <section class="about-section">
+                <h3>Notifications</h3>
+                <p><strong>Q: What notifications will I receive?</strong></p>
+                <p>You'll receive confirmations when you book, reminders before your appointment, and updates when your appointment status changes.</p>
+                
+                <p><strong>Q: How do I check my notifications?</strong></p>
+                <p>Click the bell icon in the header to view all your notifications.</p>
+            </section>
+
+            <!-- Rewards Program -->
+            <section class="about-section">
+                <h3>Rewards Program</h3>
+                <p><strong>Q: How do I earn points?</strong></p>
+                <p>You earn points automatically when you complete appointments. The more services you book, the more points you accumulate.</p>
+                
+                <p><strong>Q: How do I redeem my points?</strong></p>
+                <p>Visit the "Rewards" page to see available rewards and redeem your points for discounts or special offers.</p>
+                
+                <p><strong>Q: Do my points expire?</strong></p>
+                <p>Check the specific reward details for expiration information. Generally, points remain active as long as your account is in good standing.</p>
+            </section>
+
+            <!-- Account Management -->
+            <section class="about-section">
+                <h3>Account Management</h3>
+                <p><strong>Q: How do I change my password?</strong></p>
+                <p>Go to "Profile", click "Change Password", enter your current password and new password, then confirm.</p>
+                
+                <p><strong>Q: I forgot my password. What should I do?</strong></p>
+                <p>Click "Forgot Password" on the login page, enter your email, and follow the OTP verification process to reset your password.</p>
+                
+                <p><strong>Q: Can I delete my account?</strong></p>
+                <p>Yes, you can delete your account from the "Profile" page. Note that this action is permanent and cannot be undone.</p>
+            </section>
+
+            <!-- Technical Issues -->
+            <section class="about-section">
+                <h3>Technical Issues</h3>
+                <p><strong>Q: The page isn't loading properly. What should I do?</strong></p>
+                <p>Try refreshing the page, clearing your browser cache, or using a different browser. If the issue persists, contact support.</p>
+                
+                <p><strong>Q: I'm having trouble booking an appointment.</strong></p>
+                <p>Ensure you've selected all required fields (service, staff, date, and time). If slots appear unavailable, try a different date or time.</p>
+            </section>
+
+
+        </div>
+    </div>
+</div>
+
+<script>
+    // Make functions globally available
+    window.showContactModal = function(event) {
+        if (event) event.preventDefault();
+        const modal = document.getElementById('contactModal');
+        if (modal) {
+            modal.style.display = 'flex';
+        }
+    };
+
+    window.closeContactModal = function() {
+        const modal = document.getElementById('contactModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    };
+
+    window.showAboutModal = function(event) {
+        if (event) event.preventDefault();
+        const modal = document.getElementById('aboutModal');
+        if (modal) {
+            modal.style.display = 'flex';
+        }
+    };
+
+    window.closeAboutModal = function() {
+        const modal = document.getElementById('aboutModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    };
+
+    window.showTermsModal = function(event) {
+        if (event) event.preventDefault();
+        const modal = document.getElementById('termsModal');
+        if (modal) {
+            modal.style.display = 'flex';
+        }
+    };
+
+    window.closeTermsModal = function() {
+        const modal = document.getElementById('termsModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    };
+
+    window.showPrivacyModal = function(event) {
+        if (event) event.preventDefault();
+        const modal = document.getElementById('privacyModal');
+        if (modal) {
+            modal.style.display = 'flex';
+        }
+    };
+
+    window.closePrivacyModal = function() {
+        const modal = document.getElementById('privacyModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    };
+
+    window.showHelpModal = function(event) {
+        if (event) event.preventDefault();
+        const modal = document.getElementById('helpModal');
+        if (modal) {
+            modal.style.display = 'flex';
+        }
+    };
+
+    window.closeHelpModal = function() {
+        const modal = document.getElementById('helpModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    };
+
+    // Setup click outside to close when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+        const contactModal = document.getElementById('contactModal');
+        if (contactModal) {
+            contactModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeContactModal();
+                }
+            });
+        }
+
+        const aboutModal = document.getElementById('aboutModal');
+        if (aboutModal) {
+            aboutModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeAboutModal();
+                }
+            });
+        }
+
+        const termsModal = document.getElementById('termsModal');
+        if (termsModal) {
+            termsModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeTermsModal();
+                }
+            });
+        }
+
+        const privacyModal = document.getElementById('privacyModal');
+        if (privacyModal) {
+            privacyModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closePrivacyModal();
+                }
+            });
+        }
+
+        const helpModal = document.getElementById('helpModal');
+        if (helpModal) {
+            helpModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeHelpModal();
+                }
+            });
+        }
+    });
+</script>
+

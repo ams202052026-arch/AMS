@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMS - My Appointments</title>
+    <link rel="stylesheet" href="/css/scrollbar.css">
+    <link rel="stylesheet" href="/css/appointments.css">
+    <link rel="stylesheet" href="/css/headerAndNavigation.css">
+    <link rel="stylesheet" href="/css/footer.css">
+</head>
+<body>
+    <%- include('partials/headerAndNavigation') %>
+
+    <main class="main-content">
+        <% if (appointments.length === 0) { %>
+            <div class="empty-state">
+                <p>You have no upcoming appointments.</p>
+            </div>
+        <% } else { %>
+            <div class="appointments-list">
+                <% appointments.forEach(apt => { %>
+                    <div class="appointment-card status-<%= apt.status %>">
+                        <div class="card-header">
+                            <div class="queue-badge"><%= apt.queueNumber %></div>
+                            <span class="status-badge <%= apt.status %>"><%= apt.status.toUpperCase() %></span>
+                        </div>
+                        
+                        <div class="appointment-card-content">
+                            <div class="appointment-info">
+                                <h3><%= apt.service.name %></h3>
+                                <p class="date">
+                                    <%= new Date(apt.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) %>
+                                </p>
+                                <p class="time"><%= apt.timeSlot.startFormatted %> - <%= apt.timeSlot.endFormatted %></p>
+                                <% if (apt.staff) { %>
+                                    <p class="staff">Staff: <%= apt.staff.name %></p>
+                                <% } %>
+                            </div>
+
+                            <div class="appointment-actions-bottom">
+                                <% if (apt.status === 'pending') { %>
+                                    <div class="button-group">
+                                        <button class="btn-secondary" 
+                                                data-apt-id="<%= apt._id %>"
+                                                data-service-id="<%= apt.service._id %>"
+                                                data-service-name="<%= apt.service.name %>"
+                                                data-staff-id="<%= apt.staff ? apt.staff._id : '' %>"
+                                                data-date="<%= new Date(apt.date).toISOString().split('T')[0] %>"
+                                                data-start="<%= apt.timeSlot.start %>"
+                                                data-end="<%= apt.timeSlot.end %>"
+                                                onclick="openRescheduleModal(this.dataset.aptId, this.dataset.serviceId, this.dataset.serviceName, this.dataset.staffId, this.dataset.date, this.dataset.start, this.dataset.end)">
+                                            Reschedule
+                                        </button>
+                                        <button class="btn-danger" onclick="cancelAppointment('<%= apt._id %>')">Cancel</button>
+                                    </div>
+                                <% } else if (apt.status === 'approved' || apt.status === 'confirmed' || apt.status === 'in-progress') { %>
+                                    <div class="button-group">
+                                        <% if (apt.status !== 'confirmed') { %>
+                                            <button class="btn-danger" onclick="cancelAppointment('<%= apt._id %>')">Cancel</button>
+                                        <% } %>
+                                    </div>
+                                <% } %>
+                            </div>
+
+                            <% if (apt.status === 'approved' || apt.status === 'confirmed' || apt.status === 'in-progress') { %>
+                                <div class="appointment-hint-bottom">
+                                    <% if (apt.status === 'confirmed') { %>
+                                        <small class="hint">Confirmed appointments will start soon - please arrive on time</small>
+                                    <% } else { %>
+                                        <small class="hint">Approved appointments cannot be rescheduled</small>
+                                    <% } %>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        <% } %>
+    </main>
+
+    <%- include('partials/footer') %>
+
+    <!-- Reschedule Modal -->
+    <div id="rescheduleModal" class="modal-overlay">
+        <div class="modal-box">
+            <span class="close-btn" onclick="closeRescheduleModal()">&times;</span>
+            <h3>Reschedule Your Appointment</h3>
+            <p id="rescheduleServiceName" class="service-name-display"></p>
+            
+            <form id="rescheduleForm">
+                <input type="hidden" id="rescheduleAppointmentId">
+                <input type="hidden" id="rescheduleServiceId">
+                <input type="hidden" id="rescheduleStaffId">
+                
+                <div class="form-group">
+                    <label for="rescheduleDate">New Date</label>
+                    <input type="date" id="rescheduleDate" required 
+                           min="<%= new Date().toISOString().split('T')[0] %>"
+                           max="<%= (() => { const d = new Date(); d.setDate(d.getDate() + 30); return d.toISOString().split('T')[0]; })() %>">
+                    <small class="hint">Closed on Sundays</small>
+                </div>
+                
+                <div class="form-group">
+                    <label>New Time Slot</label>
+                    <div class="time-slots" id="rescheduleTimeSlots">
+                        <p class="hint">Please select a date first</p>
+                    </div>
+                    <input type="hidden" id="rescheduleStartTime">
+                    <input type="hidden" id="rescheduleEndTime">
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeRescheduleModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Reschedule</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Cancel Confirmation Modal -->
+    <div id="cancelModal" class="modal-overlay">
+        <div class="modal-box">
+            <span class="close-btn" onclick="closeCancelModal()">&times;</span>
+            <h3>Cancel Appointment</h3>
+            <p>Are you sure you want to cancel this appointment? This action cannot be undone.</p>
+            
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closeCancelModal()">Keep Appointment</button>
+                <button type="button" class="btn-danger" id="confirmCancelBtn">Cancel Appointment</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div id="errorModal" class="modal-overlay">
+        <div class="modal-box">
+            <span class="close-btn" onclick="closeErrorModal()">&times;</span>
+            <h3>Unable to Complete Request</h3>
+            <p id="errorMessage"></p>
+            
+            <div class="modal-actions">
+                <button type="button" class="btn-primary" onclick="closeErrorModal()">Understood</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/appointments.js"></script>
+    <script src="/js/headerAndNavigation.js"></script>
+</body>
+</html>
