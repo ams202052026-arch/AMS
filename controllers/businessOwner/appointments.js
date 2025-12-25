@@ -139,7 +139,7 @@ exports.confirmAppointment = async (req, res) => {
 
         await Notification.create({
             customer: appointment.customer._id,
-            title: '✅ Appointment Confirmed!',
+            title: 'Appointment Confirmed!',
             message: `Great news! Your appointment has been confirmed by ${business.businessName}.\n\nService: ${appointment.service.name}\nDate: ${formattedDate}\nTime: ${formattedStartTime} - ${formattedEndTime}\nStaff: ${staffName}\nQueue Number: ${appointment.queueNumber}\nBusiness: ${business.businessName}\n\nPlease arrive 5-10 minutes early. We look forward to serving you!`,
             type: 'appointment_confirm',
             meta: {
@@ -151,8 +151,13 @@ exports.confirmAppointment = async (req, res) => {
             }
         });
 
+        // Send confirmation email
+        const emailService = require('../../services/emailService');
+        await emailService.sendAppointmentConfirmationEmail(appointment, business, appointment.customer);
+
         console.log('✓ Appointment confirmed:', appointmentId);
         console.log('✓ Confirmation notification sent to customer');
+        console.log('✓ Confirmation email sent to customer');
         res.redirect('/business-owner/appointments');
     } catch (error) {
         console.error('Error confirming appointment:', error);
@@ -241,8 +246,8 @@ exports.completeAppointment = async (req, res) => {
 
         await Notification.create({
             customer: appointment.customer._id,
-            title: '🎉 Service Complete - Thank You!',
-            message: `Your ${appointment.service.name} appointment has been completed successfully!\n\nService: ${appointment.service.name}\nBusiness: ${business.businessName}\nStaff: ${staffName}\nDate: ${formattedDate}\nAmount Paid: ₱${finalPrice}\n\n🎁 Rewards Earned: +${pointsEarned} points\n💰 Total Points: ${customer.rewardPoints} points\n\nThank you for choosing ${business.businessName}. We hope to see you again soon!`,
+            title: 'Service Complete - Thank You!',
+            message: `Your ${appointment.service.name} appointment has been completed successfully!\n\nService: ${appointment.service.name}\nBusiness: ${business.businessName}\nStaff: ${staffName}\nDate: ${formattedDate}\nAmount Paid: ₱${finalPrice}\n\nRewards Earned: +${pointsEarned} points\nTotal Points: ${customer.rewardPoints} points\n\nThank you for choosing ${business.businessName}. We hope to see you again soon!`,
             type: 'reward_update',
             meta: {
                 appointmentId: appointment._id,
@@ -254,8 +259,13 @@ exports.completeAppointment = async (req, res) => {
             }
         });
 
+        // Send completion email
+        const emailService = require('../../services/emailService');
+        await emailService.sendAppointmentCompletionEmail(appointment, business, customer, pointsEarned);
+
         console.log('✓ Appointment completed:', appointmentId);
         console.log('✓ Completion notification sent to customer');
+        console.log('✓ Completion email sent to customer');
         console.log('✓ Points awarded:', pointsEarned);
         res.redirect('/business-owner/appointments');
     } catch (error) {

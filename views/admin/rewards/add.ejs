@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Reward - AMS Admin</title>
+    <link rel="icon" type="image/png" href="/image/favicon.png">
+    <link rel="stylesheet" href="/css/scrollbar.css">
+    <link rel="stylesheet" href="/css/admin/main.css">
+    <link rel="stylesheet" href="/css/admin/dashboard-redesign.css">
+</head>
+<body>
+    <div class="dashboard-layout">
+        <%- include('../partials/sidebar') %>
+
+        <main class="main-content">
+            <!-- Header -->
+            <div class="dashboard-header" style="margin-bottom: 24px;">
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">
+                    <a href="/admin/rewards" style="display: flex; align-items: center; text-decoration: none; color: #666; font-size: 14px; font-weight: 500; transition: color 0.2s;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
+                            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Back to Rewards
+                    </a>
+                </div>
+                <h1>Add New Reward</h1>
+                <p class="date">Create a new reward for the loyalty program</p>
+            </div>
+
+            <!-- Form Card -->
+            <div class="card" style="max-width: 800px;">
+                <div class="card-header">
+                    <h3 style="display: flex; align-items: center; gap: 8px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="currentColor"/>
+                        </svg>
+                        Reward Details
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form action="/admin/rewards/add" method="POST" id="rewardForm">
+                        <!-- Reward Name -->
+                        <div style="margin-bottom: 20px;">
+                            <label for="name" style="display: block; font-weight: 600; color: #1a1a1a; margin-bottom: 8px; font-size: 13px;">
+                                Reward Name <span style="color: #ef4444;">*</span>
+                            </label>
+                            <input 
+                                type="text" 
+                                name="name" 
+                                id="name" 
+                                placeholder="e.g., 10% Off Any Service" 
+                                required 
+                                style="width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px;"
+                            >
+                        </div>
+
+                        <!-- Description -->
+                        <div style="margin-bottom: 20px;">
+                            <label for="description" style="display: block; font-weight: 600; color: #1a1a1a; margin-bottom: 8px; font-size: 13px;">
+                                Description <span style="color: #ef4444;">*</span>
+                            </label>
+                            <textarea 
+                                name="description" 
+                                id="description" 
+                                rows="3" 
+                                placeholder="e.g., Get 10% discount on any service" 
+                                required 
+                                style="width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; font-family: inherit; resize: vertical;"
+                            ></textarea>
+                        </div>
+
+                        <!-- Points Required -->
+                        <div style="margin-bottom: 20px;">
+                            <label for="pointsRequired" style="display: block; font-weight: 600; color: #1a1a1a; margin-bottom: 8px; font-size: 13px;">
+                                Points Required <span style="color: #ef4444;">*</span>
+                            </label>
+                            <input 
+                                type="number" 
+                                name="pointsRequired" 
+                                id="pointsRequired" 
+                                placeholder="e.g., 50" 
+                                required 
+                                min="1" 
+                                style="width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px;"
+                            >
+                            <p style="color: #666; font-size: 12px; margin-top: 6px;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-right: 4px;">
+                                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                                    <path d="M12 16V12M12 8H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                Customers need this many points to redeem this reward
+                            </p>
+                        </div>
+
+                        <!-- Discount Type and Value -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+                            <div>
+                                <label for="discountType" style="display: block; font-weight: 600; color: #1a1a1a; margin-bottom: 8px; font-size: 13px;">
+                                    Discount Type <span style="color: #ef4444;">*</span>
+                                </label>
+                                <select 
+                                    name="discountType" 
+                                    id="discountType" 
+                                    required 
+                                    style="width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; background: white;"
+                                >
+                                    <option value="percentage">Percentage (%)</option>
+                                    <option value="fixed">Fixed Amount (₱)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label for="discountValue" style="display: block; font-weight: 600; color: #1a1a1a; margin-bottom: 8px; font-size: 13px;">
+                                    Discount Value <span style="color: #ef4444;">*</span>
+                                </label>
+                                <input 
+                                    type="number" 
+                                    name="discountValue" 
+                                    id="discountValue" 
+                                    placeholder="e.g., 10 or 50" 
+                                    required 
+                                    min="0" 
+                                    step="0.01" 
+                                    style="width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px;"
+                                >
+                            </div>
+                        </div>
+
+                        <!-- Preview -->
+                        <div style="background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
+                            <h4 style="font-size: 13px; font-weight: 600; color: #666; margin-bottom: 12px;">PREVIEW</h4>
+                            <div style="background: white; border-radius: 8px; padding: 16px; border: 1px solid #e0e0e0;">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color: #3b82f6;">
+                                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="currentColor"/>
+                                    </svg>
+                                    <div style="flex: 1;">
+                                        <h3 id="previewName" style="font-size: 16px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px;">Reward Name</h3>
+                                        <p id="previewDescription" style="font-size: 13px; color: #666; margin-bottom: 8px;">Reward description</p>
+                                        <div style="display: flex; gap: 8px; align-items: center;">
+                                            <span id="previewDiscount" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #dbeafe; color: #1e40af; border-radius: 12px; font-weight: 600; font-size: 11px;">10% OFF</span>
+                                            <span id="previewPoints" style="font-size: 12px; color: #666;">50 points</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div style="display: flex; gap: 12px;">
+                            <button type="submit" class="btn btn-primary" style="flex: 1;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-right: 6px;">
+                                    <path d="M19 13H13V19H11V13H5V11H11V5H13V11H19V13Z" fill="currentColor"/>
+                                </svg>
+                                Create Reward
+                            </button>
+                            <a href="/admin/rewards" class="btn btn-secondary" style="flex: 1; text-align: center; background: #f5f5f5; color: #1a1a1a; text-decoration: none; display: flex; align-items: center; justify-content: center;">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Highlight active nav item
+        document.addEventListener('DOMContentLoaded', function() {
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                if (item.getAttribute('href') === '/admin/rewards') {
+                    item.classList.add('active');
+                }
+            });
+
+            // Live preview
+            const nameInput = document.getElementById('name');
+            const descInput = document.getElementById('description');
+            const pointsInput = document.getElementById('pointsRequired');
+            const typeInput = document.getElementById('discountType');
+            const valueInput = document.getElementById('discountValue');
+
+            const previewName = document.getElementById('previewName');
+            const previewDesc = document.getElementById('previewDescription');
+            const previewDiscount = document.getElementById('previewDiscount');
+            const previewPoints = document.getElementById('previewPoints');
+
+            function updatePreview() {
+                previewName.textContent = nameInput.value || 'Reward Name';
+                previewDesc.textContent = descInput.value || 'Reward description';
+                
+                const type = typeInput.value;
+                const value = valueInput.value || '0';
+                const discountText = type === 'percentage' ? `${value}% OFF` : `₱${value} OFF`;
+                previewDiscount.textContent = discountText;
+                
+                const points = pointsInput.value || '0';
+                previewPoints.textContent = `${points} points`;
+            }
+
+            nameInput.addEventListener('input', updatePreview);
+            descInput.addEventListener('input', updatePreview);
+            pointsInput.addEventListener('input', updatePreview);
+            typeInput.addEventListener('change', updatePreview);
+            valueInput.addEventListener('input', updatePreview);
+        });
+    </script>
+</body>
+</html>

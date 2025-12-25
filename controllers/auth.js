@@ -371,7 +371,8 @@ exports.getModeStatus = async (req, res) => {
             canSwitchToBusiness,
             userRole: user.role,
             businessId: business ? business._id : null,
-            businessName: business ? business.businessName : null
+            businessName: business ? business.businessName : null,
+            suspensionReason: business && business.suspensionReason ? business.suspensionReason : null
         });
         
     } catch (error) {

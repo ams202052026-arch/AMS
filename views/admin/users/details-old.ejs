@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= user.firstName %> <%= user.lastName %> - User Details</title>
+    <link rel="stylesheet" href="/css/scrollbar.css">
+    <link rel="stylesheet" href="/css/admin/main.css">
+    <link rel="stylesheet" href="/css/admin/dashboard-redesign.css">
+</head>
+<body>
+    <div class="dashboard-layout">
+        <%- include('../partials/sidebar') %>
+
+        <main class="main-content">
+            <!-- Header with Back Button -->
+            <div class="dashboard-header" style="display: flex; align-items: center; gap: 16px;">
+                <a href="/admin/users" style="display: flex; align-items: center; text-decoration: none; color: #666; font-size: 14px; font-weight: 500;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
+                        <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Back to Users
+                </a>
+            </div>
+
+            <!-- User Header Card -->
+            <div class="card" style="margin-bottom: 24px;">
+                <div class="card-body" style="padding: 32px;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 24px;">
+                        <div style="flex: 1; min-width: 300px;">
+                            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
+                                <div style="width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; font-weight: 600;">
+                                    <%= user.firstName.charAt(0) %><%= user.lastName.charAt(0) %>
+                                </div>
+                                <div>
+                                    <h1 style="margin: 0 0 8px 0; font-size: 28px;"><%= user.firstName %> <%= user.lastName %></h1>
+                                    <div style="display: flex; gap: 8px; align-items: center;">
+                                        <% if (user.isBanned) { %>
+                                            <span class="status-badge status-rejected">Banned</span>
+                                        <% } else if (user.isActive) { %>
+                                            <span class="status-badge status-approved">Active</span>
+                                        <% } else { %>
+                                            <span class="status-badge status-suspended">Inactive</span>
+                                        <% } %>
+                                        <span class="status-badge status-pending"><%= user.role === 'customer' ? 'Customer' : 'Business Owner' %></span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 24px;">
+                                <div>
+                                    <div style="display: flex; align-items: center; gap: 8px; color: #666; font-size: 13px; margin-bottom: 4px;">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M3 8L10.89 13.26C11.2187 13.4793 11.6049 13.5963 12 13.5963C12.3951 13.5963 12.7813 13.4793 13.11 13.26L21 8M5 19H19C19.5304 19 20.0391 18.7893 20.4142 18.4142C20.7893 18.0391 21 17.5304 21 17V7C21 6.46957 20.7893 5.96086 20.4142 5.58579C20.0391 5.21071 19.5304 5 19 5H5C4.46957 5 3.96086 5.21071 3.58579 5.58579C3.21071 5.96086 3 6.46957 3 7V17C3 17.5304 3.21071 18.0391 3.58579 18.4142C3.96086 18.7893 4.46957 19 5 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        Email
+                                    </div>
+                                    <div style="font-weight: 500;"><%= user.email %></div>
+                                </div>
+                                <div>
+                                    <div style="display: flex; align-items: center; gap: 8px; color: #666; font-size: 13px; margin-bottom: 4px;">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M8 7V3M16 7V3M7 11H17M5 21H19C19.5304 21 20.0391 20.7893 20.4142 20.4142C20.7893 20.0391 21 19.5304 21 19V7C21 6.46957 20.7893 5.96086 20.4142 5.58579C20.0391 5.21071 19.5304 5 19 5H5C4.46957 5 3.96086 5.21071 3.58579 5.58579C3.21071 5.96086 3 6.46957 3 7V19C3 19.5304 3.21071 20.0391 3.58579 20.4142C3.96086 20.7893 4.46957 21 5 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        Joined
+                                    </div>
+                                    <div style="font-weight: 500;"><%= new Date(user.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %></div>
+                                </div>
+                                <div>
+                                    <div style="display: flex; align-items: center; gap: 8px; color: #666; font-size: 13px; margin-bottom: 4px;">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M12 8V12L15 15M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        Last Login
+                                    </div>
+                                    <div style="font-weight: 500;"><%= user.lastLogin ? new Date(user.lastLogin).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 'Never' %></div>
+                                </div>
+                            </div>
+                            
+                            <% if (user.isBanned) { %>
+                                <div style="margin-top: 24px; padding: 16px; background: #ffebee; border-left: 4px solid #f44336; border-radius: 8px;">
+                                    <div style="display: flex; align-items: start; gap: 12px;">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color: #f44336; flex-shrink: 0; margin-top: 2px;">
+                                            <path d="M12 9V13M12 17H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        <div>
+                                            <div style="font-weight: 600; color: #c62828; margin-bottom: 4px;">User is Banned</div>
+                                            <div style="font-size: 14px; color: #666; margin-bottom: 4px;"><strong>Reason:</strong> <%= user.banReason || 'No reason provided' %></div>
+                                            <div style="font-size: 13px; color: #999;"><strong>Banned:</strong> <%= new Date(user.bannedAt).toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% } %>
+                        </div>
+                        
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <% if (user.isBanned) { %>
+                                <button onclick="showUnbanModal()" class="btn btn-success" style="white-space: nowrap;">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
+                                        <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    Unban User
+                                </button>
+                            <% } else { %>
+                                <button onclick="showBanModal()" class="btn btn-danger" style="white-space: nowrap;">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
+                                        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    Ban User
+                                </button>
+                            <% } %>
+                            
+                            <% if (user.isActive) { %>
+                                <button onclick="showDeactivateModal()" class="btn btn-secondary" style="white-space: nowrap;">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
+                                        <path d="M18.364 18.364C16.3734 20.3545 13.7189 21.4649 11 21.4649C8.28106 21.4649 5.62663 20.3545 3.63604 18.364C1.64545 16.3734 0.535156 13.7189 0.535156 11C0.535156 8.28106 1.64545 5.62663 3.63604 3.63604M18.364 18.364C20.3545 16.3734 21.4649 13.7189 21.4649 11C21.4649 8.28106 20.3545 5.62663 18.364 3.63604M18.364 18.364L3.63604 3.63604" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    Deactivate
+                                </button>
+                            <% } else { %>
+                                <button onclick="showReactivateModal()" class="btn btn-primary" style="white-space: nowrap;">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
+                                        <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    Reactivate
+                                </button>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Statistics -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-number"><%= appointmentStats.total %></span>
+                    <span class="stat-label">Total Appointments</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number"><%= appointmentStats.completed %></span>
+                    <span class="stat-label">Completed</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number"><%= appointmentStats.cancelled %></span>
+                    <span class="stat-label">Cancelled</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">₱<%= totalSpent.toLocaleString() %></span>
+                    <span class="stat-label">Total Spent</span>
+                </div>
+            </div>
+            <!-- Business Information (if applicable) -->
+            <% if (business) { %>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 style="display: flex; align-items: center; gap: 8px; margin: 0;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 7V3H2V21H22V7H12ZM6 19H4V17H6V19ZM6 15H4V13H6V15ZM6 11H4V9H6V11ZM6 7H4V5H6V7ZM10 19H8V17H10V19ZM10 15H8V13H10V15ZM10 11H8V9H10V11ZM10 7H8V5H10V7ZM20 19H12V17H14V15H12V13H14V11H12V9H20V19ZM18 11H16V13H18V11ZM18 15H16V17H18V15Z" fill="currentColor"/>
+                            </svg>
+                            Business Information
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; margin-bottom: 20px;">
+                            <div>
+                                <div style="color: #666; font-size: 13px; margin-bottom: 4px;">Business Name</div>
+                                <div style="font-weight: 600; font-size: 16px;"><%= business.businessName %></div>
+                            </div>
+                            <div>
+                                <div style="color: #666; font-size: 13px; margin-bottom: 4px;">Status</div>
+                                <span class="status-badge status-<%= business.verificationStatus %>"><%= business.verificationStatus %></span>
+                            </div>
+                            <div>
+                                <div style="color: #666; font-size: 13px; margin-bottom: 4px;">Category</div>
+                                <div style="font-weight: 600;"><%= business.category %></div>
+                            </div>
+                            <div>
+                                <div style="color: #666; font-size: 13px; margin-bottom: 4px;">Phone</div>
+                                <div style="font-weight: 600;"><%= business.contactNumber %></div>
+                            </div>
+                        </div>
+                        <a href="/admin/businesses/<%= business._id %>" class="btn btn-primary">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
+                                <path d="M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z" stroke="currentColor" stroke-width="2"/>
+                                <path d="M2.45825 12C3.73253 7.94288 7.52281 5 12.0004 5C16.4781 5 20.2684 7.94291 21.5426 12C20.2684 16.0571 16.4781 19 12.0005 19C7.52281 19 3.73251 16.0571 2.45825 12Z" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                            View Business Details
+                        </a>
+                    </div>
+                </div>
+            <% } %>
+        
+        <!-- Recent Appointments -->
+        <div class="section">
+            <h2>📅 Recent Appointments</h2>
+            <% if (recentAppointments.length === 0) { %>
+                <p>No appointments yet</p>
+            <% } else { %>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Service</th>
+                            <th>Business</th>
+                            <th>Status</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% recentAppointments.forEach(apt => { %>
+                            <tr>
+                                <td><%= new Date(apt.date).toLocaleDateString() %></td>
+                                <td><%= apt.service?.name || 'N/A' %></td>
+                                <td><%= apt.businessId?.businessName || 'N/A' %></td>
+                                <td>
+                                    <span class="status-badge status-<%= apt.status %>">
+                                        <%= apt.status %>
+                                    </span>
+                                </td>
+                                <td><%= apt.timeSlot?.start || 'N/A' %></td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            <% } %>
+        </div>
+    </div>
+    
+    <script>
+        const userId = '<%= user._id %>';
+        
+        function banUser() {
+            const reason = prompt('Enter ban reason:');
+            if (!reason) return;
+            
+            if (confirm('Are you sure you want to ban this user?')) {
+                fetch(`/admin/users/${userId}/ban`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reason })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('User banned successfully');
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                });
+            }
+        }
+        
+        function unbanUser() {
+            if (confirm('Are you sure you want to unban this user?')) {
+                fetch(`/admin/users/${userId}/unban`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('User unbanned successfully');
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                });
+            }
+        }
+        
+        function deactivateUser() {
+            if (confirm('Are you sure you want to deactivate this user?')) {
+                fetch(`/admin/users/${userId}/deactivate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('User deactivated successfully');
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                });
+            }
+        }
+        
+        function reactivateUser() {
+            if (confirm('Are you sure you want to reactivate this user?')) {
+                fetch(`/admin/users/${userId}/reactivate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('User reactivated successfully');
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                });
+            }
+        }
+        
+        function resetPassword() {
+            const newPassword = prompt('Enter new password (min 6 characters):');
+            if (!newPassword) return;
+            
+            if (newPassword.length < 6) {
+                alert('Password must be at least 6 characters');
+                return;
+            }
+            
+            if (confirm('Are you sure you want to reset this user\'s password?')) {
+                fetch(`/admin/users/${userId}/reset-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ newPassword })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Password reset successfully');
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>

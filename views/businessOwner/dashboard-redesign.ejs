@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= business ? business.businessName : 'Dashboard' %> - Business</title>
+    <link rel="icon" type="image/png" href="/image/favicon.png">
+    <link rel="stylesheet" href="/css/scrollbar.css">
+    <link rel="stylesheet" href="/css/businessOwner/dashboard-redesign.css">
+</head>
+<body>
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2><%= user.firstName %></h2>
+                <p>Business Owner</p>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="/business-owner/dashboard" class="nav-item active">
+                    <span class="icon">📊</span>
+                    <span>Overview</span>
+                </a>
+                <a href="/business-owner/appointments" class="nav-item">
+                    <span class="icon">📅</span>
+                    <span>Bookings</span>
+                </a>
+                <a href="/business-owner/services" class="nav-item">
+                    <span class="icon">💼</span>
+                    <span>Services</span>
+                </a>
+                <a href="/business-owner/staff" class="nav-item">
+                    <span class="icon">👥</span>
+                    <span>Team</span>
+                </a>
+                <a href="/business-owner/business-hours" class="nav-item">
+                    <span class="icon">🕐</span>
+                    <span>Hours</span>
+                </a>
+                <a href="/business-owner/reports" class="nav-item">
+                    <span class="icon">📈</span>
+                    <span>Reports</span>
+                </a>
+                <% if (user.role === 'customer') { %>
+                <a href="/switch-to-customer" class="nav-item" style="margin-top: 24px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px;">
+                    <span class="icon">←</span>
+                    <span>Customer Mode</span>
+                </a>
+                <% } %>
+                <a href="/logout" class="nav-item" style="margin-top: auto; color: #999;">
+                    <span class="icon">🚪</span>
+                    <span>Logout</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <div class="dashboard-header">
+                <h1>Welcome back, <%= user.firstName %></h1>
+                <% if (business) { %>
+                    <span class="status-badge status-<%= business.verificationStatus %>">
+                        <%= business.verificationStatus %>
+                    </span>
+                <% } %>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-number"><%= stats.todayAppointments %></span>
+                    <span class="stat-label">Today</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number"><%= stats.pendingAppointments %></span>
+                    <span class="stat-label">Pending</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number"><%= stats.completedAppointments %></span>
+                    <span class="stat-label">Completed</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">₱<%= stats.totalRevenue.toLocaleString() %></span>
+                    <span class="stat-label">Total Revenue</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number"><%= stats.totalServices %></span>
+                    <span class="stat-label">Services</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number"><%= stats.totalStaff %></span>
+                    <span class="stat-label">Team Members</span>
+                </div>
+            </div>
+
+            <!-- Team Performance -->
+            <% if (staffPerformance && staffPerformance.length > 0) { %>
+            <div class="card">
+                <div class="card-header">
+                    <h3>Team Performance</h3>
+                    <a href="/business-owner/staff" class="btn btn-primary">Manage</a>
+                </div>
+                <div class="card-body">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th style="text-align: center;">Bookings</th>
+                                <th style="text-align: center;">Done</th>
+                                <th style="text-align: right;">Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% staffPerformance.slice(0, 5).forEach(staff => { %>
+                            <tr>
+                                <td><strong><%= staff.staffName %></strong></td>
+                                <td style="text-align: center;"><%= staff.totalAppointments %></td>
+                                <td style="text-align: center;"><%= staff.completedAppointments %></td>
+                                <td style="text-align: right;">₱<%= staff.totalRevenue.toLocaleString() %></td>
+                            </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <% } %>
+
+            <!-- Recent Bookings -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Recent Bookings</h3>
+                    <a href="/business-owner/appointments" class="btn btn-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    <% if (recentAppointments && recentAppointments.length > 0) { %>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Customer</th>
+                                    <th>Service</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% recentAppointments.slice(0, 5).forEach(apt => { %>
+                                <tr>
+                                    <td><%= apt.customer ? apt.customer.fullName : 'N/A' %></td>
+                                    <td><%= apt.service ? apt.service.name : 'N/A' %></td>
+                                    <td><%= new Date(apt.date).toLocaleDateString() %></td>
+                                    <td><%= apt.status %></td>
+                                </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    <% } else { %>
+                        <div class="empty-state">
+                            <div class="icon">📅</div>
+                            <p>No bookings yet</p>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <% if (!business) { %>
+            <div class="card">
+                <div class="card-body">
+                    <div class="empty-state">
+                        <div class="icon">🏢</div>
+                        <h4 style="margin-bottom: 8px;">Start Your Business</h4>
+                        <p style="margin-bottom: 24px;">Apply for verification to offer services</p>
+                        <a href="/business-owner/apply" class="btn btn-primary">Apply Now</a>
+                    </div>
+                </div>
+            </div>
+            <% } else if (business.verificationStatus === 'approved') { %>
+            <div class="card">
+                <div class="card-header">
+                    <h3>Quick Actions</h3>
+                </div>
+                <div class="card-body" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                    <a href="/business-owner/services/add" class="btn btn-primary" style="width: 100%;">Add Service</a>
+                    <a href="/business-owner/staff/add" class="btn btn-primary" style="width: 100%;">Add Team Member</a>
+                    <a href="/business-owner/appointments" class="btn btn-primary" style="width: 100%;">View Bookings</a>
+                    <a href="/business-owner/business-hours" class="btn btn-primary" style="width: 100%;">Set Hours</a>
+                </div>
+            </div>
+            <% } %>
+        </main>
+    </div>
+</body>
+</html>

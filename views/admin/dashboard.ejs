@@ -2,279 +2,351 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AMS Admin - Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - AMS</title>
+    <link rel="icon" type="image/png" href="/image/favicon.png">
+    <link rel="stylesheet" href="/css/scrollbar.css">
     <link rel="stylesheet" href="/css/admin/main.css">
-    <link rel="stylesheet" href="/css/admin/dashboard.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/css/admin/dashboard-redesign.css">
 </head>
 <body>
-    <div class="admin-layout">
+    <div class="dashboard-layout">
         <%- include('partials/sidebar') %>
 
-        <main class="admin-main">
-            <header class="admin-header">
+        <main class="main-content">
+            <!-- Header -->
+            <div class="dashboard-header">
                 <h1>Dashboard</h1>
-                <span class="date"><%= new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) %></span>
-            </header>
+                <p class="date"><%= new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) %></p>
+            </div>
 
-            <!-- Primary Stats -->
+            <!-- Key Metrics -->
             <div class="stats-grid">
-                <div class="stat-card">
-                    <span class="stat-icon">📅</span>
-                    <span class="stat-number"><%= stats.todayAppointments %></span>
-                    <span class="stat-label">Today's Appointments</span>
+                <div class="stat-card" data-kpi="users" data-value="<%= stats.totalUsers.toLocaleString() %>" data-desc="Total number of registered customers in the system (excluding super admin accounts)">
+                    <span class="stat-number"><%= stats.totalUsers.toLocaleString() %></span>
+                    <span class="stat-label">Total Users</span>
                 </div>
-                <div class="stat-card pending">
-                    <span class="stat-icon">⏳</span>
-                    <span class="stat-number"><%= stats.pendingAppointments %></span>
-                    <span class="stat-label">Pending Approval</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-icon">🏢</span>
-                    <span class="stat-number"><%= stats.totalBusinesses %></span>
+                <div class="stat-card" data-kpi="businesses" data-value="<%= stats.totalBusinesses.toLocaleString() %>" data-desc="Total number of registered businesses in the system, including pending, approved, and suspended businesses">
+                    <span class="stat-number"><%= stats.totalBusinesses.toLocaleString() %></span>
                     <span class="stat-label">Total Businesses</span>
                 </div>
-                <div class="stat-card pending">
-                    <span class="stat-icon">🔔</span>
-                    <span class="stat-number"><%= stats.pendingBusinesses %></span>
-                    <span class="stat-label">Pending Businesses</span>
+                <div class="stat-card highlight" data-kpi="pending" data-value="<%= stats.pendingBusinessApplications.toLocaleString() %>" data-desc="Number of business applications waiting for admin approval. These businesses need to be reviewed and verified">
+                    <span class="stat-number"><%= stats.pendingBusinessApplications.toLocaleString() %></span>
+                    <span class="stat-label">Pending Applications</span>
+                </div>
+                <div class="stat-card" data-kpi="bookings" data-value="<%= stats.totalAppointments.toLocaleString() %>" data-desc="Total number of appointments/bookings made across all businesses in the system">
+                    <span class="stat-number"><%= stats.totalAppointments.toLocaleString() %></span>
+                    <span class="stat-label">Total Bookings</span>
+                </div>
+                <div class="stat-card" data-kpi="rewards" data-value="<%= stats.activeRewards.toLocaleString() %>" data-desc="Number of active reward programs available for customers to redeem using their loyalty points">
+                    <span class="stat-number"><%= stats.activeRewards.toLocaleString() %></span>
+                    <span class="stat-label">Active Rewards</span>
                 </div>
             </div>
 
-            <!-- Secondary Stats -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <span class="stat-icon">✅</span>
-                    <span class="stat-number"><%= stats.approvedBusinesses %></span>
-                    <span class="stat-label">Approved Businesses</span>
+            <!-- Business Overview -->
+            <div class="section">
+                <div class="section-header">
+                    <h2>Business Overview</h2>
                 </div>
-                <div class="stat-card">
-                    <span class="stat-icon">👥</span>
-                    <span class="stat-number"><%= stats.totalCustomers %></span>
-                    <span class="stat-label">Total Customers</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-icon">📊</span>
-                    <span class="stat-number"><%= stats.completionRate %>%</span>
-                    <span class="stat-label">Completion Rate</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-icon">💰</span>
-                    <span class="stat-number">₱<%= stats.todayRevenue.toLocaleString() %></span>
-                    <span class="stat-label">Today's Revenue</span>
-                </div>
-            </div>
-
-            <!-- Revenue Stats -->
-            <div class="revenue-grid">
-                <div class="revenue-card">
-                    <div class="revenue-header">
-                        <span class="revenue-icon">💰</span>
-                        <span class="revenue-label">Today's Revenue</span>
+                
+                <div class="overview-grid">
+                    <div class="overview-card">
+                        <span class="overview-number"><%= stats.pendingBusinessApplications %></span>
+                        <span class="overview-label">Pending Verifications</span>
                     </div>
-                    <span class="revenue-amount">₱<%= stats.todayRevenue.toLocaleString() %></span>
-                </div>
-                <div class="revenue-card highlight">
-                    <div class="revenue-header">
-                        <span class="revenue-icon">📊</span>
-                        <span class="revenue-label">This Month's Revenue</span>
+                    <div class="overview-card">
+                        <span class="overview-number"><%= recentlyApproved.length %></span>
+                        <span class="overview-label">Recently Approved</span>
                     </div>
-                    <span class="revenue-amount">₱<%= stats.monthRevenue.toLocaleString() %></span>
-                </div>
-                <div class="revenue-card">
-                    <div class="revenue-header">
-                        <span class="revenue-icon">✅</span>
-                        <span class="revenue-label">Completion Rate</span>
+                    <div class="overview-card">
+                        <span class="overview-number"><%= stats.suspendedRejected %></span>
+                        <span class="overview-label">Suspended/Rejected</span>
                     </div>
-                    <span class="revenue-amount"><%= stats.completionRate %>%</span>
-                    <span class="revenue-detail"><%= stats.completedAppointments %> of <%= stats.totalAppointments %> completed</span>
                 </div>
-                <div class="revenue-card">
-                    <div class="revenue-header">
-                        <span class="revenue-icon">❌</span>
-                        <span class="revenue-label">Cancellation Rate</span>
+
+                <!-- Pending Verifications -->
+                <% if (pendingVerifications.length > 0) { %>
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Pending Verifications</h3>
+                        <a href="/admin/businesses?status=pending" class="btn btn-primary">View All</a>
                     </div>
-                    <span class="revenue-amount"><%= stats.cancellationRate %>%</span>
-                    <span class="revenue-detail"><%= stats.cancelledAppointments %> cancelled</span>
-                </div>
-            </div>
-
-            <!-- Charts Section -->
-            <div class="charts-section">
-                <div class="chart-card">
-                    <h2>Appointments Trend (Last 7 Days)</h2>
-                    <canvas id="appointmentsChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Quick Actions for Pending Appointments -->
-            <% if (pendingAppointmentsList.length > 0) { %>
-            <section class="quick-actions-section">
-                <h2>⚡ Quick Actions - Pending Approvals</h2>
-                <div class="pending-actions-grid">
-                    <% pendingAppointmentsList.forEach(apt => { %>
-                        <div class="pending-action-card">
-                            <div class="pending-info">
-                                <span class="queue-badge"><%= apt.queueNumber %></span>
-                                <div class="pending-details">
-                                    <strong><%= apt.customer ? apt.customer.name : 'N/A' %></strong>
-                                    <span class="service-name"><%= apt.service ? apt.service.name : 'N/A' %></span>
-                                    <span class="appointment-date">
-                                        <%= new Date(apt.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) %> 
-                                        at <%= apt.timeSlot.start %>
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="pending-actions">
-                                <form action="/admin/appointments/<%= apt._id %>/approve" method="POST" style="display: inline;">
-                                    <button type="submit" class="btn-sm btn-success" title="Approve">✓</button>
-                                </form>
-                                <form action="/admin/appointments/<%= apt._id %>/cancel" method="POST" style="display: inline;">
-                                    <button type="submit" class="btn-sm btn-danger" title="Cancel">✗</button>
-                                </form>
-                            </div>
-                        </div>
-                    <% }) %>
-                </div>
-                <a href="/admin/appointments?status=pending" class="view-all-link">View All Pending →</a>
-            </section>
-            <% } %>
-
-            <div class="dashboard-grid">
-                <!-- Recent Appointments -->
-                <section class="recent-appointments">
-                    <h2>Recent Appointments</h2>
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Queue</th>
-                                <th>Customer</th>
-                                <th>Service</th>
-                                <th>Staff</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% recentAppointments.forEach(apt => { %>
+                    <div class="card-body">
+                        <table>
+                            <thead>
                                 <tr>
-                                    <td><%= apt.queueNumber %></td>
-                                    <td><%= apt.customer ? apt.customer.name : 'N/A' %></td>
-                                    <td><%= apt.service ? apt.service.name : 'N/A' %></td>
-                                    <td><%= apt.staff ? apt.staff.name : 'Unassigned' %></td>
-                                    <td><span class="status-badge <%= apt.status %>"><%= apt.status %></span></td>
+                                    <th>Business Name</th>
+                                    <th>Owner</th>
+                                    <th>Type</th>
+                                    <th>Applied</th>
                                 </tr>
-                            <% }) %>
-                        </tbody>
-                    </table>
-                </section>
-
-                <!-- Popular Services -->
-                <section class="popular-services">
-                    <h2>🔥 Popular Services</h2>
-                    <div class="services-list">
-                        <% popularServices.forEach((service, index) => { %>
-                            <div class="service-item">
-                                <span class="service-rank">#<%= index + 1 %></span>
-                                <div class="service-info">
-                                    <strong><%= service.name %></strong>
-                                    <span class="service-stats">
-                                        <%= service.count %> bookings • ₱<%= service.revenue.toLocaleString() %>
-                                    </span>
-                                </div>
-                            </div>
-                        <% }) %>
+                            </thead>
+                            <tbody>
+                                <% pendingVerifications.forEach(business => { %>
+                                <tr onclick="window.location.href='/admin/businesses/<%= business._id %>'">
+                                    <td><strong><%= business.businessName %></strong></td>
+                                    <td><%= business.ownerId ? business.ownerId.firstName + ' ' + business.ownerId.lastName : 'N/A' %></td>
+                                    <td><%= business.businessType %></td>
+                                    <td><%= new Date(business.createdAt).toLocaleDateString() %></td>
+                                </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
                     </div>
-                </section>
+                </div>
+                <% } %>
+
+                <!-- Business Growth Chart -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Business Growth (6 Months)</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="businessGrowthChart"></canvas>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Business Performance -->
-            <section class="business-performance-section">
-                <h2>⭐ Top Performing Businesses</h2>
-                <div class="performance-grid">
-                    <% if (typeof businessPerformance !== 'undefined' && businessPerformance.length > 0) { %>
-                        <% businessPerformance.forEach((business, index) => { %>
-                            <div class="performance-card">
-                                <span class="performance-rank">#<%= index + 1 %></span>
-                                <div class="performance-info">
-                                    <strong><%= business.businessName %></strong>
-                                    <span class="performance-count"><%= business.appointmentsCompleted %> completed</span>
-                                </div>
-                                <div class="performance-badge">
-                                    <% if (index === 0) { %>🥇
-                                    <% } else if (index === 1) { %>🥈
-                                    <% } else if (index === 2) { %>🥉
-                                    <% } else { %>⭐<% } %>
-                                </div>
-                            </div>
-                        <% }) %>
-                    <% } else { %>
-                        <div class="performance-card">
-                            <div class="performance-info">
-                                <strong>No business performance data available</strong>
-                                <span class="performance-count">Businesses will appear here once they start completing appointments</span>
-                            </div>
-                        </div>
-                    <% } %>
+            <!-- User Management Stats -->
+            <div class="section">
+                <div class="section-header">
+                    <h2>User Management</h2>
                 </div>
-            </section>
+                
+                <div class="overview-grid">
+                    <div class="overview-card">
+                        <span class="overview-number"><%= stats.newUsersThisWeek %></span>
+                        <span class="overview-label">New Users (This Week)</span>
+                    </div>
+                    <div class="overview-card">
+                        <span class="overview-number"><%= stats.newUsersThisMonth %></span>
+                        <span class="overview-label">New Users (This Month)</span>
+                    </div>
+                    <div class="overview-card">
+                        <span class="overview-number"><%= stats.bannedUsers %></span>
+                        <span class="overview-label">Banned Users</span>
+                    </div>
+                    <div class="overview-card">
+                        <span class="overview-number"><%= stats.activeUsers %></span>
+                        <span class="overview-label">Active Users</span>
+                    </div>
+                </div>
+
+                <!-- User Growth Chart -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>User Growth (6 Months)</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="userGrowthChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Performing Businesses -->
+            <div class="section">
+                <div class="section-header">
+                    <h2>Top Performing Businesses</h2>
+                </div>
+                
+                <% if (topBusinesses.length > 0) { %>
+                <div class="card">
+                    <div class="card-body">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Business Name</th>
+                                    <th style="text-align: center;">Bookings</th>
+                                    <th style="text-align: right;">Revenue</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% topBusinesses.forEach((business, index) => { %>
+                                <tr>
+                                    <td><strong>#<%= index + 1 %></strong></td>
+                                    <td><%= business.businessName %></td>
+                                    <td style="text-align: center;"><%= business.totalAppointments %></td>
+                                    <td style="text-align: right;">₱<%= business.totalRevenue.toLocaleString() %></td>
+                                </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <% } else { %>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="empty-state">
+                            <div class="icon">📊</div>
+                            <p>No business performance data yet</p>
+                        </div>
+                    </div>
+                </div>
+                <% } %>
+            </div>
         </main>
     </div>
 
+    <!-- KPI Modal -->
+    <div class="kpi-modal" id="kpiModal" onclick="closeKPIModal()">
+        <div class="kpi-modal-content" onclick="event.stopPropagation()">
+            <button class="kpi-modal-close" onclick="closeKPIModal()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+            <div class="kpi-modal-body">
+                <h3 id="kpiModalTitle"></h3>
+                <div class="kpi-modal-value" id="kpiModalValue"></div>
+                <p id="kpiModalDescription"></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Appointments Trend Chart
-        const ctx = document.getElementById('appointmentsChart').getContext('2d');
-        const chartData = <%- JSON.stringify(chartData) %>;
+        // Highlight active nav item
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            const navItems = document.querySelectorAll('.nav-item');
+            
+            navItems.forEach(item => {
+                if (item.getAttribute('href') === currentPath) {
+                    item.classList.add('active');
+                }
+            });
+
+            // KPI Card Click Handlers
+            const statCards = document.querySelectorAll('.stat-card');
+            statCards.forEach(card => {
+                card.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    
+                    const type = this.dataset.kpi;
+                    const value = this.dataset.value;
+                    const description = this.dataset.desc;
+                    
+                    showKPIModal(type, value, description);
+                });
+            });
+        });
+
+        function showKPIModal(type, value, description) {
+            const modal = document.getElementById('kpiModal');
+            const titleMap = {
+                'users': 'Total Users',
+                'businesses': 'Total Businesses',
+                'pending': 'Pending Applications',
+                'bookings': 'Total Bookings',
+                'rewards': 'Active Rewards'
+            };
+            
+            document.getElementById('kpiModalTitle').textContent = titleMap[type] || 'KPI Details';
+            document.getElementById('kpiModalValue').textContent = value;
+            document.getElementById('kpiModalDescription').textContent = description;
+            
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeKPIModal() {
+            const modal = document.getElementById('kpiModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Business Growth Chart
+        const businessGrowthCtx = document.getElementById('businessGrowthChart').getContext('2d');
+        const businessGrowthData = <%- JSON.stringify(businessGrowth) %>;
         
-        new Chart(ctx, {
+        new Chart(businessGrowthCtx, {
             type: 'line',
             data: {
-                labels: chartData.map(d => d.date),
+                labels: businessGrowthData.map(d => d.month),
                 datasets: [{
-                    label: 'Appointments',
-                    data: chartData.map(d => d.count),
-                    borderColor: '#667eea',
-                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    label: 'New Businesses',
+                    data: businessGrowthData.map(d => d.count),
+                    borderColor: '#1a1a1a',
+                    backgroundColor: 'rgba(26, 26, 26, 0.1)',
                     tension: 0.4,
                     fill: true,
-                    pointBackgroundColor: '#667eea',
+                    pointBackgroundColor: '#1a1a1a',
                     pointBorderColor: '#fff',
                     pointBorderWidth: 2,
-                    pointRadius: 5,
-                    pointHoverRadius: 7
+                    pointRadius: 4,
+                    pointHoverRadius: 6
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: {
-                        display: false
-                    },
+                    legend: { display: false },
                     tooltip: {
-                        backgroundColor: '#2d3436',
+                        backgroundColor: '#1a1a1a',
                         padding: 12,
-                        titleFont: {
-                            size: 14
-                        },
-                        bodyFont: {
-                            size: 13
-                        }
+                        titleFont: { size: 13, weight: '600' },
+                        bodyFont: { size: 12 }
                     }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
-                        ticks: {
-                            stepSize: 1
-                        },
-                        grid: {
-                            color: '#f0f0f0'
-                        }
+                        ticks: { stepSize: 1, color: '#666', font: { size: 11 } },
+                        grid: { color: '#f0f0f0' }
                     },
                     x: {
-                        grid: {
-                            display: false
-                        }
+                        ticks: { color: '#666', font: { size: 11 } },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // User Growth Chart
+        const userGrowthCtx = document.getElementById('userGrowthChart').getContext('2d');
+        const userGrowthData = <%- JSON.stringify(userGrowth) %>;
+        
+        new Chart(userGrowthCtx, {
+            type: 'bar',
+            data: {
+                labels: userGrowthData.map(d => d.month),
+                datasets: [{
+                    label: 'New Users',
+                    data: userGrowthData.map(d => d.count),
+                    backgroundColor: '#1a1a1a',
+                    borderRadius: 6,
+                    barThickness: 40
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1a1a1a',
+                        padding: 12,
+                        titleFont: { size: 13, weight: '600' },
+                        bodyFont: { size: 12 }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1, color: '#666', font: { size: 11 } },
+                        grid: { color: '#f0f0f0' }
+                    },
+                    x: {
+                        ticks: { color: '#666', font: { size: 11 } },
+                        grid: { display: false }
                     }
                 }
             }

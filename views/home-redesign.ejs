@@ -53,30 +53,30 @@
 
         <!-- Services Grid -->
         <div id="servicesContainer" class="services-grid"></div>
-
-        <!-- Modals Container -->
-        <div id="modalsContainer"></div>
-
-        <!-- Map Modal -->
-        <div id="mapModal" class="map-modal">
-            <div class="map-modal-content">
-                <div class="map-modal-header">
-                    <h3 class="map-modal-title">Select Location</h3>
-                    <button class="modal-close" id="closeMapBtn">×</button>
-                </div>
-                <div id="map" class="map-container"></div>
-                <div class="map-modal-footer">
-                    <div class="map-info">Click on the map to select your location</div>
-                    <div class="map-actions">
-                        <button id="cancelMapBtn" class="btn btn-secondary">Cancel</button>
-                        <button id="confirmLocationBtn" class="btn btn-primary" disabled>Confirm</button>
-                    </div>
-                </div>
-            </div>
-        </div>
     </main>
 
     <%- include('partials/footer') %>
+
+    <!-- Modals Container - Outside main content to avoid z-index stacking issues -->
+    <div id="modalsContainer"></div>
+
+    <!-- Map Modal - Outside main content to avoid z-index stacking issues -->
+    <div id="mapModal" class="map-modal" style="z-index: 999999 !important; position: fixed !important; display: none;">
+        <div class="map-modal-content">
+            <div class="map-modal-header">
+                <h3 class="map-modal-title">Select Location</h3>
+                <button class="modal-close" id="closeMapBtn">×</button>
+            </div>
+            <div id="map" class="map-container"></div>
+            <div class="map-modal-footer">
+                <div class="map-info">Click on the map to select your location</div>
+                <div class="map-actions">
+                    <button id="cancelMapBtn" class="btn btn-secondary">Cancel</button>
+                    <button id="confirmLocationBtn" class="btn btn-primary" disabled>Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
@@ -122,7 +122,7 @@
             `).join('');
 
             modalsContainer.innerHTML = services.map((service, index) => `
-                <div id="modal${index}" class="modal">
+                <div id="modal${index}" class="modal" style="z-index: 999999 !important; position: fixed !important;">
                     <div class="modal-content">
                         <button class="modal-close">×</button>
                         <img src="${service.image}" class="modal-image" alt="${service.name}">

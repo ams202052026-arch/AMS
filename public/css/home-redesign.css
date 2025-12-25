@@ -479,8 +479,8 @@ body::before {
 /* Modal */
 .modal {
     display: none;
-    position: fixed;
-    z-index: 1000;
+    position: fixed !important;
+    z-index: 99999 !important;
     left: 0;
     top: 0;
     width: 100%;
@@ -506,7 +506,7 @@ body::before {
 .modal-content {
     background: #ffffff;
     border-radius: 20px;
-    max-width: 600px;
+    max-width: 480px;
     width: 100%;
     max-height: 90vh;
     overflow-y: auto;
@@ -553,39 +553,39 @@ body::before {
 
 .modal-image {
     width: 100%;
-    height: 300px;
+    height: 220px;
     object-fit: cover;
     background: #f5f5f7;
 }
 
 .modal-body {
-    padding: 2rem;
+    padding: 1.25rem;
 }
 
 .modal-title {
-    font-size: 1.75rem;
+    font-size: 1.375rem;
     font-weight: 600;
     color: #1d1d1f;
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
     letter-spacing: -0.02em;
 }
 
 .modal-description {
-    font-size: 1rem;
+    font-size: 0.875rem;
     color: #86868b;
-    line-height: 1.6;
-    margin-bottom: 1.5rem;
+    line-height: 1.5;
+    margin-bottom: 1rem;
 }
 
 .modal-details {
     list-style: none;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
 }
 
 .modal-details li {
-    padding: 0.5rem 0;
+    padding: 0.375rem 0;
     color: #1d1d1f;
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
 }
 
 .modal-details li:before {
@@ -596,12 +596,12 @@ body::before {
 
 .modal-info {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 1rem;
-    padding: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 0.75rem;
+    padding: 1rem;
     background: #f5f5f7;
     border-radius: 12px;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
 }
 
 .info-item {
@@ -609,25 +609,25 @@ body::before {
 }
 
 .info-label {
-    font-size: 0.75rem;
+    font-size: 0.6875rem;
     color: #86868b;
     margin-bottom: 0.25rem;
 }
 
 .info-value {
-    font-size: 1.125rem;
+    font-size: 1rem;
     font-weight: 600;
     color: #1d1d1f;
 }
 
 .btn-book {
     width: 100%;
-    padding: 1rem;
+    padding: 0.875rem;
     background: #1d1d1f;
     color: #ffffff;
     text-decoration: none;
     border-radius: 12px;
-    font-size: 1rem;
+    font-size: 0.9375rem;
     font-weight: 500;
     text-align: center;
     display: block;
@@ -641,8 +641,8 @@ body::before {
 /* Map Modal */
 .map-modal {
     display: none;
-    position: fixed;
-    z-index: 2000;
+    position: fixed !important;
+    z-index: 99999 !important;
     left: 0;
     top: 0;
     width: 100%;

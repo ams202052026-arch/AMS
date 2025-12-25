@@ -44,12 +44,35 @@ router.post('/register', requireAuth, businessOwnerAuthController.register);
 router.get('/upload-documents', requireAuth, businessOwnerAuthController.loadDocumentUploadPage);
 router.post('/upload-documents', 
     requireAuth,
-    uploadBusinessDocuments.fields([
-        { name: 'dti', maxCount: 1 },
-        { name: 'business_permit', maxCount: 1 },
-        { name: 'valid_id', maxCount: 1 },
-        { name: 'bir', maxCount: 1 }
-    ]),
+    (req, res, next) => {
+        uploadBusinessDocuments.fields([
+            { name: 'dti', maxCount: 1 },
+            { name: 'business_permit', maxCount: 1 },
+            { name: 'valid_id', maxCount: 1 },
+            { name: 'bir', maxCount: 1 }
+        ])(req, res, (err) => {
+            if (err) {
+                console.error('File upload error:', err);
+                if (err.code === 'LIMIT_FILE_SIZE') {
+                    return res.status(400).render('businessOwner/uploadDocuments', {
+                        error: 'File size too large. Maximum file size is 10MB per file.',
+                        success: null
+                    });
+                }
+                if (err.message) {
+                    return res.status(400).render('businessOwner/uploadDocuments', {
+                        error: err.message,
+                        success: null
+                    });
+                }
+                return res.status(500).render('businessOwner/uploadDocuments', {
+                    error: 'Error uploading files. Please try again.',
+                    success: null
+                });
+            }
+            next();
+        });
+    },
     businessOwnerAuthController.uploadDocuments
 );
 router.post('/skip-documents', requireAuth, businessOwnerAuthController.skipDocumentUpload);

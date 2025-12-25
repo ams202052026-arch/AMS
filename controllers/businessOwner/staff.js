@@ -72,7 +72,7 @@ exports.loadAddForm = async (req, res) => {
 exports.addStaff = async (req, res) => {
     try {
         const userId = req.session.userId;
-        const { name, email, phone, specialties } = req.body;
+        const { name, email, phone } = req.body;
         
         // Find business by ownerId
         const business = await Business.findOne({ ownerId: userId });
@@ -108,20 +108,10 @@ exports.addStaff = async (req, res) => {
             }
         }
 
-        // Parse specialties from form
-        let specialtiesArray = [];
-        if (specialties) {
-            specialtiesArray = Array.isArray(specialties) ? specialties : [specialties];
-            specialtiesArray = specialtiesArray
-                .map(s => s.trim())
-                .filter(s => s.length > 0);
-        }
-
         const staff = new Staff({
             name,
             email: email.toLowerCase(),
             phone: phone ? phone.trim() : '',
-            specialties: specialtiesArray,
             businessId: business._id // Associate with business
         });
 
@@ -293,5 +283,38 @@ exports.activateStaff = async (req, res) => {
     } catch (error) {
         console.error('Error activating staff:', error);
         res.status(500).render('error', { message: 'Error activating staff' });
+    }
+};
+
+
+/**
+ * Delete staff
+ */
+exports.deleteStaff = async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        const { staffId } = req.params;
+
+        // Find business by ownerId
+        const business = await Business.findOne({ ownerId: userId });
+        if (!business) {
+            return res.redirect('/business/register');
+        }
+
+        // Delete staff (ensure it belongs to this business)
+        const deletedStaff = await Staff.findOneAndDelete({ 
+            _id: staffId, 
+            businessId: business._id 
+        });
+
+        if (!deletedStaff) {
+            return res.status(404).render('error', { message: 'Staff member not found' });
+        }
+
+        console.log('✓ Staff deleted:', staffId);
+        res.redirect('/business-owner/staff');
+    } catch (error) {
+        console.error('Error deleting staff:', error);
+        res.status(500).render('error', { message: 'Error deleting staff' });
     }
 };

@@ -14,13 +14,15 @@ exports.loadHistory = async (req, res) => {
         .populate('businessId') // Populate business info
         .sort({ date: -1 });
 
-        // Format times to 12-hour format
-        const formattedAppointments = appointments.map(apt => {
-            const aptObj = apt.toObject();
-            aptObj.timeSlot.startFormatted = formatTime12Hour(aptObj.timeSlot.start);
-            aptObj.timeSlot.endFormatted = formatTime12Hour(aptObj.timeSlot.end);
-            return aptObj;
-        });
+        // Filter out appointments with null service and format times
+        const formattedAppointments = appointments
+            .filter(apt => apt.service) // Only include appointments with valid service
+            .map(apt => {
+                const aptObj = apt.toObject();
+                aptObj.timeSlot.startFormatted = formatTime12Hour(aptObj.timeSlot.start);
+                aptObj.timeSlot.endFormatted = formatTime12Hour(aptObj.timeSlot.end);
+                return aptObj;
+            });
 
         res.render('history', { appointments: formattedAppointments });
     } catch (error) {

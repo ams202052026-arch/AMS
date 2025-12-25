@@ -26,11 +26,24 @@ exports.loadHome = async (req, res) => {
             .populate('assignedStaff')
             .populate('businessId'); // Populate business info
         
-        // Filter out services from suspended/rejected businesses
+        // Filter out services from suspended/rejected businesses AND user's own business
         const activeServices = services.filter(service => {
             if (!service.businessId) return false; // No business = hide
-            return service.businessId.verificationStatus === 'approved' && 
-                   service.businessId.isActive === true;
+            
+            // Hide services from non-approved or inactive businesses
+            if (service.businessId.verificationStatus !== 'approved' || 
+                service.businessId.isActive !== true) {
+                return false;
+            }
+            
+            // Hide services from user's own business
+            if (userId && service.businessId.ownerId && 
+                service.businessId.ownerId.toString() === userId.toString()) {
+                console.log(`🚫 Hiding service "${service.name}" - user owns this business`);
+                return false;
+            }
+            
+            return true;
         });
 
         res.render('home-redesign', { services: activeServices });
@@ -48,6 +61,7 @@ exports.loadHome = async (req, res) => {
 exports.filterByLocation = async (req, res) => {
     try {
         const { lat, lng, radius = 10 } = req.query; // radius in kilometers, default 10km
+        const userId = req.session.userId;
         
         if (!lat || !lng) {
             return res.status(400).json({ error: 'Latitude and longitude are required' });
@@ -68,6 +82,12 @@ exports.filterByLocation = async (req, res) => {
                 if (!service.businessId) return false;
                 if (service.businessId.verificationStatus !== 'approved') return false;
                 if (!service.businessId.isActive) return false;
+                
+                // Hide services from user's own business
+                if (userId && service.businessId.ownerId && 
+                    service.businessId.ownerId.toString() === userId.toString()) {
+                    return false;
+                }
                 
                 // Check if business has coordinates
                 const coords = service.businessId.address?.coordinates;

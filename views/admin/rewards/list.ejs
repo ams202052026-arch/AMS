@@ -4,253 +4,77 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rewards Management - AMS Admin</title>
+    <link rel="icon" type="image/png" href="/image/favicon.png">
+    <link rel="stylesheet" href="/css/scrollbar.css">
     <link rel="stylesheet" href="/css/admin/main.css">
-    <style>
-        .admin-main {
-            margin-left: 280px;
-            padding: 2rem;
-        }
-
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-        }
-
-        .page-header h1 {
-            font-size: 2rem;
-            color: #1a1a1a;
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s;
-            border: none;
-            cursor: pointer;
-        }
-
-        .btn-primary {
-            background: #2563eb;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #1d4ed8;
-        }
-
-        .btn-secondary {
-            background: #f3f4f6;
-            color: #374151;
-        }
-
-        .btn-secondary:hover {
-            background: #e5e7eb;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .stat-card h3 {
-            font-size: 0.875rem;
-            color: #6b7280;
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-card .value {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #1a1a1a;
-        }
-
-        .rewards-table {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        thead {
-            background: #f9fafb;
-        }
-
-        th {
-            padding: 1rem;
-            text-align: left;
-            font-weight: 600;
-            color: #374151;
-            font-size: 0.875rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        td {
-            padding: 1rem;
-            border-top: 1px solid #f3f4f6;
-        }
-
-        tbody tr:hover {
-            background: #f9fafb;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .status-badge.active {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .status-badge.inactive {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .discount-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
-            padding: 0.25rem 0.75rem;
-            background: #dbeafe;
-            color: #1e40af;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 0.875rem;
-        }
-
-        .actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .btn-sm {
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-            border-radius: 6px;
-            text-decoration: none;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-edit {
-            background: #3b82f6;
-            color: white;
-        }
-
-        .btn-edit:hover {
-            background: #2563eb;
-        }
-
-        .btn-toggle {
-            background: #f59e0b;
-            color: white;
-        }
-
-        .btn-toggle:hover {
-            background: #d97706;
-        }
-
-        .btn-delete {
-            background: #ef4444;
-            color: white;
-        }
-
-        .btn-delete:hover {
-            background: #dc2626;
-        }
-
-        .inline-form {
-            display: inline;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 3rem;
-            color: #6b7280;
-        }
-
-        .empty-state-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-    </style>
+    <link rel="stylesheet" href="/css/admin/dashboard-redesign.css">
 </head>
 <body>
-    <div class="admin-layout">
+    <div class="dashboard-layout">
         <%- include('../partials/sidebar') %>
 
-        <main class="admin-main">
-            <div class="page-header">
-                <h1>🎁 Rewards Management</h1>
-                <div class="header-actions">
-                    <a href="/admin/rewards/redemptions" class="btn btn-secondary">📊 View Redemptions</a>
-                    <a href="/admin/rewards/add" class="btn btn-primary">+ Add New Reward</a>
-                </div>
+        <main class="main-content">
+            <!-- Header -->
+            <div class="dashboard-header">
+                <h1>Rewards Management</h1>
+                <p class="date"><%= new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) %></p>
             </div>
 
+            <!-- Header Actions -->
+            <div style="display: flex; gap: 12px; margin-bottom: 24px;">
+                <a href="/admin/rewards/redemptions" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 8px; background: #f5f5f5; color: #1a1a1a;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 3V21H21V3H3ZM9 17H7V10H9V17ZM13 17H11V7H13V17ZM17 17H15V13H17V17Z" fill="currentColor"/>
+                    </svg>
+                    View Redemptions
+                </a>
+                <a href="/admin/rewards/add" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 13H13V19H11V13H5V11H11V5H13V11H19V13Z" fill="currentColor"/>
+                    </svg>
+                    Add New Reward
+                </a>
+            </div>
+
+            <!-- Stats Grid -->
             <div class="stats-grid">
                 <div class="stat-card">
-                    <h3>Total Rewards</h3>
-                    <div class="value"><%= rewards.length %></div>
+                    <span class="stat-number"><%= rewards.length %></span>
+                    <span class="stat-label">Total Rewards</span>
                 </div>
                 <div class="stat-card">
-                    <h3>Active Rewards</h3>
-                    <div class="value"><%= rewards.filter(r => r.isActive).length %></div>
+                    <span class="stat-number"><%= rewards.filter(r => r.isActive).length %></span>
+                    <span class="stat-label">Active Rewards</span>
                 </div>
                 <div class="stat-card">
-                    <h3>Inactive Rewards</h3>
-                    <div class="value"><%= rewards.filter(r => !r.isActive).length %></div>
+                    <span class="stat-number"><%= rewards.filter(r => !r.isActive).length %></span>
+                    <span class="stat-label">Inactive Rewards</span>
                 </div>
             </div>
 
             <!-- Points Configuration Section -->
-            <div class="rewards-table" style="margin-bottom: 2rem;">
-                <div style="padding: 2rem;">
-                    <h2 style="font-size: 1.25rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
-                        🎯 Loyalty Points Configuration
-                    </h2>
-                    <p style="color: #6b7280; margin-bottom: 1.5rem; font-size: 0.95rem;">
+            <div class="card" style="margin-bottom: 24px;">
+                <div class="card-header">
+                    <h3 style="display: flex; align-items: center; gap: 8px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="currentColor"/>
+                        </svg>
+                        Loyalty Points Configuration
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <p style="color: #666; margin-bottom: 20px; font-size: 14px;">
                         Set the range of points that business owners can assign to their services
                     </p>
 
-                    <div id="pointsSuccessMessage" class="success-message" style="display: none; background: #d1fae5; color: #065f46; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;"></div>
-                    <div id="pointsErrorMessage" class="error-message" style="display: none; background: #fee2e2; color: #991b1b; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;"></div>
+                    <div id="pointsSuccessMessage" style="display: none; background: #d4edda; color: #155724; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 14px;"></div>
+                    <div id="pointsErrorMessage" style="display: none; background: #f8d7da; color: #721c24; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 14px;"></div>
 
-                    <form id="pointsSettingsForm" style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 1rem; align-items: end;">
+                    <form id="pointsSettingsForm" style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 16px; align-items: end;">
                         <div>
-                            <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 0.5rem; font-size: 0.875rem;">
+                            <label style="display: block; font-weight: 600; color: #1a1a1a; margin-bottom: 8px; font-size: 13px;">
                                 Minimum Points
-                                <span style="color: #2563eb; font-weight: normal;">(Current: <%= settings.minPointsPerService %>)</span>
+                                <span style="color: #666; font-weight: normal;">(Current: <%= settings.minPointsPerService %>)</span>
                             </label>
                             <input 
                                 type="number" 
@@ -260,14 +84,14 @@
                                 min="0"
                                 max="100"
                                 required
-                                style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem;"
+                                style="width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px;"
                             >
                         </div>
 
                         <div>
-                            <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 0.5rem; font-size: 0.875rem;">
+                            <label style="display: block; font-weight: 600; color: #1a1a1a; margin-bottom: 8px; font-size: 13px;">
                                 Maximum Points
-                                <span style="color: #2563eb; font-weight: normal;">(Current: <%= settings.maxPointsPerService %>)</span>
+                                <span style="color: #666; font-weight: normal;">(Current: <%= settings.maxPointsPerService %>)</span>
                             </label>
                             <input 
                                 type="number" 
@@ -277,86 +101,255 @@
                                 min="1"
                                 max="1000"
                                 required
-                                style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem;"
+                                style="width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px;"
                             >
                         </div>
 
-                        <button type="submit" id="savePointsBtn" style="padding: 0.75rem 2rem; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s;">
+                        <button type="submit" id="savePointsBtn" class="btn btn-primary" style="padding: 10px 24px;">
                             Save Settings
                         </button>
                     </form>
 
-                    <p style="color: #6b7280; margin-top: 1rem; font-size: 0.875rem;">
-                        ℹ️ Business owners can only set points within this range when creating or editing services
+                    <p style="color: #666; margin-top: 16px; font-size: 13px; display: flex; align-items: center; gap: 8px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 16V12M12 8H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Business owners can only set points within this range when creating or editing services
                     </p>
                 </div>
             </div>
 
-            <div class="rewards-table">
-                <% if (rewards.length === 0) { %>
-                    <div class="empty-state">
-                        <div class="empty-state-icon">🎁</div>
-                        <h3>No rewards yet</h3>
-                        <p>Create your first reward to start the loyalty program</p>
-                        <a href="/admin/rewards/add" class="btn btn-primary" style="margin-top: 1rem;">Add First Reward</a>
-                    </div>
-                <% } else { %>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Reward Name</th>
-                                <th>Description</th>
-                                <th>Points Required</th>
-                                <th>Discount</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% rewards.forEach(reward => { %>
+            <!-- Rewards List -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Rewards List</h3>
+                    <span style="color: #666; font-size: 14px;"><%= rewards.length %> rewards</span>
+                </div>
+                <div class="card-body">
+                    <% if (rewards.length === 0) { %>
+                        <div style="text-align: center; padding: 60px 20px; color: #999;">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" style="margin-bottom: 16px; opacity: 0.3;">
+                                <path d="M20 6H16L14 4H10L8 6H4C2.9 6 2 6.9 2 8V19C2 20.1 2.9 21 4 21H20C21.1 21 22 20.1 22 19V8C22 6.9 21.1 6 20 6ZM12 17L7 12H10V9H14V12H17L12 17Z" fill="currentColor"/>
+                            </svg>
+                            <h3 style="font-size: 16px; margin-bottom: 8px;">No rewards yet</h3>
+                            <p style="font-size: 14px; margin-bottom: 16px;">Create your first reward to start the loyalty program</p>
+                            <a href="/admin/rewards/add" class="btn btn-primary">Add First Reward</a>
+                        </div>
+                    <% } else { %>
+                        <table>
+                            <thead>
                                 <tr>
-                                    <td><strong><%= reward.name %></strong></td>
-                                    <td><%= reward.description %></td>
-                                    <td><%= reward.pointsRequired %> pts</td>
-                                    <td>
-                                        <span class="discount-badge">
-                                            <% if (reward.discountType === 'percentage') { %>
-                                                <%= reward.discountValue %>% OFF
-                                            <% } else { %>
-                                                ₱<%= reward.discountValue %> OFF
-                                            <% } %>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span class="status-badge <%= reward.isActive ? 'active' : 'inactive' %>">
-                                            <%= reward.isActive ? 'Active' : 'Inactive' %>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="actions">
-                                            <a href="/admin/rewards/<%= reward._id %>/edit" class="btn-sm btn-edit">Edit</a>
-                                            <% if (reward.isActive) { %>
-                                                <form action="/admin/rewards/<%= reward._id %>/deactivate" method="POST" class="inline-form">
-                                                    <button type="submit" class="btn-sm btn-toggle" onclick="return confirm('Deactivate this reward?')">Deactivate</button>
-                                                </form>
-                                            <% } else { %>
-                                                <form action="/admin/rewards/<%= reward._id %>/activate" method="POST" class="inline-form">
-                                                    <button type="submit" class="btn-sm btn-toggle" onclick="return confirm('Activate this reward?')">Activate</button>
-                                                </form>
-                                            <% } %>
-                                            <button class="btn-sm btn-delete" onclick="deleteReward('<%= reward._id %>')">Delete</button>
-                                        </div>
-                                    </td>
+                                    <th style="width: 18%;">Reward Name</th>
+                                    <th style="width: 25%;">Description</th>
+                                    <th style="width: 10%;">Points Required</th>
+                                    <th style="width: 12%;">Discount</th>
+                                    <th style="width: 8%;">Status</th>
+                                    <th style="width: 27%; text-align: center;">Actions</th>
                                 </tr>
-                            <% }) %>
-                        </tbody>
-                    </table>
-                <% } %>
+                            </thead>
+                            <tbody>
+                                <% rewards.forEach(reward => { %>
+                                    <tr>
+                                        <td style="width: 18%;"><strong><%= reward.name %></strong></td>
+                                        <td style="width: 25%;"><%= reward.description %></td>
+                                        <td style="width: 10%;"><%= reward.pointsRequired %> pts</td>
+                                        <td style="width: 12%;">
+                                            <span style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #dbeafe; color: #1e40af; border-radius: 12px; font-weight: 600; font-size: 11px; white-space: nowrap;">
+                                                <% if (reward.discountType === 'percentage') { %>
+                                                    <%= reward.discountValue %>% OFF
+                                                <% } else { %>
+                                                    ₱<%= reward.discountValue %> OFF
+                                                <% } %>
+                                            </span>
+                                        </td>
+                                        <td style="width: 8%;">
+                                            <span class="status-badge <%= reward.isActive ? 'status-approved' : 'status-rejected' %>" style="font-size: 11px; padding: 3px 10px;">
+                                                <%= reward.isActive ? 'Active' : 'Inactive' %>
+                                            </span>
+                                        </td>
+                                        <td style="text-align: center; width: 27%;">
+                                            <div style="display: flex; gap: 6px; justify-content: center; align-items: center;">
+                                                <% if (reward.isActive) { %>
+                                                    <button onclick="showDeactivateModal('<%= reward._id %>', '<%= reward.name %>')" class="btn" style="padding: 6px 10px; font-size: 11px; background: #f59e0b; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; white-space: nowrap;">Deactivate</button>
+                                                <% } else { %>
+                                                    <button onclick="showActivateModal('<%= reward._id %>', '<%= reward.name %>')" class="btn" style="padding: 6px 10px; font-size: 11px; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; white-space: nowrap;">Activate</button>
+                                                <% } %>
+                                                <button onclick="showDeleteModal('<%= reward._id %>', '<%= reward.name %>')" class="btn" style="padding: 6px 12px; font-size: 12px; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Delete</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    <% } %>
+                </div>
             </div>
         </main>
     </div>
 
+    <!-- Deactivate Modal -->
+    <div class="kpi-modal" id="deactivateModal" onclick="closeDeactivateModal()">
+        <div class="kpi-modal-content" onclick="event.stopPropagation()" style="max-width: 500px;">
+            <button class="kpi-modal-close" onclick="closeDeactivateModal()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+            <div class="kpi-modal-body">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color: #f59e0b;">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                        <path d="M12 8V12M12 16H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <h3 style="text-align: center; margin-bottom: 10px;">Deactivate Reward</h3>
+                <p style="text-align: center; color: #666; margin-bottom: 20px;">
+                    Are you sure you want to deactivate <strong id="deactivateRewardName"></strong>?
+                </p>
+                <p style="text-align: center; color: #999; font-size: 14px; margin-bottom: 20px;">
+                    This reward will no longer be visible to customers.
+                </p>
+                <div style="display: flex; gap: 12px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeDeactivateModal()" style="flex: 1; background: #f5f5f5; color: #1a1a1a;">
+                        Cancel
+                    </button>
+                    <button type="button" onclick="handleDeactivate()" style="flex: 1; padding: 10px 20px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; background: #f59e0b; color: white;">
+                        Deactivate
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activate Modal -->
+    <div class="kpi-modal" id="activateModal" onclick="closeActivateModal()">
+        <div class="kpi-modal-content" onclick="event.stopPropagation()" style="max-width: 500px;">
+            <button class="kpi-modal-close" onclick="closeActivateModal()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+            <div class="kpi-modal-body">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color: #10b981;">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                        <path d="M8 12L11 15L16 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <h3 style="text-align: center; margin-bottom: 10px;">Activate Reward</h3>
+                <p style="text-align: center; color: #666; margin-bottom: 20px;">
+                    Are you sure you want to activate <strong id="activateRewardName"></strong>?
+                </p>
+                <p style="text-align: center; color: #999; font-size: 14px; margin-bottom: 20px;">
+                    This reward will be visible to customers.
+                </p>
+                <div style="display: flex; gap: 12px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeActivateModal()" style="flex: 1; background: #f5f5f5; color: #1a1a1a;">
+                        Cancel
+                    </button>
+                    <button type="button" onclick="handleActivate()" style="flex: 1; padding: 10px 20px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; background: #10b981; color: white;">
+                        Activate
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Modal -->
+    <div class="kpi-modal" id="deleteModal" onclick="closeDeleteModal()">
+        <div class="kpi-modal-content" onclick="event.stopPropagation()" style="max-width: 500px;">
+            <button class="kpi-modal-close" onclick="closeDeleteModal()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+            <div class="kpi-modal-body">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color: #ef4444;">
+                        <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <h3 style="text-align: center; margin-bottom: 10px;">Delete Reward</h3>
+                <p style="text-align: center; color: #666; margin-bottom: 20px;">
+                    Are you sure you want to delete <strong id="deleteRewardName"></strong>?
+                </p>
+                <p style="text-align: center; color: #ef4444; font-size: 14px; margin-bottom: 20px; font-weight: 600;">
+                    This action cannot be undone.
+                </p>
+                <div style="display: flex; gap: 12px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()" style="flex: 1; background: #f5f5f5; color: #1a1a1a;">
+                        Cancel
+                    </button>
+                    <button type="button" onclick="handleDelete()" style="flex: 1; padding: 10px 20px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; background: #ef4444; color: white;">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="kpi-modal" id="successModal" onclick="closeSuccessModal()">
+        <div class="kpi-modal-content" onclick="event.stopPropagation()">
+            <button class="kpi-modal-close" onclick="closeSuccessModal()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+            <div class="kpi-modal-body">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color: #10b981;">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                        <path d="M8 12L11 15L16 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <h3 style="text-align: center; margin-bottom: 10px;">Success</h3>
+                <p id="successMessage" style="color: #666; margin: 20px 0; text-align: center;"></p>
+                <button type="button" class="btn btn-primary" onclick="window.location.reload()" style="width: 100%;">
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div class="kpi-modal" id="errorModal" onclick="closeErrorModal()">
+        <div class="kpi-modal-content" onclick="event.stopPropagation()">
+            <button class="kpi-modal-close" onclick="closeErrorModal()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+            <div class="kpi-modal-body">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color: #ef4444;">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                        <path d="M12 8V12M12 16H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <h3 style="text-align: center; margin-bottom: 10px;">Error</h3>
+                <p id="errorMessage" style="color: #666; margin: 20px 0; text-align: center;"></p>
+                <button type="button" class="btn btn-primary" onclick="closeErrorModal()" style="width: 100%;">
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // Highlight active nav item
+        document.addEventListener('DOMContentLoaded', function() {
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                if (item.getAttribute('href') === '/admin/rewards') {
+                    item.classList.add('active');
+                }
+            });
+        });
+
+        let currentRewardId = null;
+
         // Points Settings Form
         document.getElementById('pointsSettingsForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -396,14 +389,14 @@
 
         function showPointsSuccess(message) {
             const el = document.getElementById('pointsSuccessMessage');
-            el.textContent = '✅ ' + message;
+            el.textContent = message;
             el.style.display = 'block';
             setTimeout(() => el.style.display = 'none', 5000);
         }
 
         function showPointsError(message) {
             const el = document.getElementById('pointsErrorMessage');
-            el.textContent = '❌ ' + message;
+            el.textContent = message;
             el.style.display = 'block';
             setTimeout(() => el.style.display = 'none', 5000);
         }
@@ -423,28 +416,168 @@
             }
         }
 
-        async function deleteReward(rewardId) {
-            if (!confirm('Are you sure you want to delete this reward? This action cannot be undone.')) {
-                return;
-            }
+        // Deactivate Modal
+        function showDeactivateModal(rewardId, rewardName) {
+            currentRewardId = rewardId;
+            document.getElementById('deactivateRewardName').textContent = rewardName;
+            document.getElementById('deactivateModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDeactivateModal() {
+            document.getElementById('deactivateModal').classList.remove('active');
+            document.body.style.overflow = '';
+            currentRewardId = null;
+        }
+
+        async function handleDeactivate() {
+            if (!currentRewardId) return;
 
             try {
-                const response = await fetch(`/admin/rewards/${rewardId}/delete`, {
-                    method: 'DELETE'
+                const response = await fetch(`/admin/rewards/${currentRewardId}/deactivate`, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
                 });
 
                 const data = await response.json();
 
                 if (data.success) {
-                    alert('Reward deleted successfully');
-                    location.reload();
+                    closeDeactivateModal();
+                    showSuccessModal('Reward deactivated successfully');
                 } else {
-                    alert(data.error || 'Failed to delete reward');
+                    closeDeactivateModal();
+                    showErrorModal(data.error || 'Failed to deactivate reward');
                 }
             } catch (error) {
-                alert('Error deleting reward: ' + error.message);
+                closeDeactivateModal();
+                showErrorModal('Error deactivating reward: ' + error.message);
             }
         }
+
+        // Activate Modal
+        function showActivateModal(rewardId, rewardName) {
+            currentRewardId = rewardId;
+            document.getElementById('activateRewardName').textContent = rewardName;
+            document.getElementById('activateModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeActivateModal() {
+            document.getElementById('activateModal').classList.remove('active');
+            document.body.style.overflow = '';
+            currentRewardId = null;
+        }
+
+        async function handleActivate() {
+            if (!currentRewardId) return;
+
+            try {
+                const response = await fetch(`/admin/rewards/${currentRewardId}/activate`, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    closeActivateModal();
+                    showSuccessModal('Reward activated successfully');
+                } else {
+                    closeActivateModal();
+                    showErrorModal(data.error || 'Failed to activate reward');
+                }
+            } catch (error) {
+                closeActivateModal();
+                showErrorModal('Error activating reward: ' + error.message);
+            }
+        }
+
+        // Delete Modal
+        function showDeleteModal(rewardId, rewardName) {
+            currentRewardId = rewardId;
+            document.getElementById('deleteRewardName').textContent = rewardName;
+            document.getElementById('deleteModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('active');
+            document.body.style.overflow = '';
+            currentRewardId = null;
+        }
+
+        async function handleDelete() {
+            if (!currentRewardId) return;
+
+            try {
+                const response = await fetch(`/admin/rewards/${currentRewardId}/delete`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    closeDeleteModal();
+                    showSuccessModal('Reward deleted successfully');
+                } else {
+                    closeDeleteModal();
+                    showErrorModal(data.error || 'Failed to delete reward');
+                }
+            } catch (error) {
+                closeDeleteModal();
+                showErrorModal('Error deleting reward: ' + error.message);
+            }
+        }
+
+        // Success Modal
+        function showSuccessModal(message) {
+            document.getElementById('successMessage').textContent = message;
+            document.getElementById('successModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            // Auto reload after 2 seconds
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Error Modal
+        function showErrorModal(message) {
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeErrorModal() {
+            document.getElementById('errorModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Close modals on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeDeactivateModal();
+                closeActivateModal();
+                closeDeleteModal();
+                closeSuccessModal();
+                closeErrorModal();
+            }
+        });
     </script>
 </body>
 </html>

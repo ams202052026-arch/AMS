@@ -126,7 +126,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         modalTitle.textContent = title;
         modalMessage.textContent = message;
-        modalIcon.textContent = icon;
+        if (modalIcon) {
+            modalIcon.textContent = icon;
+        }
         modal.style.display = 'flex';
     }
 
@@ -210,26 +212,32 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: new URLSearchParams(formData)
             });
 
+            const contentType = response.headers.get('content-type');
+            
             if (response.ok) {
                 // Success - redirect to appointments page
                 window.location.href = '/appointments';
             } else {
                 // Error - show modal with error message
-                const contentType = response.headers.get('content-type');
                 let errorMessage = 'An error occurred while booking. Please try again.';
                 
                 if (contentType && contentType.includes('application/json')) {
                     const data = await response.json();
                     errorMessage = data.error || data.message || errorMessage;
+                    console.error('Booking error:', errorMessage);
                 } else {
                     const text = await response.text();
+                    console.error('Booking error (HTML response):', text);
                     // Try to extract error message from HTML
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(text, 'text/html');
-                    errorMessage = doc.querySelector('.error-message, p')?.textContent || errorMessage;
+                    const errorElement = doc.querySelector('.error-message, .alert-error, p');
+                    if (errorElement) {
+                        errorMessage = errorElement.textContent.trim();
+                    }
                 }
                 
-                showModal('Booking Conflict', errorMessage, '⚠️');
+                showModal('Booking Error', errorMessage, '⚠️');
             }
         } catch (error) {
             console.error('Error submitting form:', error);

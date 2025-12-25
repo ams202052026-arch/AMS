@@ -3,37 +3,517 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= business.businessName %> - Appointments</title>
-    <link rel="stylesheet" href="/css/businessOwner/main.css">
+    <title><%= business.businessName %> - Bookings</title>
+    <link rel="icon" type="image/png" href="/image/favicon.png">
+    <link rel="stylesheet" href="/css/scrollbar.css">
+    <link rel="stylesheet" href="/css/businessOwner/dashboard-redesign.css">
+    <style>
+        /* Appointments-specific styles */
+        .appointments-header {
+            margin-bottom: 32px;
+        }
+
+        .appointments-header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1a1a1a;
+            letter-spacing: -0.5px;
+        }
+
+        /* Override stats grid for 2 per row */
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            -ms-overflow-style: none;  /* Hide scrollbar for IE and Edge */
+            scrollbar-width: none;  /* Hide scrollbar for Firefox */
+        }
+
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .filter-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Confirmation Modal */
+        .confirmation-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 2001;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .confirmation-modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .confirmation-modal-content {
+            background: #ffffff;
+            border-radius: 16px;
+            max-width: 400px;
+            width: 90%;
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        .confirmation-modal-body {
+            padding: 32px 24px 24px;
+            text-align: center;
+        }
+
+        .confirmation-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .confirmation-icon svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .confirmation-modal-body h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .confirmation-modal-body p {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #666;
+            margin-bottom: 24px;
+        }
+
+        .confirmation-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .confirmation-actions button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-cancel {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .btn-cancel:hover {
+            background: #e0e0e0;
+            color: #1a1a1a;
+        }
+
+        .btn-confirm {
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+
+        .btn-confirm:hover {
+            background: #333;
+        }
+
+        .btn-confirm.danger {
+            background: #dc3545;
+        }
+
+        .btn-confirm.danger:hover {
+            background: #c82333;
+        }
+
+        .btn-confirm.warning {
+            background: #ffc107;
+            color: #1a1a1a;
+        }
+
+        .btn-confirm.warning:hover {
+            background: #e0a800;
+        }
+
+        .filter-tab {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            color: #666;
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .filter-tab:hover {
+            border-color: #1a1a1a;
+            color: #1a1a1a;
+        }
+
+        .filter-tab.active {
+            background: #1a1a1a;
+            color: #ffffff;
+            border-color: #1a1a1a;
+        }
+
+        .appointments-table {
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+            overflow: hidden;
+        }
+
+        .queue-number {
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .customer-info,
+        .service-info,
+        .appointment-date {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .customer-name,
+        .service-name,
+        .date-text {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .customer-email,
+        .service-price,
+        .time-text {
+            font-size: 12px;
+            color: #666;
+            display: block;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-confirmed {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-cancelled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-no-show {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .appointment-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-success {
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+
+        .btn-success:hover {
+            background: #333;
+        }
+
+        .btn-danger {
+            background: #f5f5f5;
+            color: #666;
+            border: 1px solid #e0e0e0;
+        }
+
+        .btn-danger:hover {
+            background: #e0e0e0;
+            color: #1a1a1a;
+        }
+
+        .btn-warning {
+            background: #f5f5f5;
+            color: #666;
+            border: 1px solid #e0e0e0;
+        }
+
+        .btn-warning:hover {
+            background: #e0e0e0;
+            color: #1a1a1a;
+        }
+
+        /* Mobile Appointments Cards */
+        .mobile-appointments-cards {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .appointments-header h1 {
+                font-size: 24px;
+            }
+
+            /* Keep 2 per row on mobile */
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+                margin-bottom: 24px;
+            }
+
+            .filter-tabs {
+                gap: 6px;
+                margin-bottom: 16px;
+            }
+
+            .filter-tab {
+                padding: 8px 16px;
+                font-size: 12px;
+            }
+
+            .appointments-table > table {
+                display: none;
+            }
+
+            .mobile-appointments-cards {
+                display: block;
+            }
+
+            .mobile-appointment-card {
+                background: #fafafa;
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                padding: 12px;
+                margin-bottom: 10px;
+            }
+
+            .mobile-appointment-card:last-child {
+                margin-bottom: 0;
+            }
+
+            .mobile-appointment-row {
+                display: flex;
+                justify-content: space-between;
+                padding: 6px 0;
+                border-bottom: 1px solid #f0f0f0;
+                gap: 8px;
+            }
+
+            .mobile-appointment-row:last-child {
+                border-bottom: none;
+                padding-bottom: 0;
+            }
+
+            .mobile-appointment-row:first-child {
+                padding-top: 0;
+            }
+
+            .mobile-appointment-label {
+                font-size: 10px;
+                color: #666;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.3px;
+                flex-shrink: 0;
+            }
+
+            .mobile-appointment-value {
+                font-size: 12px;
+                color: #1a1a1a;
+                font-weight: 500;
+                text-align: right;
+                max-width: 65%;
+                word-break: break-word;
+            }
+
+            .mobile-appointment-actions {
+                display: flex;
+                gap: 6px;
+                margin-top: 10px;
+                padding-top: 10px;
+                border-top: 1px solid #f0f0f0;
+            }
+
+            .mobile-appointment-actions form {
+                flex: 1;
+            }
+
+            .mobile-appointment-actions .btn-sm {
+                width: 100%;
+                padding: 8px 10px;
+                font-size: 11px;
+            }
+
+            .status-badge {
+                padding: 4px 8px;
+                font-size: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="dashboard-layout">
+        <!-- Mobile Header -->
+        <header class="mobile-header">
+            <div class="mobile-header-left">
+                <img src="/image/logo.png" alt="AMS Logo" class="mobile-logo">
+                <span class="mobile-business-name"><%= business.businessName %></span>
+            </div>
+            <button class="mobile-menu-btn" onclick="toggleSidebar()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 12H21M3 6H21M3 18H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+        </header>
+
+        <!-- Sidebar Overlay -->
+        <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
         <!-- Sidebar -->
-        <%- include('../partials/sidebar', { currentPage: 'appointments' }) %>
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="/image/logo.png" alt="AMS Logo" class="logo-img">
+                    <span class="logo-text">AMS</span>
+                </div>
+                <h2><%= user.firstName %></h2>
+                <p><%= business.businessName %></p>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="/business-owner/dashboard" class="nav-item">
+                    <svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="2" y="2" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        <rect x="11" y="2" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        <rect x="2" y="11" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        <rect x="11" y="11" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                    <span>Overview</span>
+                </a>
+                <a href="/business-owner/appointments" class="nav-item active">
+                    <svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="3" y="4" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M3 8H17" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M7 2V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        <path d="M13 2V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <span>Bookings</span>
+                </a>
+                <a href="/business-owner/services" class="nav-item">
+                    <svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="3" y="5" width="14" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M7 5V3C7 2.44772 7.44772 2 8 2H12C12.5523 2 13 2.44772 13 3V5" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M3 9H17" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                    <span>Services</span>
+                </a>
+                <a href="/business-owner/staff" class="nav-item">
+                    <svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="10" cy="6" r="3" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M4 18C4 14.6863 6.68629 12 10 12C13.3137 12 16 14.6863 16 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <span>Team</span>
+                </a>
+                <a href="/business-owner/business-hours" class="nav-item">
+                    <svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M10 6V10L13 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <span>Hours</span>
+                </a>
+                <% if (user.role === 'customer') { %>
+                <a href="#" class="nav-item" onclick="showSwitchModeModal(); return false;" style="margin-top: 24px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px;">
+                    <svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15 10H5M5 10L9 6M5 10L9 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>Customer Mode</span>
+                </a>
+                <% } %>
+                <a href="#" class="nav-item" onclick="showLogoutModal(); return false;" style="margin-top: auto; color: #999;">
+                    <svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M13 14L17 10L13 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M17 10H7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        <path d="M7 17H4C3.44772 17 3 16.5523 3 16V4C3 3.44772 3.44772 3 4 3H7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <span>Logout</span>
+                </a>
+            </nav>
+        </aside>
 
         <!-- Main Content -->
         <main class="main-content">
             <div class="appointments-header">
-                <h1>Appointments Management</h1>
+                <h1>Bookings</h1>
             </div>
 
-            <!-- Stats Row -->
-            <div class="stats-row">
-                <div class="stat-card">
-                    <div class="stat-number"><%= stats.today %></div>
-                    <div class="stat-label">Today</div>
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card" data-kpi="today" data-value="<%= stats.today %>" data-desc="Appointments scheduled for today">
+                    <span class="stat-number"><%= stats.today %></span>
+                    <span class="stat-label">Today</span>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number"><%= stats.pending %></div>
-                    <div class="stat-label">Pending</div>
+                <div class="stat-card" data-kpi="pending" data-value="<%= stats.pending %>" data-desc="Appointments waiting for your confirmation">
+                    <span class="stat-number"><%= stats.pending %></span>
+                    <span class="stat-label">Pending</span>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number"><%= stats.confirmed %></div>
-                    <div class="stat-label">Confirmed</div>
+                <div class="stat-card" data-kpi="confirmed" data-value="<%= stats.confirmed %>" data-desc="Appointments that have been confirmed and scheduled">
+                    <span class="stat-number"><%= stats.confirmed %></span>
+                    <span class="stat-label">Confirmed</span>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number"><%= stats.completed %></div>
-                    <div class="stat-label">Completed</div>
+                <div class="stat-card" data-kpi="completed" data-value="<%= stats.completed %>" data-desc="Total number of completed appointments in your business">
+                    <span class="stat-number"><%= stats.completed %></span>
+                    <span class="stat-label">Completed</span>
                 </div>
             </div>
 
@@ -95,18 +575,18 @@
                                     <td>
                                         <div class="appointment-actions">
                                             <% if (appointment.status === 'pending') { %>
-                                                <form action="/business-owner/appointments/<%= appointment._id %>/confirm" method="POST" style="display: inline;">
-                                                    <button type="submit" class="btn-sm btn-success">Confirm</button>
+                                                <form action="/business-owner/appointments/<%= appointment._id %>/confirm" method="POST" class="action-form" data-action="confirm" data-customer="<%= appointment.customer ? appointment.customer.fullName : 'N/A' %>">
+                                                    <button type="button" class="btn-sm btn-success action-btn">Confirm</button>
                                                 </form>
-                                                <form action="/business-owner/appointments/<%= appointment._id %>/cancel" method="POST" style="display: inline;">
-                                                    <button type="submit" class="btn-sm btn-danger">Cancel</button>
+                                                <form action="/business-owner/appointments/<%= appointment._id %>/cancel" method="POST" class="action-form" data-action="cancel" data-customer="<%= appointment.customer ? appointment.customer.fullName : 'N/A' %>">
+                                                    <button type="button" class="btn-sm btn-danger action-btn">Cancel</button>
                                                 </form>
                                             <% } else if (appointment.status === 'confirmed') { %>
-                                                <form action="/business-owner/appointments/<%= appointment._id %>/complete" method="POST" style="display: inline;">
-                                                    <button type="submit" class="btn-sm btn-success">Complete</button>
+                                                <form action="/business-owner/appointments/<%= appointment._id %>/complete" method="POST" class="action-form" data-action="complete" data-customer="<%= appointment.customer ? appointment.customer.fullName : 'N/A' %>">
+                                                    <button type="button" class="btn-sm btn-success action-btn">Complete</button>
                                                 </form>
-                                                <form action="/business-owner/appointments/<%= appointment._id %>/no-show" method="POST" style="display: inline;">
-                                                    <button type="submit" class="btn-sm btn-warning">No Show</button>
+                                                <form action="/business-owner/appointments/<%= appointment._id %>/no-show" method="POST" class="action-form" data-action="no-show" data-customer="<%= appointment.customer ? appointment.customer.fullName : 'N/A' %>">
+                                                    <button type="button" class="btn-sm btn-warning action-btn">No Show</button>
                                                 </form>
                                             <% } %>
                                         </div>
@@ -115,15 +595,297 @@
                             <% }) %>
                         </tbody>
                     </table>
+
+                    <!-- Mobile Cards -->
+                    <div class="mobile-appointments-cards">
+                        <% appointments.forEach(appointment => { %>
+                        <div class="mobile-appointment-card">
+                            <div class="mobile-appointment-row">
+                                <span class="mobile-appointment-label">Queue</span>
+                                <span class="mobile-appointment-value">#<%= appointment.queueNumber %></span>
+                            </div>
+                            <div class="mobile-appointment-row">
+                                <span class="mobile-appointment-label">Customer</span>
+                                <span class="mobile-appointment-value"><%= appointment.customer ? appointment.customer.fullName : 'N/A' %></span>
+                            </div>
+                            <div class="mobile-appointment-row">
+                                <span class="mobile-appointment-label">Service</span>
+                                <span class="mobile-appointment-value"><%= appointment.service ? appointment.service.name : 'N/A' %></span>
+                            </div>
+                            <div class="mobile-appointment-row">
+                                <span class="mobile-appointment-label">Price</span>
+                                <span class="mobile-appointment-value">₱<%= appointment.finalPrice || (appointment.service ? appointment.service.price : 0) %></span>
+                            </div>
+                            <div class="mobile-appointment-row">
+                                <span class="mobile-appointment-label">Staff</span>
+                                <span class="mobile-appointment-value"><%= appointment.staff ? appointment.staff.name : 'Any Staff' %></span>
+                            </div>
+                            <div class="mobile-appointment-row">
+                                <span class="mobile-appointment-label">Date</span>
+                                <span class="mobile-appointment-value"><%= new Date(appointment.date).toLocaleDateString() %></span>
+                            </div>
+                            <div class="mobile-appointment-row">
+                                <span class="mobile-appointment-label">Time</span>
+                                <span class="mobile-appointment-value"><%= appointment.timeSlot %></span>
+                            </div>
+                            <div class="mobile-appointment-row">
+                                <span class="mobile-appointment-label">Status</span>
+                                <span class="mobile-appointment-value">
+                                    <span class="status-badge status-<%= appointment.status %>">
+                                        <%= appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1) %>
+                                    </span>
+                                </span>
+                            </div>
+                            <% if (appointment.status === 'pending' || appointment.status === 'confirmed') { %>
+                            <div class="mobile-appointment-actions">
+                                <% if (appointment.status === 'pending') { %>
+                                    <form action="/business-owner/appointments/<%= appointment._id %>/confirm" method="POST" class="action-form" data-action="confirm" data-customer="<%= appointment.customer ? appointment.customer.fullName : 'N/A' %>">
+                                        <button type="button" class="btn-sm btn-success action-btn">Confirm</button>
+                                    </form>
+                                    <form action="/business-owner/appointments/<%= appointment._id %>/cancel" method="POST" class="action-form" data-action="cancel" data-customer="<%= appointment.customer ? appointment.customer.fullName : 'N/A' %>">
+                                        <button type="button" class="btn-sm btn-danger action-btn">Cancel</button>
+                                    </form>
+                                <% } else if (appointment.status === 'confirmed') { %>
+                                    <form action="/business-owner/appointments/<%= appointment._id %>/complete" method="POST" class="action-form" data-action="complete" data-customer="<%= appointment.customer ? appointment.customer.fullName : 'N/A' %>">
+                                        <button type="button" class="btn-sm btn-success action-btn">Complete</button>
+                                    </form>
+                                    <form action="/business-owner/appointments/<%= appointment._id %>/no-show" method="POST" class="action-form" data-action="no-show" data-customer="<%= appointment.customer ? appointment.customer.fullName : 'N/A' %>">
+                                        <button type="button" class="btn-sm btn-warning action-btn">No Show</button>
+                                    </form>
+                                <% } %>
+                            </div>
+                            <% } %>
+                        </div>
+                        <% }) %>
+                    </div>
                 </div>
             <% } else { %>
-                <div class="empty-state">
-                    <div class="icon">📅</div>
-                    <h3>No Appointments</h3>
-                    <p>No appointments found for the selected filter.</p>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="empty-state">
+                            <div class="icon">
+                                <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" style="opacity: 0.3;">
+                                    <rect x="8" y="10" width="32" height="32" rx="4" stroke="currentColor" stroke-width="2"/>
+                                    <path d="M8 18H40" stroke="currentColor" stroke-width="2"/>
+                                    <path d="M16 6V14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                    <path d="M32 6V14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                            </div>
+                            <p>No bookings found</p>
+                        </div>
+                    </div>
                 </div>
             <% } %>
         </main>
     </div>
+
+    <!-- KPI Modal -->
+    <div class="kpi-modal" id="kpiModal" onclick="closeKPIModal()">
+        <div class="kpi-modal-content" onclick="event.stopPropagation()">
+            <button class="kpi-modal-close" onclick="closeKPIModal()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+            <div class="kpi-modal-body">
+                <h3 id="kpiModalTitle"></h3>
+                <div class="kpi-modal-value" id="kpiModalValue"></div>
+                <p id="kpiModalDescription"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="confirmation-modal" id="confirmationModal" onclick="closeConfirmationModal()">
+        <div class="confirmation-modal-content" onclick="event.stopPropagation()">
+            <div class="confirmation-modal-body">
+                <div class="confirmation-icon" id="confirmationIcon"></div>
+                <h3 id="confirmationTitle">Confirm Action</h3>
+                <p id="confirmationMessage">Are you sure you want to proceed?</p>
+                <div class="confirmation-actions">
+                    <button class="btn-cancel" onclick="closeConfirmationModal()">Cancel</button>
+                    <button class="btn-confirm" id="confirmActionBtn">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../partials/modals') %>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+            document.body.classList.toggle('sidebar-open');
+        }
+
+        // Helper function to format time to 12-hour format
+        function formatTime12Hour(time) {
+            if (!time) return '';
+            
+            // Handle if time is a string like "09:00"
+            const [hours, minutes] = time.split(':').map(Number);
+            const period = hours >= 12 ? 'PM' : 'AM';
+            const displayHours = hours % 12 || 12;
+            return `${displayHours}:${minutes.toString().padStart(2, '0')} ${period}`;
+        }
+
+        // Format time slots on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Format time slots in desktop table
+            document.querySelectorAll('.time-text').forEach(el => {
+                const text = el.textContent.trim();
+                try {
+                    // Parse the timeSlot object string
+                    const match = text.match(/start:\s*'([^']+)',\s*end:\s*'([^']+)'/);
+                    if (match) {
+                        const startTime = formatTime12Hour(match[1]);
+                        const endTime = formatTime12Hour(match[2]);
+                        el.textContent = `${startTime} - ${endTime}`;
+                    }
+                } catch (e) {
+                    console.error('Error formatting time:', e);
+                }
+            });
+
+            // Format time slots in mobile cards
+            document.querySelectorAll('.mobile-appointment-value').forEach(el => {
+                const text = el.textContent.trim();
+                try {
+                    // Check if this looks like a time value
+                    if (text.includes('start:') && text.includes('end:')) {
+                        const match = text.match(/start:\s*'([^']+)',\s*end:\s*'([^']+)'/);
+                        if (match) {
+                            const startTime = formatTime12Hour(match[1]);
+                            const endTime = formatTime12Hour(match[2]);
+                            el.textContent = `${startTime} - ${endTime}`;
+                        }
+                    }
+                } catch (e) {
+                    console.error('Error formatting time:', e);
+                }
+            });
+        });
+
+        // KPI Card Click Handlers
+        document.addEventListener('DOMContentLoaded', function() {
+            const statCards = document.querySelectorAll('.stat-card');
+            statCards.forEach(card => {
+                card.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    
+                    const type = this.dataset.kpi;
+                    const value = this.dataset.value;
+                    const description = this.dataset.desc;
+                    
+                    showKPIModal(type, value, description);
+                });
+            });
+        });
+
+        function showKPIModal(type, value, description) {
+            const modal = document.getElementById('kpiModal');
+            const titleMap = {
+                'today': 'Today\'s Bookings',
+                'pending': 'Pending Bookings',
+                'confirmed': 'Confirmed Bookings',
+                'completed': 'Completed Bookings'
+            };
+            
+            document.getElementById('kpiModalTitle').textContent = titleMap[type] || 'Booking Details';
+            document.getElementById('kpiModalValue').textContent = value;
+            document.getElementById('kpiModalDescription').textContent = description;
+            
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeKPIModal() {
+            const modal = document.getElementById('kpiModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Confirmation Modal Functions
+        let pendingForm = null;
+
+        function showConfirmationModal(action, customerName, form) {
+            const modal = document.getElementById('confirmationModal');
+            const iconContainer = document.getElementById('confirmationIcon');
+            const title = document.getElementById('confirmationTitle');
+            const message = document.getElementById('confirmationMessage');
+            const confirmBtn = document.getElementById('confirmActionBtn');
+
+            pendingForm = form;
+
+            // Reset button classes
+            confirmBtn.className = 'btn-confirm';
+
+            // Set content based on action
+            let iconSvg = '';
+            switch(action) {
+                case 'confirm':
+                    iconSvg = '<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="32" r="28" fill="#d4edda" stroke="#28a745" stroke-width="2"/><path d="M20 32L28 40L44 24" stroke="#28a745" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+                    title.textContent = 'Confirm Appointment';
+                    message.textContent = `Are you sure you want to confirm the appointment for ${customerName}?`;
+                    break;
+                case 'cancel':
+                    iconSvg = '<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="32" r="28" fill="#f8d7da" stroke="#dc3545" stroke-width="2"/><path d="M22 22L42 42M42 22L22 42" stroke="#dc3545" stroke-width="4" stroke-linecap="round"/></svg>';
+                    title.textContent = 'Cancel Appointment';
+                    message.textContent = `Are you sure you want to cancel the appointment for ${customerName}? This action cannot be undone.`;
+                    confirmBtn.classList.add('danger');
+                    break;
+                case 'complete':
+                    iconSvg = '<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="32" r="28" fill="#e8f5e9" stroke="#4caf50" stroke-width="2"/><path d="M32 20L36 28L44 30L38 36L40 44L32 40L24 44L26 36L20 30L28 28L32 20Z" fill="#4caf50"/></svg>';
+                    title.textContent = 'Complete Appointment';
+                    message.textContent = `Mark the appointment for ${customerName} as completed? Rewards will be awarded to the customer.`;
+                    break;
+                case 'no-show':
+                    iconSvg = '<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="32" r="28" fill="#fff3cd" stroke="#ffc107" stroke-width="2"/><path d="M32 20V36" stroke="#ffc107" stroke-width="4" stroke-linecap="round"/><circle cx="32" cy="44" r="2" fill="#ffc107"/></svg>';
+                    title.textContent = 'Mark as No Show';
+                    message.textContent = `Mark ${customerName} as no-show? The customer will be notified.`;
+                    confirmBtn.classList.add('warning');
+                    break;
+            }
+
+            iconContainer.innerHTML = iconSvg;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeConfirmationModal() {
+            const modal = document.getElementById('confirmationModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+            pendingForm = null;
+        }
+
+        function confirmAction() {
+            if (pendingForm) {
+                pendingForm.submit();
+            }
+        }
+
+        // Action Button Click Handlers
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle all action buttons
+            document.querySelectorAll('.action-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const form = this.closest('.action-form');
+                    const action = form.dataset.action;
+                    const customer = form.dataset.customer;
+                    showConfirmationModal(action, customer, form);
+                });
+            });
+
+            // Confirm button in modal
+            document.getElementById('confirmActionBtn').addEventListener('click', confirmAction);
+        });
+    </script>
+    <script src="/js/businessOwner/modals.js"></script>
 </body>
 </html>

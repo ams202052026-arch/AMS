@@ -28,12 +28,35 @@ router.post('/apply', isBusinessOwner, businessOwnerAuthController.register);
 // Document upload routes (after registration)
 router.get('/upload-documents', businessOwnerAuthController.loadDocumentUploadPage);
 router.post('/upload-documents', 
-    uploadBusinessDocuments.fields([
-        { name: 'dti', maxCount: 1 },
-        { name: 'business_permit', maxCount: 1 },
-        { name: 'valid_id', maxCount: 1 },
-        { name: 'bir', maxCount: 1 }
-    ]),
+    (req, res, next) => {
+        uploadBusinessDocuments.fields([
+            { name: 'dti', maxCount: 1 },
+            { name: 'business_permit', maxCount: 1 },
+            { name: 'valid_id', maxCount: 1 },
+            { name: 'bir', maxCount: 1 }
+        ])(req, res, (err) => {
+            if (err) {
+                console.error('File upload error:', err);
+                if (err.code === 'LIMIT_FILE_SIZE') {
+                    return res.status(400).render('businessOwner/uploadDocuments', {
+                        error: 'File size too large. Maximum file size is 10MB per file.',
+                        success: null
+                    });
+                }
+                if (err.message) {
+                    return res.status(400).render('businessOwner/uploadDocuments', {
+                        error: err.message,
+                        success: null
+                    });
+                }
+                return res.status(500).render('businessOwner/uploadDocuments', {
+                    error: 'Error uploading files. Please try again.',
+                    success: null
+                });
+            }
+            next();
+        });
+    },
     businessOwnerAuthController.uploadDocuments
 );
 router.post('/skip-documents', businessOwnerAuthController.skipDocumentUpload);
@@ -60,50 +83,48 @@ router.post('/services', canAccessBusiness, (req, res, next) => {
     });
 }, servicesController.addService);
 router.get('/services/:serviceId/edit', canAccessBusiness, servicesController.loadEditForm);
-router.put('/services/:serviceId', canAccessBusiness, (req, res, next) => {
-    // Custom middleware to handle optional file upload
-    uploadServiceImage.single('serviceImage')(req, res, (err) => {
-        if (err) {
-            console.error('Multer error:', err);
-            // If there's a multer error, continue without file
-            req.file = null;
-        }
-        
-        // Handle method override for multipart forms
-        if (req.body && req.body._method) {
-            req.method = req.body._method.toUpperCase();
-            delete req.body._method;
-        }
-        
-        // Always continue to next middleware
-        next();
-    });
-}, servicesController.updateService);
 
-// Add POST route for service updates (handles multipart form method override)
+// IMPORTANT: Specific routes must come BEFORE general /:serviceId route
+router.post('/services/:serviceId/deactivate', canAccessBusiness, servicesController.deactivateService);
+router.post('/services/:serviceId/activate', canAccessBusiness, servicesController.activateService);
+router.post('/services/:serviceId/delete', canAccessBusiness, servicesController.deleteService);
+
+// Handle service updates - POST with _method=PUT
 router.post('/services/:serviceId', canAccessBusiness, (req, res, next) => {
     // First, let multer process the form
     uploadServiceImage.single('serviceImage')(req, res, (err) => {
         if (err) {
             console.error('Multer error:', err);
-            // If there's a multer error, continue without file
             req.file = null;
         }
         
-        // Now check if this is actually an update request
+        // Check if this is an update request (has _method=PUT)
         if (req.body && req.body._method === 'PUT') {
-            // Remove the _method field since we're handling it
             delete req.body._method;
-            // Continue to the update controller
-            next();
-        } else {
-            // This is not an update request, return 404
-            res.status(404).send('Not Found');
+            return servicesController.updateService(req, res);
         }
+        
+        // Otherwise, not found
+        res.status(404).send('Not Found');
+    });
+});
+
+// Also support PUT method directly
+router.put('/services/:serviceId', canAccessBusiness, (req, res, next) => {
+    uploadServiceImage.single('serviceImage')(req, res, (err) => {
+        if (err) {
+            console.error('Multer error:', err);
+            req.file = null;
+        }
+        
+        if (req.body && req.body._method) {
+            delete req.body._method;
+        }
+        
+        next();
     });
 }, servicesController.updateService);
-router.post('/services/:serviceId/deactivate', canAccessBusiness, servicesController.deactivateService);
-router.post('/services/:serviceId/activate', canAccessBusiness, servicesController.activateService);
+router.delete('/services/:serviceId', canAccessBusiness, servicesController.deleteService);
 
 // Staff Management
 router.get('/staff', canAccessBusiness, staffController.listStaff);
@@ -113,6 +134,7 @@ router.get('/staff/:staffId/edit', canAccessBusiness, staffController.loadEditFo
 router.put('/staff/:staffId', canAccessBusiness, staffController.updateStaff);
 router.post('/staff/:staffId/deactivate', canAccessBusiness, staffController.deactivateStaff);
 router.post('/staff/:staffId/activate', canAccessBusiness, staffController.activateStaff);
+router.post('/staff/:staffId/delete', canAccessBusiness, staffController.deleteStaff);
 
 // Appointments Management
 router.get('/appointments', canAccessBusiness, appointmentsController.listAppointments);

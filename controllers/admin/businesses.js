@@ -23,16 +23,28 @@ exports.listBusinesses = async (req, res) => {
             .populate('ownerId', 'firstName lastName email phoneNumber')
             .sort({ createdAt: -1 });
         
-        // Count by status
+        // Filter out businesses with deleted owners (orphaned businesses)
+        const activeBusinesses = businesses.filter(business => business.ownerId !== null);
+        
+        // Log orphaned businesses for cleanup
+        const orphanedBusinesses = businesses.filter(business => business.ownerId === null);
+        if (orphanedBusinesses.length > 0) {
+            console.log(`⚠️  Found ${orphanedBusinesses.length} orphaned business(es) with deleted owners`);
+            orphanedBusinesses.forEach(b => {
+                console.log(`   - ${b.businessName} (ID: ${b._id})`);
+            });
+        }
+        
+        // Count by status (only active businesses with valid owners)
         const statusCounts = {
-            pending: await Business.countDocuments({ verificationStatus: 'pending' }),
-            approved: await Business.countDocuments({ verificationStatus: 'approved' }),
-            rejected: await Business.countDocuments({ verificationStatus: 'rejected' }),
-            suspended: await Business.countDocuments({ verificationStatus: 'suspended' })
+            pending: activeBusinesses.filter(b => b.verificationStatus === 'pending').length,
+            approved: activeBusinesses.filter(b => b.verificationStatus === 'approved').length,
+            rejected: activeBusinesses.filter(b => b.verificationStatus === 'rejected').length,
+            suspended: activeBusinesses.filter(b => b.verificationStatus === 'suspended').length
         };
         
         res.render('admin/businesses', {
-            businesses,
+            businesses: activeBusinesses,
             statusCounts,
             currentFilter: status || 'all'
         });
@@ -74,7 +86,7 @@ exports.approveBusiness = async (req, res) => {
         const { businessId } = req.params;
         const adminId = req.session.userId;
         
-        const business = await Business.findById(businessId);
+        const business = await Business.findById(businessId).populate('ownerId');
         
         if (!business) {
             return res.status(404).json({ error: 'Business not found' });
@@ -96,13 +108,23 @@ exports.approveBusiness = async (req, res) => {
             isVerified: true
         });
         
-        // Send notification to business owner
+        // Send in-app notification to business owner
         await Notification.create({
-            customer: business.ownerId,
-            title: '🎉 Business Approved!',
+            customer: business.ownerId._id,
+            title: 'Business Approved!',
             message: `Congratulations! Your business "${business.businessName}" has been approved. You can now login and start posting your services.`,
             type: 'business_approved'
         });
+        
+        // Send email notification
+        const emailService = require('../../services/emailService');
+        try {
+            await emailService.sendBusinessApprovalEmail(business, business.ownerId);
+            console.log('✅ Approval email sent successfully');
+        } catch (emailError) {
+            console.error('❌ Failed to send approval email:', emailError);
+            // Continue even if email fails
+        }
         
         console.log(`✅ Business approved: ${business.businessName} by admin ${adminId}`);
         
@@ -132,7 +154,7 @@ exports.rejectBusiness = async (req, res) => {
             return res.status(400).json({ error: 'Rejection reason is required' });
         }
         
-        const business = await Business.findById(businessId);
+        const business = await Business.findById(businessId).populate('ownerId');
         
         if (!business) {
             console.log('❌ Business not found:', businessId);
@@ -155,18 +177,28 @@ exports.rejectBusiness = async (req, res) => {
         
         console.log('✅ Business status updated to rejected');
         
-        // Send notification to business owner
+        // Send in-app notification to business owner
         try {
             await Notification.create({
-                customer: business.ownerId,
-                title: '❌ Business Application Rejected',
+                customer: business.ownerId._id,
+                title: 'Business Application Rejected',
                 message: `Unfortunately, your business application for "${business.businessName}" has been rejected.\n\nReason: ${reason}\n\nYou can reapply with the necessary corrections.`,
                 type: 'business_rejected'
             });
-            console.log('✅ Notification created successfully');
+            console.log('✅ In-app notification created successfully');
         } catch (notificationError) {
             console.error('❌ Notification creation failed:', notificationError);
             // Continue without failing the whole operation
+        }
+        
+        // Send email notification
+        const emailService = require('../../services/emailService');
+        try {
+            await emailService.sendBusinessRejectionEmail(business, business.ownerId, reason);
+            console.log('✅ Rejection email sent successfully');
+        } catch (emailError) {
+            console.error('❌ Failed to send rejection email:', emailError);
+            // Continue even if email fails
         }
         
         console.log(`❌ Business rejected: ${business.businessName} by admin ${adminId}`);
@@ -219,7 +251,7 @@ exports.suspendBusiness = async (req, res) => {
         // Send notification to business owner
         await Notification.create({
             customer: business.ownerId,
-            title: '⚠️ Business Suspended',
+            title: 'Business Suspended',
             message: `Your business "${business.businessName}" has been suspended.\n\nReason: ${reason}\n\nAll your services have been temporarily deactivated. Please contact support for more information.`,
             type: 'business_suspended'
         });
@@ -273,7 +305,7 @@ exports.reactivateBusiness = async (req, res) => {
         // Send notification to business owner
         await Notification.create({
             customer: business.ownerId,
-            title: '✅ Business Reactivated',
+            title: 'Business Reactivated',
             message: `Good news! Your business "${business.businessName}" has been reactivated. All your services are now active again and you can resume your operations.`,
             type: 'business_reactivated'
         });

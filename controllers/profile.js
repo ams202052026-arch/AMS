@@ -2,6 +2,9 @@ const User = require('../models/user');
 const Appointment = require('../models/appointment');
 const Notification = require('../models/notification');
 const { Redemption } = require('../models/reward');
+const Business = require('../models/business');
+const Service = require('../models/service');
+const Staff = require('../models/staff');
 
 // Load profile page
 exports.loadProfile = async (req, res) => {
@@ -96,17 +99,55 @@ exports.deleteAccount = async (req, res) => {
         }
 
         console.log('🗑️ Deleting account for:', user.email);
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-        // Delete all related data
-        await Appointment.deleteMany({ customer: userId });
-        await Notification.deleteMany({ customer: userId });
-        await Redemption.deleteMany({ customer: userId });
+        // 1. Delete user's appointments (as customer)
+        const deletedAppointments = await Appointment.deleteMany({ customer: userId });
+        console.log(`   ✓ Deleted ${deletedAppointments.deletedCount} appointments (as customer)`);
+
+        // 2. Delete user's notifications
+        const deletedNotifications = await Notification.deleteMany({ customer: userId });
+        console.log(`   ✓ Deleted ${deletedNotifications.deletedCount} notifications`);
+
+        // 3. Delete user's redemptions
+        const deletedRedemptions = await Redemption.deleteMany({ customer: userId });
+        console.log(`   ✓ Deleted ${deletedRedemptions.deletedCount} redemptions`);
+
+        // 4. Check if user owns a business
+        const ownedBusiness = await Business.findOne({ ownerId: userId });
+        
+        if (ownedBusiness) {
+            console.log(`   📦 Found owned business: ${ownedBusiness.businessName}`);
+            
+            // 4a. Delete all appointments to this business
+            const businessAppointments = await Appointment.deleteMany({ businessId: ownedBusiness._id });
+            console.log(`   ✓ Deleted ${businessAppointments.deletedCount} appointments (to business)`);
+            
+            // 4b. Delete all services from this business
+            const businessServices = await Service.deleteMany({ businessId: ownedBusiness._id });
+            console.log(`   ✓ Deleted ${businessServices.deletedCount} services`);
+            
+            // 4c. Delete all staff from this business
+            const businessStaff = await Staff.deleteMany({ businessId: ownedBusiness._id });
+            console.log(`   ✓ Deleted ${businessStaff.deletedCount} staff members`);
+            
+            // 4d. Delete the business itself
+            await Business.findByIdAndDelete(ownedBusiness._id);
+            console.log(`   ✓ Deleted business: ${ownedBusiness.businessName}`);
+        } else {
+            console.log('   ℹ️  No business owned by this user');
+        }
+
+        // 5. Delete the user account
         await User.findByIdAndDelete(userId);
+        console.log(`   ✓ Deleted user account: ${user.email}`);
+
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('✅ Account and all related data deleted successfully\n');
 
         // Destroy session
         req.session.destroy();
 
-        console.log('✅ Account deleted successfully');
         res.redirect('/?deleted=true');
     } catch (error) {
         console.error('❌ Error deleting account:', error);

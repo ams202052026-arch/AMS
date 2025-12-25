@@ -456,3 +456,41 @@ exports.activateService = async (req, res) => {
         res.status(500).render('error', { message: 'Error activating service' });
     }
 };
+
+/**
+ * Delete service
+ */
+exports.deleteService = async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        const { serviceId } = req.params;
+
+        // Find business by ownerId
+        const business = await Business.findOne({ ownerId: userId });
+        if (!business) {
+            return res.redirect('/business/register');
+        }
+
+        // Delete service (ensure it belongs to this business)
+        const deletedService = await Service.findOneAndDelete({ 
+            _id: serviceId, 
+            businessId: business._id 
+        });
+
+        if (!deletedService) {
+            return res.status(404).render('error', { message: 'Service not found' });
+        }
+
+        // Remove service from staff specialties
+        await Staff.updateMany(
+            { specialties: serviceId },
+            { $pull: { specialties: serviceId } }
+        );
+
+        console.log('✓ Service deleted:', serviceId);
+        res.redirect('/business-owner/services');
+    } catch (error) {
+        console.error('Error deleting service:', error);
+        res.status(500).render('error', { message: 'Error deleting service' });
+    }
+};

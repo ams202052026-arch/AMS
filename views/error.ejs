@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title || 'Error' %> - AMS</title>
+    <title><%= typeof title !== 'undefined' ? title : 'Error' %> - AMS</title>
+    <link rel="icon" type="image/png" href="/image/favicon.png">
     <style>
         * {
             margin: 0;
@@ -12,91 +13,183 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #fff;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #333;
+            padding: 20px;
         }
 
         .error-container {
-            background: white;
-            padding: 48px;
-            border-radius: 16px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            background: rgba(45, 45, 45, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 60px 50px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
             text-align: center;
-            max-width: 500px;
-            width: 90%;
+            max-width: 550px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .error-icon {
-            font-size: 64px;
-            margin-bottom: 24px;
-            opacity: 0.8;
+        .error-icon-wrapper {
+            margin-bottom: 30px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .error-icon-svg {
+            filter: drop-shadow(0 4px 8px rgba(255, 107, 107, 0.3));
         }
 
         .error-title {
-            font-size: 28px;
+            font-size: 32px;
             font-weight: 700;
-            color: #333;
+            color: #ff6b6b;
             margin-bottom: 16px;
         }
 
         .error-message {
             font-size: 16px;
-            color: #666;
-            line-height: 1.6;
-            margin-bottom: 32px;
+            color: #a0a0a0;
+            line-height: 1.8;
+            margin-bottom: 30px;
         }
 
         .error-code {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            padding: 12px 24px;
+            border-radius: 25px;
             font-size: 14px;
-            color: #999;
-            margin-bottom: 32px;
+            color: #ffb3b3;
+            margin-bottom: 35px;
             font-family: 'Courier New', monospace;
         }
 
+        .error-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
         .back-button {
-            display: inline-block;
-            padding: 12px 24px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 28px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
             text-decoration: none;
-            border-radius: 8px;
+            border-radius: 12px;
             font-weight: 600;
-            transition: transform 0.2s ease;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
         }
 
         .back-button:hover {
             transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(16, 185, 129, 0.4);
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        }
+
+        .back-button:active {
+            transform: translateY(0px);
+        }
+
+        .secondary-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 28px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #d0d0d0;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .secondary-button:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .secondary-button:active {
+            transform: translateY(0px);
+        }
+
+        .help-text {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 13px;
+            color: #666;
         }
 
         @media (max-width: 480px) {
             .error-container {
-                padding: 32px 24px;
+                padding: 40px 30px;
             }
             
             .error-title {
-                font-size: 24px;
+                font-size: 26px;
             }
             
             .error-message {
                 font-size: 14px;
+            }
+
+            .error-actions {
+                flex-direction: column;
+            }
+
+            .back-button,
+            .secondary-button {
+                width: 100%;
+                justify-content: center;
             }
         }
     </style>
 </head>
 <body>
     <div class="error-container">
-        <div class="error-icon">
+        <div class="error-icon-wrapper">
             <% if (typeof statusCode !== 'undefined' && statusCode === 403) { %>
-                🔒
+                <svg class="error-icon-svg" width="100" height="100" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" stroke="#ff6b6b" stroke-width="2"/>
+                    <path d="M12 8V12" stroke="#ff6b6b" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="12" cy="16" r="1" fill="#ff6b6b"/>
+                    <path d="M8 8L16 16M16 8L8 16" stroke="#ff6b6b" stroke-width="2" stroke-linecap="round"/>
+                </svg>
             <% } else if (typeof statusCode !== 'undefined' && statusCode === 404) { %>
-                🔍
+                <svg class="error-icon-svg" width="100" height="100" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="11" cy="11" r="8" stroke="#ff6b6b" stroke-width="2"/>
+                    <path d="M21 21L16.65 16.65" stroke="#ff6b6b" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M11 8V11" stroke="#ff6b6b" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="11" cy="14" r="1" fill="#ff6b6b"/>
+                </svg>
             <% } else { %>
-                ⚠️
+                <svg class="error-icon-svg" width="100" height="100" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 20H22L12 2Z" stroke="#ff6b6b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 9V13" stroke="#ff6b6b" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="12" cy="17" r="1" fill="#ff6b6b"/>
+                </svg>
             <% } %>
         </div>
         
@@ -107,10 +200,39 @@
         </p>
         
         <% if (typeof statusCode !== 'undefined' && statusCode) { %>
-            <div class="error-code">Error Code: <%= statusCode %></div>
+            <div class="error-code">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                    <path d="M12 8V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="12" cy="16" r="1" fill="currentColor"/>
+                </svg>
+                Error Code: <%= statusCode %>
+            </div>
         <% } %>
         
-        <a href="/" class="back-button">Return to Home</a>
+        <div class="error-actions">
+            <a href="/" class="back-button">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 12L5 10M3 12L5 14M3 12H21M9 6L5 10L9 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Return to Home
+            </a>
+            
+            <% if (typeof statusCode !== 'undefined' && statusCode === 403) { %>
+                <a href="javascript:history.back()" class="secondary-button">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Go Back
+                </a>
+            <% } %>
+        </div>
+
+        <% if (typeof statusCode !== 'undefined' && statusCode === 403) { %>
+            <div class="help-text">
+                If you believe you should have access, please contact the system administrator.
+            </div>
+        <% } %>
     </div>
 </body>
 </html>

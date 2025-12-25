@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Access - AMS</title>
+    <link rel="icon" type="image/png" href="/image/favicon.png">
     <style>
         * {
             margin: 0;
@@ -13,96 +14,196 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #1a1a1a;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
             color: #fff;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 20px;
         }
 
         .access-container {
-            background: #2d2d2d;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            background: rgba(45, 45, 45, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 50px 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
             text-align: center;
-            max-width: 400px;
+            max-width: 450px;
             width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .access-header {
-            margin-bottom: 30px;
+            margin-bottom: 40px;
+        }
+
+        .admin-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            display: inline-block;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
         }
 
         .access-header h1 {
-            color: #ff6b6b;
-            font-size: 24px;
+            color: #10b981;
+            font-size: 32px;
             margin-bottom: 10px;
+            font-weight: 700;
         }
 
         .access-header p {
-            color: #ccc;
-            font-size: 14px;
+            color: #a0a0a0;
+            font-size: 15px;
+            line-height: 1.6;
         }
 
         .access-button {
-            display: block;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
             width: 100%;
-            padding: 15px;
-            background: #ff6b6b;
+            padding: 18px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
             text-decoration: none;
-            border-radius: 8px;
+            border-radius: 12px;
             font-weight: 600;
-            transition: background 0.3s;
-            margin-bottom: 15px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
         }
 
         .access-button:hover {
-            background: #ff5252;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(16, 185, 129, 0.4);
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        }
+
+        .access-button:active {
+            transform: translateY(0px);
         }
 
         .warning {
-            background: #333;
-            border: 1px solid #555;
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 20px;
-            font-size: 12px;
-            color: #ccc;
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 30px;
+            font-size: 13px;
+            color: #ffb3b3;
+            line-height: 1.6;
+            display: flex;
+            gap: 15px;
+            text-align: left;
+        }
+
+        .warning svg {
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .warning strong {
+            color: #ff6b6b;
         }
 
         .back-link {
             color: #888;
             text-decoration: none;
             font-size: 14px;
-            margin-top: 20px;
-            display: inline-block;
+            margin-top: 25px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: color 0.3s;
         }
 
         .back-link:hover {
-            color: #fff;
+            color: #10b981;
+        }
+
+        .security-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 12px;
+            color: #10b981;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 480px) {
+            .access-container {
+                padding: 40px 30px;
+            }
+
+            .access-header h1 {
+                font-size: 28px;
+            }
+
+            .admin-icon {
+                font-size: 48px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="access-container">
         <div class="access-header">
-            <h1>🔒 Admin Access</h1>
-            <p>Restricted area for system administrators</p>
+            <div class="admin-icon">
+                <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L3 7V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V7L12 2Z" fill="#10b981" stroke="#10b981" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M9 12L11 14L15 10" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <h1>Admin Access</h1>
+            <p>Secure portal for system administrators</p>
         </div>
 
         <a href="/admin/login" class="access-button">
-            🔑 Admin Login
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C9.243 2 7 4.243 7 7V10H6C4.897 10 4 10.897 4 12V20C4 21.103 4.897 22 6 22H18C19.103 22 20 21.103 20 20V12C20 10.897 19.103 10 18 10H17V7C17 4.243 14.757 2 12 2ZM9 7C9 5.346 10.346 4 12 4C13.654 4 15 5.346 15 7V10H9V7ZM12 14C12.828 14 13.5 14.672 13.5 15.5C13.5 16.328 12.828 17 12 17C11.172 17 10.5 16.328 10.5 15.5C10.5 14.672 11.172 14 12 14Z" fill="white"/>
+            </svg>
+            Enter Admin Portal
         </a>
 
-        <div class="warning">
-            ⚠️ <strong>Warning:</strong> This area is restricted to authorized personnel only. 
-            All access attempts are logged and monitored.
+        <div class="security-badge">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L3 7V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V7L12 2Z" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M9 12L11 14L15 10" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Secured Connection</span>
         </div>
 
-        <a href="/" class="back-link">← Back to Home</a>
+        <div class="warning">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L2 20H22L12 2Z" stroke="#ff6b6b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12 9V13" stroke="#ff6b6b" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="12" cy="17" r="1" fill="#ff6b6b"/>
+            </svg>
+            <div>
+                <strong>Restricted Area</strong><br>
+                This portal is restricted to authorized personnel only. All access attempts are logged and monitored for security purposes.
+            </div>
+        </div>
+
+        <a href="/" class="back-link">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Return to Home
+        </a>
     </div>
 </body>
 </html>

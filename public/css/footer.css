@@ -7,7 +7,7 @@
     animation: fadeInUp 0.6s ease-out;
     border-top: 1px solid #2a2a2a;
     position: relative;
-    z-index: 97; /* Below dark background layer (98) but above content */
+    z-index: 50;
 }
 
 /* Extend footer to fill space behind mobile nav */

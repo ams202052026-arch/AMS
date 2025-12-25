@@ -4,12 +4,546 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= business.businessName %> - Services</title>
-    <link rel="stylesheet" href="/css/businessOwner/main.css">
+    <link rel="icon" type="image/png" href="/image/favicon.png">
+    <link rel="stylesheet" href="/css/scrollbar.css">
+    <link rel="stylesheet" href="/css/businessOwner/dashboard-redesign.css">
+    <style>
+        /* Services-specific styles */
+        .services-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .services-header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1a1a1a;
+            letter-spacing: -0.5px;
+        }
+
+        .btn-primary {
+            padding: 12px 24px;
+            background: #1a1a1a;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background: #333;
+            transform: translateY(-1px);
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .service-card {
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        .service-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+        }
+
+        .service-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .service-content {
+            padding: 16px;
+        }
+
+        .service-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 6px;
+            letter-spacing: -0.3px;
+        }
+
+        .service-description {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 12px;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .service-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .service-price {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .service-duration {
+            font-size: 12px;
+            color: #666;
+            background: #f5f5f5;
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+
+        .service-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .service-category {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .service-points {
+            font-size: 12px;
+            color: #1a1a1a;
+            background: #f5f5f5;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-badge.active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.inactive {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .service-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .service-actions form {
+            flex: 1;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        .btn-secondary {
+            background: #1a1a1a;
+            color: #ffffff;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-secondary:hover {
+            background: #333;
+        }
+
+        .btn-danger {
+            background: #f5f5f5;
+            color: #666;
+            border: 1px solid #e0e0e0;
+        }
+
+        .btn-danger:hover {
+            background: #dc3545;
+            color: #ffffff;
+            border-color: #dc3545;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .empty-state .icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 20px;
+            opacity: 0.3;
+        }
+
+        .empty-state h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 24px;
+        }
+
+        /* Confirmation Modal */
+        .confirmation-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 2001;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .confirmation-modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .confirmation-modal-content {
+            background: #ffffff;
+            border-radius: 16px;
+            max-width: 400px;
+            width: 90%;
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .confirmation-modal-body {
+            padding: 32px 24px 24px;
+            text-align: center;
+        }
+
+        .confirmation-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .confirmation-icon svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .confirmation-modal-body h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .confirmation-modal-body p {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #666;
+            margin-bottom: 24px;
+        }
+
+        .confirmation-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .confirmation-actions button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-cancel {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .btn-cancel:hover {
+            background: #e0e0e0;
+            color: #1a1a1a;
+        }
+
+        .btn-confirm {
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+
+        .btn-confirm:hover {
+            background: #333;
+        }
+
+        .btn-confirm.danger {
+            background: #dc3545;
+        }
+
+        .btn-confirm.danger:hover {
+            background: #c82333;
+        }
+
+        @media (max-width: 768px) {
+            .services-header {
+                flex-direction: row;
+                align-items: center;
+                gap: 12px;
+                margin-bottom: 24px;
+            }
+
+            .services-header h1 {
+                font-size: 20px;
+                flex: 1;
+            }
+
+            .btn-primary {
+                width: auto;
+                text-align: center;
+                padding: 10px 16px;
+                font-size: 13px;
+                white-space: nowrap;
+            }
+
+            .services-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .service-card {
+                border-radius: 10px;
+            }
+
+            .service-image {
+                height: 120px;
+            }
+
+            .service-content {
+                padding: 10px;
+            }
+
+            .service-name {
+                font-size: 13px;
+                margin-bottom: 4px;
+            }
+
+            .service-description {
+                font-size: 11px;
+                margin-bottom: 8px;
+                line-height: 1.3;
+                -webkit-line-clamp: 2;
+            }
+
+            .service-details {
+                margin-bottom: 8px;
+                padding-bottom: 8px;
+            }
+
+            .service-price {
+                font-size: 15px;
+            }
+
+            .service-duration {
+                font-size: 10px;
+                padding: 3px 6px;
+            }
+
+            .service-meta {
+                margin-bottom: 8px;
+            }
+
+            .service-category {
+                font-size: 9px;
+            }
+
+            .service-points {
+                font-size: 9px;
+                padding: 3px 6px;
+            }
+
+            .status-badge {
+                font-size: 9px;
+                padding: 3px 6px;
+            }
+
+            .service-actions {
+                margin-top: 8px;
+                padding-top: 8px;
+                gap: 4px;
+            }
+
+            .btn-sm {
+                padding: 6px 8px;
+                font-size: 10px;
+            }
+
+            .empty-state {
+                padding: 60px 16px;
+            }
+
+            .empty-state h3 {
+                font-size: 18px;
+            }
+
+            .empty-state p {
+                font-size: 13px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="dashboard-layout">
-        <!-- Shared Sidebar -->
-        <%- include('../partials/sidebar', { currentPage: 'services' }) %>
+        <!-- Mobile Header -->
+        <header class="mobile-header">
+            <div class="mobile-header-left">
+                <img src="/image/logo.png" alt="AMS Logo" class="mobile-logo">
+                <span class="mobile-business-name"><%= business.businessName %></span>
+            </div>
+            <button class="mobile-menu-btn" onclick="toggleSidebar()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 12H21M3 6H21M3 18H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+        </header>
+
+        <!-- Sidebar Overlay -->
+        <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="/image/logo.png" alt="AMS Logo" class="logo-img">
+                    <span class="logo-text">AMS</span>
+                </div>
+                <h2><%= user.firstName %></h2>
+                <p><%= business.businessName %></p>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="/business-owner/dashboard" class="nav-item">
+                    <svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="2" y="2" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        <rect x="11" y="2" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        <rect x="2" y="11" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        <rect x="11" y="11" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                    <span>Overview</span>
+                </a>
+                <a href="/business-owner/appointments" class="nav-item">
+                    <svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="3" y="4" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M3 8H17" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M7 2V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        <path d="M13 2V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <span>Bookings</span>
+                </a>
+                <a href="/business-owner/services" class="nav-item active">
+                    <svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="3" y="5" width="14" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M7 5V3C7 2.44772 7.44772 2 8 2H12C12.5523 2 13 2.44772 13 3V5" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M3 9H17" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                    <span>Services</span>
+                </a>
+                <a href="/business-owner/staff" class="nav-item">
+                    <svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="10" cy="6" r="3" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M4 18C4 14.6863 6.68629 12 10 12C13.3137 12 16 14.6863 16 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <span>Team</span>
+                </a>
+                <a href="/business-owner/business-hours" class="nav-item">
+                    <svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M10 6V10L13 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <span>Hours</span>
+                </a>
+                <% if (user.role === 'customer') { %>
+                <a href="#" class="nav-item" onclick="showSwitchModeModal(); return false;" style="margin-top: 24px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px;">
+                    <svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15 10H5M5 10L9 6M5 10L9 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>Customer Mode</span>
+                </a>
+                <% } %>
+                <a href="#" class="nav-item" onclick="showLogoutModal(); return false;" style="margin-top: auto; color: #999;">
+                    <svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M13 14L17 10L13 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M17 10H7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        <path d="M7 17H4C3.44772 17 3 16.5523 3 16V4C3 3.44772 3.44772 3 4 3H7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <span>Logout</span>
+                </a>
+            </nav>
+        </aside>
 
         <!-- Main Content -->
         <main class="main-content">
@@ -54,12 +588,12 @@
                                 <div class="service-actions">
                                     <a href="/business-owner/services/<%= service._id %>/edit" class="btn-sm btn-secondary">Edit</a>
                                     <% if (service.isActive) { %>
-                                        <form action="/business-owner/services/<%= service._id %>/deactivate" method="POST" style="display: inline;">
-                                            <button type="submit" class="btn-sm btn-danger">Deactivate</button>
+                                        <form action="/business-owner/services/<%= service._id %>/deactivate" method="POST" class="action-form" data-action="deactivate" data-service="<%= service.name %>">
+                                            <button type="button" class="btn-sm btn-danger action-btn">Deactivate</button>
                                         </form>
                                     <% } else { %>
-                                        <form action="/business-owner/services/<%= service._id %>/activate" method="POST" style="display: inline;">
-                                            <button type="submit" class="btn-sm btn-secondary">Activate</button>
+                                        <form action="/business-owner/services/<%= service._id %>/activate" method="POST" class="action-form" data-action="activate" data-service="<%= service.name %>">
+                                            <button type="button" class="btn-sm btn-secondary action-btn">Activate</button>
                                         </form>
                                     <% } %>
                                 </div>
@@ -69,7 +603,13 @@
                 </div>
             <% } else { %>
                 <div class="empty-state">
-                    <div class="icon">💼</div>
+                    <div class="icon">
+                        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="12" y="16" width="40" height="36" rx="4" stroke="currentColor" stroke-width="2"/>
+                            <path d="M22 16V10C22 8.89543 22.8954 8 24 8H40C41.1046 8 42 8.89543 42 10V16" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 26H52" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </div>
                     <h3>No Services Yet</h3>
                     <p>Start building your service menu by adding your first service.</p>
                     <a href="/business-owner/services/add" class="btn-primary">+ Add Your First Service</a>
@@ -77,5 +617,172 @@
             <% } %>
         </main>
     </div>
+
+    <!-- Confirmation Modal -->
+    <div class="confirmation-modal" id="confirmationModal" onclick="closeConfirmationModal()">
+        <div class="confirmation-modal-content" onclick="event.stopPropagation()">
+            <div class="confirmation-modal-body">
+                <div class="confirmation-icon" id="confirmationIcon"></div>
+                <h3 id="confirmationTitle">Confirm Action</h3>
+                <p id="confirmationMessage">Are you sure you want to proceed?</p>
+                <div class="confirmation-actions">
+                    <button class="btn-cancel" onclick="closeConfirmationModal()">Cancel</button>
+                    <button class="btn-confirm" id="confirmActionBtn">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Switch Mode Modal -->
+    <div class="confirmation-modal" id="switchModeModal" onclick="closeSwitchModeModal()">
+        <div class="confirmation-modal-content" onclick="event.stopPropagation()">
+            <div class="confirmation-modal-body">
+                <div class="confirmation-icon">
+                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                        <circle cx="24" cy="24" r="22" stroke="#1a1a1a" stroke-width="2"/>
+                        <path d="M28 24H16M16 24L20 20M16 24L20 28" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <h3>Switch to Customer Mode?</h3>
+                <p>You will be redirected to customer view</p>
+                <div class="confirmation-actions">
+                    <button class="btn-cancel" onclick="closeSwitchModeModal()">Cancel</button>
+                    <button class="btn-confirm" onclick="confirmSwitchMode()">Switch</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Modal -->
+    <div class="confirmation-modal" id="logoutModal" onclick="closeLogoutModal()">
+        <div class="confirmation-modal-content" onclick="event.stopPropagation()">
+            <div class="confirmation-modal-body">
+                <div class="confirmation-icon">
+                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                        <circle cx="24" cy="24" r="22" stroke="#dc3545" stroke-width="2"/>
+                        <path d="M28 30L34 24L28 18" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M34 24H20" stroke="#dc3545" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M20 34H16C15.4477 34 15 33.5523 15 33V15C15 14.4477 15.4477 14 16 14H20" stroke="#dc3545" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <h3>Logout?</h3>
+                <p>Are you sure you want to logout?</p>
+                <div class="confirmation-actions">
+                    <button class="btn-cancel" onclick="closeLogoutModal()">Cancel</button>
+                    <button class="btn-confirm btn-danger" onclick="confirmLogout()">Logout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+            document.body.classList.toggle('sidebar-open');
+        }
+
+        // Confirmation Modal Functions
+        let pendingForm = null;
+
+        function showConfirmationModal(action, serviceName, form) {
+            const modal = document.getElementById('confirmationModal');
+            const iconContainer = document.getElementById('confirmationIcon');
+            const title = document.getElementById('confirmationTitle');
+            const message = document.getElementById('confirmationMessage');
+            const confirmBtn = document.getElementById('confirmActionBtn');
+
+            pendingForm = form;
+
+            // Reset button classes
+            confirmBtn.className = 'btn-confirm';
+
+            // Set content based on action
+            let iconSvg = '';
+            switch(action) {
+                case 'activate':
+                    iconSvg = '<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="32" r="28" fill="#d4edda" stroke="#28a745" stroke-width="2"/><path d="M20 32L28 40L44 24" stroke="#28a745" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+                    title.textContent = 'Activate Service';
+                    message.textContent = `Are you sure you want to activate "${serviceName}"? It will be visible to customers.`;
+                    break;
+                case 'deactivate':
+                    iconSvg = '<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="32" r="28" fill="#fff3cd" stroke="#ffc107" stroke-width="2"/><path d="M32 20V36" stroke="#ffc107" stroke-width="4" stroke-linecap="round"/><circle cx="32" cy="44" r="2" fill="#ffc107"/></svg>';
+                    title.textContent = 'Deactivate Service';
+                    message.textContent = `Are you sure you want to deactivate "${serviceName}"? Customers won't be able to book this service.`;
+                    confirmBtn.classList.add('danger');
+                    break;
+            }
+
+            iconContainer.innerHTML = iconSvg;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeConfirmationModal() {
+            const modal = document.getElementById('confirmationModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+            pendingForm = null;
+        }
+
+        function confirmAction() {
+            if (pendingForm) {
+                pendingForm.submit();
+            }
+        }
+
+        // Action Button Click Handlers
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle all action buttons
+            document.querySelectorAll('.action-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const form = this.closest('.action-form');
+                    const action = form.dataset.action;
+                    const service = form.dataset.service;
+                    showConfirmationModal(action, service, form);
+                });
+            });
+
+            // Confirm button in modal
+            document.getElementById('confirmActionBtn').addEventListener('click', confirmAction);
+        });
+
+        // Switch Mode Modal Functions
+        function showSwitchModeModal() {
+            const modal = document.getElementById('switchModeModal');
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSwitchModeModal() {
+            const modal = document.getElementById('switchModeModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function confirmSwitchMode() {
+            window.location.href = '/switch-to-customer';
+        }
+
+        // Logout Modal Functions
+        function showLogoutModal() {
+            const modal = document.getElementById('logoutModal');
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLogoutModal() {
+            const modal = document.getElementById('logoutModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function confirmLogout() {
+            window.location.href = '/logout';
+        }
+    </script>
 </body>
 </html>

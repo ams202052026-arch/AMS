@@ -1,41 +1,77 @@
 <!-- Business Owner Sidebar -->
-<aside class="sidebar">
+<aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <h2><%= business.businessName %></h2>
-        <p>Business Dashboard</p>
-        
-        <!-- Mode Switch Button -->
-        <div class="mode-switch-container" style="margin-top: 15px;">
-            <a href="/switch-to-customer" class="mode-switch-btn" style="display: inline-block; padding: 8px 12px; background: rgba(255,255,255,0.2); color: white; text-decoration: none; border-radius: 4px; font-size: 12px; border: 1px solid rgba(255,255,255,0.3); transition: all 0.3s; text-align: center; width: 100%; box-sizing: border-box;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
-                ← Switch to Customer Mode
-            </a>
+        <div class="logo">
+            <img src="/image/logo.png" alt="AMS Logo" class="logo-img">
+            <span class="logo-text">AMS</span>
         </div>
+        <h2><%= user.firstName %></h2>
+        <% if (business) { %>
+            <p><%= business.businessName %></p>
+        <% } else { %>
+            <p>No Business</p>
+        <% } %>
     </div>
 
     <nav class="sidebar-nav">
         <a href="/business-owner/dashboard" class="nav-item <%= currentPage === 'dashboard' ? 'active' : '' %>">
-            <span class="icon">📊</span>
-            <span>Dashboard</span>
+            <svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="2" y="2" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                <rect x="11" y="2" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                <rect x="2" y="11" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                <rect x="11" y="11" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+            <span>Overview</span>
+        </a>
+        <a href="/business-owner/appointments" class="nav-item <%= currentPage === 'appointments' ? 'active' : '' %>">
+            <svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="3" y="4" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M3 8H17" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M7 2V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M13 2V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <span>Bookings</span>
         </a>
         <a href="/business-owner/services" class="nav-item <%= currentPage === 'services' ? 'active' : '' %>">
-            <span class="icon">💼</span>
+            <svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="3" y="5" width="14" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M7 5V3C7 2.44772 7.44772 2 8 2H12C12.5523 2 13 2.44772 13 3V5" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M3 9H17" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
             <span>Services</span>
         </a>
         <a href="/business-owner/staff" class="nav-item <%= currentPage === 'staff' ? 'active' : '' %>">
-            <span class="icon">👥</span>
-            <span>Staff</span>
-        </a>
-        <a href="/business-owner/appointments" class="nav-item <%= currentPage === 'appointments' ? 'active' : '' %>">
-            <span class="icon">📅</span>
-            <span>Appointments</span>
+            <svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="10" cy="6" r="3" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M4 18C4 14.6863 6.68629 12 10 12C13.3137 12 16 14.6863 16 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <span>Team</span>
         </a>
         <a href="/business-owner/business-hours" class="nav-item <%= currentPage === 'business-hours' ? 'active' : '' %>">
-            <span class="icon">🕒</span>
-            <span>Business Hours</span>
+            <svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M10 6V10L13 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <span>Hours</span>
         </a>
-        <a href="/logout" class="nav-item logout">
-            <span class="icon">🚪</span>
+        <% if (user.role === 'customer') { %>
+        <a href="#" onclick="showSwitchModeModal(); return false;" class="nav-item" style="margin-top: 24px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px;">
+            <svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15 10H5M5 10L9 6M5 10L9 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Customer Mode</span>
+        </a>
+        <% } %>
+        <a href="#" onclick="showLogoutModal(); return false;" class="nav-item" style="margin-top: auto; color: #999;">
+            <svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M13 14L17 10L13 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M17 10H7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M7 17H4C3.44772 17 3 16.5523 3 16V4C3 3.44772 3.44772 3 4 3H7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
             <span>Logout</span>
         </a>
     </nav>
 </aside>
+
+<!-- Include Modals -->
+<%- include('./modals') %>

@@ -46,6 +46,15 @@ exports.loadBookingPage = async (req, res) => {
             return res.status(404).render('error', { message: 'Service not found' });
         }
 
+        // Check if user is trying to book their own business service
+        if (service.businessId && service.businessId.ownerId && 
+            service.businessId.ownerId.toString() === userId.toString()) {
+            console.log('❌ BLOCKED: User trying to access booking page for their own business');
+            return res.status(403).render('error', { 
+                message: 'You cannot book your own business services. Please use a different account to make bookings.' 
+            });
+        }
+
         const availableStaff = await Staff.find({
             _id: { $in: service.assignedStaff },
             isActive: true
@@ -130,10 +139,8 @@ exports.createAppointment = async (req, res) => {
         // Helper function to return error
         const returnError = (message) => {
             console.error('❌ VALIDATION ERROR:', message);
-            if (req.xhr || req.headers.accept?.indexOf('json') > -1) {
-                return res.status(400).json({ error: message });
-            }
-            return res.status(400).render('error', { message });
+            // Always return JSON for AJAX requests
+            return res.status(400).json({ error: message });
         };
 
         // 1. PAST DATE PREVENTION
@@ -164,8 +171,20 @@ exports.createAppointment = async (req, res) => {
             return returnError(`${service.name} is currently unavailable. Please choose a different service.`);
         }
 
-        // 3.1. BUSINESS HOURS AND AVAILABILITY CHECK
+        // 3.1. BUSINESS OWNER CANNOT BOOK OWN SERVICE
         const business = service.businessId;
+        
+        console.log('🔍 Checking business owner...');
+        console.log('   Business Owner ID:', business.ownerId);
+        console.log('   Current User ID:', userId);
+        console.log('   Are they equal?', business.ownerId.toString() === userId.toString());
+        
+        if (business.ownerId && business.ownerId.toString() === userId.toString()) {
+            console.log('❌ BLOCKED: User is trying to book their own business service');
+            return returnError('You cannot book your own business services. Please use a different account to make bookings.');
+        }
+
+        // 3.2. BUSINESS HOURS AND AVAILABILITY CHECK
         
         // Check if business can accept bookings
         if (!business.canAcceptBookings()) {

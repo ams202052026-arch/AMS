@@ -758,7 +758,8 @@ exports.reapply = async (req, res) => {
         res.render('businessOwner/registrationSuccess', {
             businessName: businessName,
             message: 'Your business reapplication has been submitted successfully! You will be notified once reviewed.',
-            redirectUrl: '/business/status'
+            redirectUrl: '/business/status',
+            isUnifiedMode: false
         });
         
     } catch (error) {

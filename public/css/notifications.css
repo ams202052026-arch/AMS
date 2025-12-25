@@ -141,12 +141,95 @@ body {
     flex: 1;
     cursor: pointer;
     display: flex;
-    flex-direction: column;
-    gap: 12px;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.notification-icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #f0f0f0;
+    transition: all 0.3s ease;
+}
+
+.notification-item:hover .notification-icon {
+    background: #e0e0e0;
+    transform: scale(1.05);
+}
+
+.notification-icon svg {
+    width: 20px;
+    height: 20px;
+    color: #1a1a1a;
+}
+
+/* Icon colors based on notification type */
+.notification-item.appointment_confirm .notification-icon {
+    background: #e8f5e9;
+}
+
+.notification-item.appointment_confirm .notification-icon svg {
+    color: #2e7d32;
+}
+
+.notification-item.reward_update .notification-icon {
+    background: #e8f5e9;
+}
+
+.notification-item.reward_update .notification-icon svg {
+    color: #2e7d32;
+}
+
+.notification-item.business_approved .notification-icon {
+    background: #e8f5e9;
+}
+
+.notification-item.business_approved .notification-icon svg {
+    color: #2e7d32;
+}
+
+.notification-item.business_rejected .notification-icon {
+    background: #ffebee;
+}
+
+.notification-item.business_rejected .notification-icon svg {
+    color: #c62828;
+}
+
+.notification-item.business_suspended .notification-icon {
+    background: #fff3e0;
+}
+
+.notification-item.business_suspended .notification-icon svg {
+    color: #ef6c00;
+}
+
+.notification-item.business_reactivated .notification-icon {
+    background: #e8f5e9;
+}
+
+.notification-item.business_reactivated .notification-icon svg {
+    color: #2e7d32;
+}
+
+.notification-item.reward_redeemed .notification-icon {
+    background: #fff8e1;
+}
+
+.notification-item.reward_redeemed .notification-icon svg {
+    color: #f57c00;
 }
 
 .notification-body {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .notification-title {
@@ -423,7 +506,21 @@ body {
     }
 
     .notification-content {
-        gap: 6px !important;
+        gap: 8px !important;
+    }
+
+    .notification-icon {
+        width: 32px !important;
+        height: 32px !important;
+    }
+
+    .notification-icon svg {
+        width: 16px !important;
+        height: 16px !important;
+    }
+
+    .notification-body {
+        gap: 4px !important;
     }
 
     .notification-header {

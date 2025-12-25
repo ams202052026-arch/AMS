@@ -121,13 +121,14 @@ router.delete('/users/:userId/delete', isSuperAdmin, usersController.deleteUser)
 // Rewards Management (protected)
 router.get('/rewards', isSuperAdmin, attachUserData, rewardsController.listRewards);
 router.get('/rewards/add', isSuperAdmin, attachUserData, rewardsController.loadAddForm);
+router.get('/rewards/redemptions', isSuperAdmin, attachUserData, rewardsController.viewRedemptions);
 router.post('/rewards/add', isSuperAdmin, rewardsController.addReward);
-router.get('/rewards/:rewardId/edit', isSuperAdmin, attachUserData, rewardsController.loadEditForm);
-router.post('/rewards/:rewardId/edit', isSuperAdmin, rewardsController.updateReward);
+router.post('/rewards/points-settings', isSuperAdmin, rewardsController.updatePointsSettings);
+// Edit routes disabled - only Activate/Deactivate and Delete are available
+// router.get('/rewards/:rewardId/edit', isSuperAdmin, attachUserData, rewardsController.loadEditForm);
+// router.post('/rewards/:rewardId/edit', isSuperAdmin, rewardsController.updateReward);
 router.post('/rewards/:rewardId/deactivate', isSuperAdmin, rewardsController.deactivateReward);
 router.post('/rewards/:rewardId/activate', isSuperAdmin, rewardsController.activateReward);
-router.get('/rewards/redemptions', isSuperAdmin, attachUserData, rewardsController.viewRedemptions);
 router.delete('/rewards/:rewardId/delete', isSuperAdmin, rewardsController.deleteReward);
-router.post('/rewards/points-settings', isSuperAdmin, rewardsController.updatePointsSettings);
 
 module.exports = router;

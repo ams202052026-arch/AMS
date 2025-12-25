@@ -66,7 +66,7 @@
 <div id="modeSwitchModal" class="modal-overlay" style="display: none;">
     <div class="modal-box">
         <span class="close-btn" onclick="closeModeSwitchModal()">&times;</span>
-        <h3>Switch to Business Mode</h3>
+        <h3>Business Mode</h3>
         <p>To access business features, you need to apply for business verification first.</p>
         
         <div class="business-status-info">
@@ -163,7 +163,7 @@
                         } else {
                             messageElement.innerHTML = '<p>Your business application has been approved! You can now switch to business mode.</p>';
                         }
-                        actionBtn.textContent = 'Switch to Business Mode';
+                        actionBtn.textContent = 'Go to Business';
                         actionBtn.onclick = () => window.location.href = '/switch-to-business';
                         break;
                     case 'rejected':
@@ -171,6 +171,21 @@
                         messageElement.innerHTML = '<p>Your business application was rejected. You can reapply with updated information.</p>';
                         actionBtn.textContent = 'Reapply';
                         actionBtn.onclick = () => window.location.href = '/business/reapply';
+                        break;
+                    case 'suspended':
+                        statusElement.textContent = 'Suspended';
+                        statusElement.style.color = '#ff9800';
+                        if (data.businessName) {
+                            messageElement.innerHTML = `<p style="color: #d32f2f;">Your business "<strong>${data.businessName}</strong>" has been suspended by the administrator.</p>`;
+                        } else {
+                            messageElement.innerHTML = '<p style="color: #d32f2f;">Your business has been suspended by the administrator.</p>';
+                        }
+                        if (data.suspensionReason) {
+                            messageElement.innerHTML += `<p style="margin-top: 12px;"><strong>Reason:</strong> ${data.suspensionReason}</p>`;
+                        }
+                        messageElement.innerHTML += '<p style="margin-top: 12px; color: #666;">Please contact support for more information.</p>';
+                        actionBtn.textContent = 'Close';
+                        actionBtn.onclick = () => closeModeSwitchModal();
                         break;
                 }
             })

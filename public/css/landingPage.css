@@ -592,9 +592,8 @@ body::after {
     flex-shrink: 0;
     background: #ffffff;
     backdrop-filter: blur(20px);
-    padding: 20px;
+    padding: 0;
     border-radius: 20px;
-    text-align: center;
     border: 1px solid #e0e0e0;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -633,9 +632,8 @@ body::after {
 
 .service-image-wrapper {
     width: 100%;
-    height: 280px;
-    margin-bottom: 16px;
-    border-radius: 16px;
+    height: 320px;
+    border-radius: 20px;
     overflow: hidden;
     background: #f8f9fa;
     display: flex;
@@ -664,35 +662,16 @@ body::after {
     color: rgba(0, 0, 0, 0.2);
 }
 
-.service-name-infinite {
-    font-size: 20px;
-    font-weight: 700;
-    color: #1a1a1a;
-    letter-spacing: -0.5px;
-    margin: 0;
-    transition: color 0.3s ease;
-}
-
-.service-card-infinite:hover .service-name-infinite {
-    color: #000;
-}
-
 /* Mobile optimization for infinite carousel */
 @media (max-width: 480px) {
     .service-card-infinite {
         min-width: 260px;
-        padding: 16px;
         border-radius: 16px;
     }
 
     .service-image-wrapper {
-        height: 200px;
-        margin-bottom: 12px;
-        border-radius: 12px;
-    }
-
-    .service-name-infinite {
-        font-size: 16px;
+        height: 220px;
+        border-radius: 16px;
     }
 
     .carousel-track-infinite {
@@ -707,15 +686,10 @@ body::after {
 @media (max-width: 360px) {
     .service-card-infinite {
         min-width: 240px;
-        padding: 14px;
     }
 
     .service-image-wrapper {
-        height: 180px;
-    }
-
-    .service-name-infinite {
-        font-size: 15px;
+        height: 200px;
     }
 
     .carousel-track-infinite {

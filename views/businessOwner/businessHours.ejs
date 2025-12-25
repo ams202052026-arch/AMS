@@ -3,140 +3,442 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Business Hours Management - <%= business.businessName %></title>
-    <link rel="stylesheet" href="/css/businessOwner/main.css">
+    <title><%= business.businessName %> - Hours</title>
+    <link rel="icon" type="image/png" href="/image/favicon.png">
+    <link rel="stylesheet" href="/css/scrollbar.css">
+    <link rel="stylesheet" href="/css/businessOwner/dashboard-redesign.css">
     <style>
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        /* Hours-specific styles */
+        .hours-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
         }
-        
-        .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            width: 16px;
-            height: 16px;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-            margin-right: 8px;
+
+        .hours-header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1a1a1a;
+            letter-spacing: -0.5px;
         }
-        
-        #formStatus {
-            margin-top: 15px;
-            padding: 15px;
-            border-radius: 8px;
-            display: none;
+
+        .hours-card {
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+            padding: 24px;
+        }
+
+        .day-row {
+            padding: 16px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .day-row:last-child {
+            border-bottom: none;
+        }
+
+        .day-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .day-name {
+            font-size: 16px;
             font-weight: 500;
-            border: 2px solid transparent;
-            transition: all 0.3s ease;
+            color: #1a1a1a;
         }
-        
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 28px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #e0e0e0;
+            transition: 0.3s;
+            border-radius: 28px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: #1a1a1a;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+
+        .time-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .time-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .time-group label {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .time-group input {
+            padding: 10px 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            color: #1a1a1a;
+            background: #fafafa;
+        }
+
+        .time-group input:focus {
+            outline: none;
+            border-color: #1a1a1a;
+            background: #ffffff;
+        }
+
+        .form-actions {
+            margin-top: 24px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background: #333;
+        }
+
+        .btn-secondary {
+            background: #fafafa;
+            color: #1a1a1a;
+            border: 1px solid #e0e0e0;
+        }
+
+        .btn-secondary:hover {
+            background: #f0f0f0;
+        }
+
         .btn:disabled {
-            opacity: 0.6;
+            opacity: 0.5;
             cursor: not-allowed;
+        }
+
+        /* Confirmation Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 300;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .modal-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 20px;
+        }
+
+        .modal-content h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+        }
+
+        .modal-content p {
+            font-size: 15px;
+            color: #666;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-btn-cancel {
+            background: #fafafa;
+            color: #1a1a1a;
+            border: 1px solid #e0e0e0;
+        }
+
+        .modal-btn-confirm {
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+
+        .modal-btn:hover {
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .modal-content {
+                padding: 24px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="dashboard-layout">
-        <%- include('partials/sidebar', { currentPage: 'business-hours' }) %>
+        <!-- Mobile Header -->
+        <header class="mobile-header">
+            <div class="mobile-header-left">
+                <img src="/image/logo.png" alt="AMS Logo" class="mobile-logo">
+                <span class="mobile-business-name"><%= business.businessName %></span>
+            </div>
+            <button class="mobile-menu-btn" onclick="toggleSidebar()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 12H21M3 6H21M3 18H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+        </header>
 
+        <!-- Sidebar Overlay -->
+        <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="/image/logo.png" alt="AMS Logo" class="logo-img">
+                    <span class="logo-text">AMS</span>
+                </div>
+                <h2><%= user.firstName %></h2>
+                <p><%= business.businessName %></p>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="/business-owner/dashboard" class="nav-item">
+                    <svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="2" y="2" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        <rect x="11" y="2" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        <rect x="2" y="11" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        <rect x="11" y="11" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                    <span>Overview</span>
+                </a>
+                <a href="/business-owner/appointments" class="nav-item">
+                    <svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="3" y="4" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M3 8H17" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M7 2V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        <path d="M13 2V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <span>Bookings</span>
+                </a>
+                <a href="/business-owner/services" class="nav-item">
+                    <svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="3" y="5" width="14" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M7 5V3C7 2.44772 7.44772 2 8 2H12C12.5523 2 13 2.44772 13 3V5" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M3 9H17" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                    <span>Services</span>
+                </a>
+                <a href="/business-owner/staff" class="nav-item">
+                    <svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="10" cy="6" r="3" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M4 18C4 14.6863 6.68629 12 10 12C13.3137 12 16 14.6863 16 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <span>Team</span>
+                </a>
+                <a href="/business-owner/business-hours" class="nav-item active">
+                    <svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M10 6V10L13 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <span>Hours</span>
+                </a>
+                <% if (user.role === 'customer') { %>
+                <a href="#" class="nav-item" onclick="showSwitchModeModal(); return false;" style="margin-top: 24px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px;">
+                    <svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15 10H5M5 10L9 6M5 10L9 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>Customer Mode</span>
+                </a>
+                <% } %>
+                <a href="#" class="nav-item" onclick="showLogoutModal(); return false;" style="margin-top: auto; color: #999;">
+                    <svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M13 14L17 10L13 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M17 10H7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        <path d="M7 17H4C3.44772 17 3 16.5523 3 16V4C3 3.44772 3.44772 3 4 3H7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <span>Logout</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
         <main class="main-content">
-            <div class="content-header">
-                <h1>Business Hours Management</h1>
-                <p>Manage your business operating hours and availability</p>
+            <div class="hours-header">
+                <h1>Hours</h1>
             </div>
 
-            <div class="card">
-                <div class="card-header">
-                    <h2>Weekly Business Hours</h2>
-                    <p>Set your operating hours for each day of the week</p>
-                    <div style="margin-top: 10px; padding: 10px; background: #e3f2fd; border-radius: 5px; font-size: 12px;">
-                        <strong>Debug Info:</strong> Loaded <%= businessHours.length %> days from database
-                        <% businessHours.forEach(bh => { %>
-                            <div><%= bh.day %>: <%= bh.isOpen ? 'Open ' + bh.openTime + '-' + bh.closeTime : 'Closed' %></div>
-                        <% }) %>
+        <div class="hours-card">
+            <form id="businessHoursForm">
+                <% businessHours.forEach(dayHour => { %>
+                    <div class="day-row">
+                        <div class="day-header">
+                            <span class="day-name"><%= dayHour.day %></span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" 
+                                       name="<%= dayHour.day.toLowerCase() %>[isOpen]" 
+                                       <%= dayHour.isOpen ? 'checked' : '' %>
+                                       onchange="toggleDayHours('<%= dayHour.day.toLowerCase() %>')">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="time-inputs" id="<%= dayHour.day.toLowerCase() %>-times" 
+                             style="<%= dayHour.isOpen ? '' : 'display: none;' %>">
+                            <div class="time-group">
+                                <label>Open</label>
+                                <input type="time" 
+                                       name="<%= dayHour.day.toLowerCase() %>[openTime]" 
+                                       value="<%= dayHour.openTime %>">
+                            </div>
+                            <div class="time-group">
+                                <label>Close</label>
+                                <input type="time" 
+                                       name="<%= dayHour.day.toLowerCase() %>[closeTime]" 
+                                       value="<%= dayHour.closeTime %>">
+                            </div>
+                        </div>
                     </div>
+                <% }) %>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="setDefaultHours()">
+                        Set Default
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="showSaveModal()">
+                        Save Hours
+                    </button>
                 </div>
-                <div class="card-content">
-                    <form id="businessHoursForm">
-                        <div class="hours-grid">
-                            <% businessHours.forEach(dayHour => { %>
-                                <div class="day-row">
-                                    <div class="day-name">
-                                        <label><%= dayHour.day %></label>
-                                    </div>
-                                    <div class="day-toggle">
-                                        <label class="toggle-switch">
-                                            <input type="checkbox" 
-                                                   name="<%= dayHour.day.toLowerCase() %>[isOpen]" 
-                                                   <%= dayHour.isOpen ? 'checked' : '' %>
-                                                   onchange="toggleDayHours('<%= dayHour.day.toLowerCase() %>')">
-                                            <span class="toggle-slider"></span>
-                                        </label>
-                                        <span class="toggle-label">
-                                            <%= dayHour.isOpen ? 'Open' : 'Closed' %>
-                                        </span>
-                                    </div>
-                                    <div class="time-inputs" id="<%= dayHour.day.toLowerCase() %>-times" 
-                                         style="<%= dayHour.isOpen ? '' : 'display: none;' %>">
-                                        <div class="time-group">
-                                            <label>Open:</label>
-                                            <input type="time" 
-                                                   name="<%= dayHour.day.toLowerCase() %>[openTime]" 
-                                                   value="<%= dayHour.openTime %>"
-                                                   required>
-                                        </div>
-                                        <div class="time-group">
-                                            <label>Close:</label>
-                                            <input type="time" 
-                                                   name="<%= dayHour.day.toLowerCase() %>[closeTime]" 
-                                                   value="<%= dayHour.closeTime %>"
-                                                   required>
-                                        </div>
-                                    </div>
-                                </div>
-                            <% }) %>
-                        </div>
-                        
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-primary" id="saveBtn">
-                                Save Business Hours
-                            </button>
-                            <button type="button" class="btn btn-secondary" id="defaultBtn" onclick="setDefaultHours()">
-                                Set Default Hours
-                            </button>
-                            
-                            <div id="formStatus"></div>
-                        </div>
-                    </form>
-                </div>
+            </form>
+        </div>
+    </main>
+</div>
+
+    <!-- Save Confirmation Modal -->
+    <div class="modal" id="saveModal">
+        <div class="modal-content">
+            <svg class="modal-icon" viewBox="0 0 64 64" fill="none">
+                <circle cx="32" cy="32" r="30" stroke="#1a1a1a" stroke-width="2"/>
+                <path d="M20 32l8 8 16-16" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <h3>Save Hours?</h3>
+            <p>Update your business operating hours</p>
+            <div class="modal-actions">
+                <button type="button" class="modal-btn modal-btn-cancel" onclick="closeSaveModal()">Cancel</button>
+                <button type="button" class="modal-btn modal-btn-confirm" onclick="confirmSave()">Save</button>
             </div>
-        </main>
+        </div>
     </div>
 
+    <%- include('partials/modals') %>
+
     <script>
-        console.log('=== Business Hours Script Loading ===');
-        console.log('Business Hours Data from Server:');
-        console.log(<%- JSON.stringify(businessHours) %>);
-        
+        // Sidebar toggle
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        // Toggle day hours visibility
         function toggleDayHours(day) {
             const checkbox = document.querySelector(`input[name="${day}[isOpen]"]`);
             const timesDiv = document.getElementById(`${day}-times`);
-            const label = checkbox.parentElement.nextElementSibling;
             
-            if (checkbox.checked) {
-                timesDiv.style.display = 'flex';
-                label.textContent = 'Open';
-            } else {
-                timesDiv.style.display = 'none';
-                label.textContent = 'Closed';
+            if (checkbox && timesDiv) {
+                timesDiv.style.display = checkbox.checked ? 'grid' : 'none';
             }
         }
 
+        // Set default hours (Mon-Sat 9am-6pm, Sun closed)
         function setDefaultHours() {
-            console.log('Setting default hours...');
             const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
             
             days.forEach(day => {
@@ -144,124 +446,64 @@
                 const openTime = document.querySelector(`input[name="${day}[openTime]"]`);
                 const closeTime = document.querySelector(`input[name="${day}[closeTime]"]`);
                 
-                if (day === 'sunday') {
-                    checkbox.checked = false;
-                } else {
-                    checkbox.checked = true;
-                    if (openTime) openTime.value = '09:00';
-                    if (closeTime) closeTime.value = '18:00';
+                if (checkbox) {
+                    checkbox.checked = day !== 'sunday';
+                    toggleDayHours(day);
                 }
                 
-                toggleDayHours(day);
+                if (openTime) openTime.value = '09:00';
+                if (closeTime) closeTime.value = '18:00';
+            });
+        }
+
+        // Show save modal
+        function showSaveModal() {
+            document.getElementById('saveModal').classList.add('active');
+        }
+
+        // Close save modal
+        function closeSaveModal() {
+            document.getElementById('saveModal').classList.remove('active');
+        }
+
+        // Confirm and save
+        async function confirmSave() {
+            closeSaveModal();
+            
+            const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+            const businessHours = {};
+            
+            days.forEach(day => {
+                const checkbox = document.querySelector(`input[name="${day}[isOpen]"]`);
+                const openTime = document.querySelector(`input[name="${day}[openTime]"]`);
+                const closeTime = document.querySelector(`input[name="${day}[closeTime]"]`);
+                
+                businessHours[day] = {
+                    isOpen: checkbox ? checkbox.checked : false,
+                    openTime: openTime ? openTime.value : '09:00',
+                    closeTime: closeTime ? closeTime.value : '18:00'
+                };
             });
             
-            showStatus('✅ Default hours set! Click "Save Business Hours" to apply.', 'success');
-        }
-
-        function showStatus(message, type) {
-            const formStatus = document.getElementById('formStatus');
-            formStatus.style.display = 'block';
-            formStatus.innerHTML = message;
-            
-            if (type === 'success') {
-                formStatus.style.background = '#e8f5e8';
-                formStatus.style.color = '#2e7d32';
-                formStatus.style.borderColor = '#4caf50';
-            } else if (type === 'error') {
-                formStatus.style.background = '#ffebee';
-                formStatus.style.color = '#c62828';
-                formStatus.style.borderColor = '#f44336';
-            } else {
-                formStatus.style.background = '#e3f2fd';
-                formStatus.style.color = '#1976d2';
-                formStatus.style.borderColor = '#2196f3';
-            }
-            
-            if (type === 'success') {
-                setTimeout(() => {
-                    formStatus.style.display = 'none';
-                }, 5000);
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded');
-            
-            const form = document.getElementById('businessHoursForm');
-            const saveBtn = document.getElementById('saveBtn');
-            const defaultBtn = document.getElementById('defaultBtn');
-            
-            if (!form) {
-                console.error('Form not found!');
-                alert('ERROR: Form not found! Please refresh the page.');
-                return;
-            }
-            
-            console.log('Form found, adding submit handler');
-            
-            form.onsubmit = async function(e) {
-                e.preventDefault();
-                console.log('=== FORM SUBMITTED ===');
-                
-                // Disable buttons
-                saveBtn.disabled = true;
-                defaultBtn.disabled = true;
-                saveBtn.innerHTML = '<span class="spinner"></span> Saving...';
-                
-                showStatus('💾 Saving business hours...', 'loading');
-                
-                // Collect form data - manually check checkboxes
-                const businessHours = {};
-                const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-                
-                days.forEach(day => {
-                    const checkbox = document.querySelector(`input[name="${day}[isOpen]"]`);
-                    const openTime = document.querySelector(`input[name="${day}[openTime]"]`);
-                    const closeTime = document.querySelector(`input[name="${day}[closeTime]"]`);
-                    
-                    businessHours[day] = {
-                        isOpen: checkbox ? checkbox.checked : false,
-                        openTime: openTime ? openTime.value : '09:00',
-                        closeTime: closeTime ? closeTime.value : '18:00'
-                    };
-                    
-                    console.log(`${day}: isOpen=${businessHours[day].isOpen}, ${businessHours[day].openTime}-${businessHours[day].closeTime}`);
+            try {
+                const response = await fetch('/business-owner/business-hours', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ businessHours })
                 });
                 
-                console.log('Sending data:', businessHours);
+                const result = await response.json();
                 
-                try {
-                    const response = await fetch('/business-owner/business-hours', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ businessHours })
-                    });
-                    
-                    console.log('Response status:', response.status);
-                    
-                    const result = await response.json();
-                    console.log('Response data:', result);
-                    
-                    if (result.success) {
-                        showStatus('✅ Business hours updated successfully!', 'success');
-                    } else {
-                        showStatus('❌ Error: ' + (result.error || 'Unknown error'), 'error');
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    showStatus('❌ Network error: ' + error.message, 'error');
+                if (result.success) {
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + (result.error || 'Failed to save'));
                 }
-                
-                // Re-enable buttons
-                saveBtn.disabled = false;
-                defaultBtn.disabled = false;
-                saveBtn.innerHTML = 'Save Business Hours';
-                
-                return false;
-            };
-            
-            console.log('Form handler attached successfully');
-        });
+            } catch (error) {
+                alert('Network error: ' + error.message);
+            }
+        }
     </script>
+    <script src="/js/businessOwner/modals.js"></script>
 </body>
 </html>

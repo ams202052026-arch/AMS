@@ -74,7 +74,7 @@ exports.listUsers = async (req, res) => {
         const totalUsers = await User.countDocuments(query);
         const totalPages = Math.ceil(totalUsers / limit);
         
-        // Get statistics
+        // Get statistics (exclude super_admin from all counts)
         const stats = {
             totalCustomers: await User.countDocuments({ role: 'customer' }),
             totalBusinessOwners: await User.countDocuments({ role: 'business_owner' }),
@@ -84,8 +84,8 @@ exports.listUsers = async (req, res) => {
                     return !!b;
                 })
             )).filter(Boolean).length,
-            activeUsers: await User.countDocuments({ isActive: true, isBanned: false }),
-            bannedUsers: await User.countDocuments({ isBanned: true })
+            activeUsers: await User.countDocuments({ role: { $ne: 'super_admin' }, isActive: true, isBanned: false }),
+            bannedUsers: await User.countDocuments({ role: { $ne: 'super_admin' }, isBanned: true })
         };
         
         res.render('admin/users/list', {
@@ -314,7 +314,7 @@ exports.reactivateUser = async (req, res) => {
 };
 
 /**
- * Delete User (Soft Delete)
+ * Delete User (Hard Delete with Business Data)
  */
 exports.deleteUser = async (req, res) => {
     try {
@@ -330,17 +330,63 @@ exports.deleteUser = async (req, res) => {
             return res.status(403).json({ error: 'Cannot delete super admin' });
         }
         
-        // Soft delete - deactivate and mark as deleted
-        user.isActive = false;
-        user.isDeleted = true;
-        user.deletedAt = new Date();
-        await user.save();
+        console.log('🗑️ Admin deleting user:', user.email);
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+        const Appointment = require('../models/appointment');
+        const Notification = require('../models/notification');
+        const { Redemption } = require('../models/reward');
+        const Business = require('../models/business');
+        const Service = require('../models/service');
+        const Staff = require('../models/staff');
+
+        // 1. Delete user's appointments (as customer)
+        const deletedAppointments = await Appointment.deleteMany({ customer: userId });
+        console.log(`   ✓ Deleted ${deletedAppointments.deletedCount} appointments (as customer)`);
+
+        // 2. Delete user's notifications
+        const deletedNotifications = await Notification.deleteMany({ customer: userId });
+        console.log(`   ✓ Deleted ${deletedNotifications.deletedCount} notifications`);
+
+        // 3. Delete user's redemptions
+        const deletedRedemptions = await Redemption.deleteMany({ customer: userId });
+        console.log(`   ✓ Deleted ${deletedRedemptions.deletedCount} redemptions`);
+
+        // 4. Check if user owns a business
+        const ownedBusiness = await Business.findOne({ ownerId: userId });
         
-        console.log(`✓ User deleted: ${user.email}`);
+        if (ownedBusiness) {
+            console.log(`   📦 Found owned business: ${ownedBusiness.businessName}`);
+            
+            // 4a. Delete all appointments to this business
+            const businessAppointments = await Appointment.deleteMany({ businessId: ownedBusiness._id });
+            console.log(`   ✓ Deleted ${businessAppointments.deletedCount} appointments (to business)`);
+            
+            // 4b. Delete all services from this business
+            const businessServices = await Service.deleteMany({ businessId: ownedBusiness._id });
+            console.log(`   ✓ Deleted ${businessServices.deletedCount} services`);
+            
+            // 4c. Delete all staff from this business
+            const businessStaff = await Staff.deleteMany({ businessId: ownedBusiness._id });
+            console.log(`   ✓ Deleted ${businessStaff.deletedCount} staff members`);
+            
+            // 4d. Delete the business itself
+            await Business.findByIdAndDelete(ownedBusiness._id);
+            console.log(`   ✓ Deleted business: ${ownedBusiness.businessName}`);
+        } else {
+            console.log('   ℹ️  No business owned by this user');
+        }
+
+        // 5. Delete the user account
+        await User.findByIdAndDelete(userId);
+        console.log(`   ✓ Deleted user account: ${user.email}`);
+
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('✅ User and all related data deleted successfully\n');
         
         res.json({ 
             success: true, 
-            message: 'User has been deleted successfully' 
+            message: 'User and all related data have been deleted successfully' 
         });
         
     } catch (error) {

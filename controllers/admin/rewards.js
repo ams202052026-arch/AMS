@@ -21,10 +21,15 @@ exports.listRewards = async (req, res) => {
 // Load add reward form
 exports.loadAddForm = async (req, res) => {
     try {
-        res.render('admin/rewards/form', { reward: null });
+        console.log('Loading add reward form');
+        res.render('admin/rewards/add');
     } catch (error) {
-        console.error(error);
-        res.status(500).render('error', { message: 'Error loading form' });
+        console.error('Error loading add form:', error);
+        res.status(500).render('error', { 
+            title: 'Error',
+            message: 'Error loading form: ' + error.message,
+            statusCode: 500
+        });
     }
 };
 
@@ -33,20 +38,36 @@ exports.addReward = async (req, res) => {
     try {
         const { name, description, pointsRequired, discountValue, discountType } = req.body;
         
+        // Validation
+        if (!name || !description || !pointsRequired || !discountValue || !discountType) {
+            return res.status(400).render('error', { 
+                title: 'Validation Error',
+                message: 'All fields are required',
+                statusCode: 400
+            });
+        }
+
         const reward = new Reward({
             name,
             description,
             pointsRequired: parseInt(pointsRequired),
             type: 'discount',
-            discountValue: discountValue ? parseFloat(discountValue) : null,
-            discountType: discountType || 'percentage'
+            discountValue: parseFloat(discountValue),
+            discountType: discountType || 'percentage',
+            isActive: true // New rewards are active by default
         });
 
         await reward.save();
+        
+        console.log('✅ New reward created:', reward.name);
         res.redirect('/admin/rewards');
     } catch (error) {
-        console.error(error);
-        res.status(500).render('error', { message: 'Error adding reward' });
+        console.error('Error adding reward:', error);
+        res.status(500).render('error', { 
+            title: 'Error',
+            message: 'Error adding reward: ' + error.message,
+            statusCode: 500
+        });
     }
 };
 
@@ -54,11 +75,28 @@ exports.addReward = async (req, res) => {
 exports.loadEditForm = async (req, res) => {
     try {
         const { rewardId } = req.params;
+        console.log('Loading edit form for reward:', rewardId);
+        
         const reward = await Reward.findById(rewardId);
+        
+        if (!reward) {
+            console.log('Reward not found:', rewardId);
+            return res.status(404).render('error', { 
+                title: 'Not Found',
+                message: 'Reward not found',
+                statusCode: 404
+            });
+        }
+        
+        console.log('Reward found:', reward.name);
         res.render('admin/rewards/form', { reward });
     } catch (error) {
-        console.error(error);
-        res.status(500).render('error', { message: 'Error loading form' });
+        console.error('Error loading edit form:', error);
+        res.status(500).render('error', { 
+            title: 'Error',
+            message: 'Error loading form: ' + error.message,
+            statusCode: 500
+        });
     }
 };
 
@@ -90,10 +128,10 @@ exports.deactivateReward = async (req, res) => {
     try {
         const { rewardId } = req.params;
         await Reward.findByIdAndUpdate(rewardId, { isActive: false });
-        res.redirect('/admin/rewards');
+        res.json({ success: true, message: 'Reward deactivated successfully' });
     } catch (error) {
         console.error(error);
-        res.status(500).render('error', { message: 'Error deactivating reward' });
+        res.status(500).json({ success: false, error: 'Error deactivating reward' });
     }
 };
 
@@ -102,10 +140,10 @@ exports.activateReward = async (req, res) => {
     try {
         const { rewardId } = req.params;
         await Reward.findByIdAndUpdate(rewardId, { isActive: true });
-        res.redirect('/admin/rewards');
+        res.json({ success: true, message: 'Reward activated successfully' });
     } catch (error) {
         console.error(error);
-        res.status(500).render('error', { message: 'Error activating reward' });
+        res.status(500).json({ success: false, error: 'Error activating reward' });
     }
 };
 
@@ -119,15 +157,16 @@ exports.deleteReward = async (req, res) => {
         
         if (redemptionCount > 0) {
             return res.status(400).json({ 
-                error: 'Cannot delete reward with existing redemptions. Deactivate it instead.' 
+                success: false,
+                error: `Cannot delete reward with ${redemptionCount} existing redemption${redemptionCount > 1 ? 's' : ''}. Please deactivate it instead.` 
             });
         }
         
         await Reward.findByIdAndDelete(rewardId);
-        res.json({ success: true });
+        res.json({ success: true, message: 'Reward deleted successfully' });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error deleting reward' });
+        res.status(500).json({ success: false, error: 'Error deleting reward' });
     }
 };
 

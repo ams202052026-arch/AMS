@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Application Status</title>
+    <link rel="icon" type="image/png" href="/image/favicon.png">
     <link rel="stylesheet" href="/css/scrollbar.css">
     <style>
         * {
@@ -284,7 +285,7 @@
                     <p><strong>Phone:</strong> <%= business.phoneNumber %></p>
                     <p><strong>Approved:</strong> <%= business.approvedAt ? business.approvedAt.toLocaleDateString() : 'Recently' %></p>
                 </div>
-                <a href="/switch-to-business" class="btn">Switch to Business Mode</a>
+                <a href="/switch-to-business" class="btn">Go to Business</a>
             </div>
         <% } else if (applicationStatus === 'rejected') { %>
             <div class="status-card">
