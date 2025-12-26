@@ -17,7 +17,10 @@ const transporter = nodemailer.createTransport(
         auth: {
           user: process.env.SMTP_EMAIL,
           pass: process.env.SMTP_PASS
-        }
+        },
+        connectionTimeout: 10000, // 10 seconds
+        greetingTimeout: 10000,
+        socketTimeout: 10000
       }
 );
 
@@ -130,6 +133,9 @@ exports.sendVerificationCode = async (req, res) => {
   }
   catch (error) {
     console.log(`(FAILED TO SEND OTP) ${error}`);
+    return res.render('signUp', { 
+      error: 'Failed to send verification code. Please try again or check your email address.' 
+    });
   }
 };
 
