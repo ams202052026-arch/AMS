@@ -2,36 +2,48 @@ const nodemailer = require('nodemailer');
 
 // Email transporter configuration
 // Priority: Brevo (production) > SendGrid (if configured) > Gmail (development only)
+let emailService = 'Unknown';
 const transporter = nodemailer.createTransport(
     process.env.BREVO_SMTP_KEY
-        ? {
-            host: 'smtp-relay.brevo.com',
-            port: 587,
-            auth: {
-                user: process.env.BREVO_SMTP_USER || process.env.SMTP_EMAIL,
-                pass: process.env.BREVO_SMTP_KEY
-            }
-        }
+        ? (() => {
+            emailService = 'Brevo SMTP';
+            return {
+                host: 'smtp-relay.brevo.com',
+                port: 587,
+                auth: {
+                    user: process.env.BREVO_SMTP_USER || process.env.SMTP_EMAIL,
+                    pass: process.env.BREVO_SMTP_KEY
+                }
+            };
+          })()
         : process.env.NODE_ENV === 'production' && process.env.SENDGRID_API_KEY
-        ? {
-            host: 'smtp.sendgrid.net',
-            port: 587,
-            auth: {
-                user: 'apikey',
-                pass: process.env.SENDGRID_API_KEY
-            }
-        }
-        : {
-            service: 'gmail',
-            auth: {
-                user: process.env.SMTP_EMAIL,
-                pass: process.env.SMTP_PASS
-            },
-            connectionTimeout: 10000, // 10 seconds
-            greetingTimeout: 10000,
-            socketTimeout: 10000
-        }
+        ? (() => {
+            emailService = 'SendGrid';
+            return {
+                host: 'smtp.sendgrid.net',
+                port: 587,
+                auth: {
+                    user: 'apikey',
+                    pass: process.env.SENDGRID_API_KEY
+                }
+            };
+          })()
+        : (() => {
+            emailService = 'Gmail';
+            return {
+                service: 'gmail',
+                auth: {
+                    user: process.env.SMTP_EMAIL,
+                    pass: process.env.SMTP_PASS
+                },
+                connectionTimeout: 10000, // 10 seconds
+                greetingTimeout: 10000,
+                socketTimeout: 10000
+            };
+          })()
 );
+
+console.log(`📧 Email service configured: ${emailService}`);
 
 /**
  * Send appointment confirmation email

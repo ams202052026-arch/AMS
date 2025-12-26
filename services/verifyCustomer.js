@@ -3,36 +3,48 @@ const nodemailer = require('nodemailer');
 
 // Email transporter configuration
 // Priority: Brevo (production) > SendGrid (if configured) > Gmail (development only)
+let emailService = 'Unknown';
 const transporter = nodemailer.createTransport(
   process.env.BREVO_SMTP_KEY
-    ? {
-        host: 'smtp-relay.brevo.com',
-        port: 587,
-        auth: {
-          user: process.env.BREVO_SMTP_USER || process.env.SMTP_EMAIL,
-          pass: process.env.BREVO_SMTP_KEY
-        }
-      }
+    ? (() => {
+        emailService = 'Brevo SMTP';
+        return {
+          host: 'smtp-relay.brevo.com',
+          port: 587,
+          auth: {
+            user: process.env.BREVO_SMTP_USER || process.env.SMTP_EMAIL,
+            pass: process.env.BREVO_SMTP_KEY
+          }
+        };
+      })()
     : process.env.NODE_ENV === 'production' && process.env.SENDGRID_API_KEY
-    ? {
-        host: 'smtp.sendgrid.net',
-        port: 587,
-        auth: {
-          user: 'apikey',
-          pass: process.env.SENDGRID_API_KEY
-        }
-      }
-    : {
-        service: 'gmail',
-        auth: {
-          user: process.env.SMTP_EMAIL,
-          pass: process.env.SMTP_PASS
-        },
-        connectionTimeout: 10000,
-        greetingTimeout: 10000,
-        socketTimeout: 10000
-      }
+    ? (() => {
+        emailService = 'SendGrid';
+        return {
+          host: 'smtp.sendgrid.net',
+          port: 587,
+          auth: {
+            user: 'apikey',
+            pass: process.env.SENDGRID_API_KEY
+          }
+        };
+      })()
+    : (() => {
+        emailService = 'Gmail';
+        return {
+          service: 'gmail',
+          auth: {
+            user: process.env.SMTP_EMAIL,
+            pass: process.env.SMTP_PASS
+          },
+          connectionTimeout: 10000,
+          greetingTimeout: 10000,
+          socketTimeout: 10000
+        };
+      })()
 );
+
+console.log(`📧 Email service configured: ${emailService}`);
 
 function generateOTP() {
   let code = "";
@@ -177,7 +189,10 @@ exports.sendVerificationCode = async (req, res) => {
     res.redirect('/verifyOtp');
   }
   catch (error) {
-    console.log(`(FAILED TO SEND OTP) ${error}`);
+    console.error('❌ FAILED TO SEND OTP');
+    console.error('Error details:', error.message);
+    console.error('Error code:', error.code);
+    console.error('Full error:', error);
     return res.render('signUp', { 
       error: 'Failed to send verification code. Please try again or check your email address.' 
     });
