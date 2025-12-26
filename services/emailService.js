@@ -1,12 +1,24 @@
 const nodemailer = require('nodemailer');
 
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.SMTP_EMAIL,
-        pass: process.env.SMTP_PASS
-    }
-});
+// Use SendGrid for production (Render), Gmail for development
+const transporter = nodemailer.createTransport(
+    process.env.NODE_ENV === 'production' && process.env.SENDGRID_API_KEY
+        ? {
+            host: 'smtp.sendgrid.net',
+            port: 587,
+            auth: {
+                user: 'apikey',
+                pass: process.env.SENDGRID_API_KEY
+            }
+        }
+        : {
+            service: 'gmail',
+            auth: {
+                user: process.env.SMTP_EMAIL,
+                pass: process.env.SMTP_PASS
+            }
+        }
+);
 
 /**
  * Send appointment confirmation email
