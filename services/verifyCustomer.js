@@ -1,9 +1,19 @@
 const OTPModel = require('../models/otp');
 const nodemailer = require('nodemailer');
 
-// Use SendGrid for production (Render), Gmail for development
+// Email transporter configuration
+// Priority: Brevo (production) > SendGrid (if configured) > Gmail (development only)
 const transporter = nodemailer.createTransport(
-  process.env.NODE_ENV === 'production' && process.env.SENDGRID_API_KEY
+  process.env.BREVO_SMTP_KEY
+    ? {
+        host: 'smtp-relay.brevo.com',
+        port: 587,
+        auth: {
+          user: process.env.BREVO_SMTP_USER || process.env.SMTP_EMAIL,
+          pass: process.env.BREVO_SMTP_KEY
+        }
+      }
+    : process.env.NODE_ENV === 'production' && process.env.SENDGRID_API_KEY
     ? {
         host: 'smtp.sendgrid.net',
         port: 587,
@@ -18,7 +28,7 @@ const transporter = nodemailer.createTransport(
           user: process.env.SMTP_EMAIL,
           pass: process.env.SMTP_PASS
         },
-        connectionTimeout: 10000, // 10 seconds
+        connectionTimeout: 10000,
         greetingTimeout: 10000,
         socketTimeout: 10000
       }
@@ -35,6 +45,41 @@ function generateOTP() {
 exports.sendVerificationCode = async (req, res) => {
   try {
     const { email } = req.body;
+
+    // Skip email verification if disabled (for production without email service)
+    if (process.env.SKIP_EMAIL_VERIFICATION === 'true') {
+      console.log('⚠️ Email verification skipped (SKIP_EMAIL_VERIFICATION=true)');
+      console.log(`Creating user directly: ${email}`);
+      
+      // Create user directly without OTP
+      const User = require('../models/user');
+      const customerDetails = req.session.customerDetails;
+      
+      if (!customerDetails) {
+        return res.render('signUp', { 
+          error: 'Session expired. Please try again.' 
+        });
+      }
+
+      const { name, password } = customerDetails;
+      const nameParts = name.trim().split(' ');
+      const firstName = nameParts[0];
+      const lastName = nameParts.slice(1).join(' ') || firstName;
+
+      await User.create({
+        firstName,
+        lastName,
+        email: email.toLowerCase(),
+        password,
+        role: 'customer',
+        isVerified: true
+      });
+
+      console.log('✓ User created successfully (no email verification):', email);
+      delete req.session.customerDetails;
+      
+      return res.redirect('/login');
+    }
 
     const code = generateOTP();
 

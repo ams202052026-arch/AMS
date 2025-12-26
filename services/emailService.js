@@ -1,8 +1,18 @@
 const nodemailer = require('nodemailer');
 
-// Use SendGrid for production (Render), Gmail for development
+// Email transporter configuration
+// Priority: Brevo (production) > SendGrid (if configured) > Gmail (development only)
 const transporter = nodemailer.createTransport(
-    process.env.NODE_ENV === 'production' && process.env.SENDGRID_API_KEY
+    process.env.BREVO_SMTP_KEY
+        ? {
+            host: 'smtp-relay.brevo.com',
+            port: 587,
+            auth: {
+                user: process.env.BREVO_SMTP_USER || process.env.SMTP_EMAIL,
+                pass: process.env.BREVO_SMTP_KEY
+            }
+        }
+        : process.env.NODE_ENV === 'production' && process.env.SENDGRID_API_KEY
         ? {
             host: 'smtp.sendgrid.net',
             port: 587,
